@@ -1,0 +1,2028 @@
+---
+import Layout from "../../layouts/MainLayout.astro";
+import ProjectForm from "../../components/admin/ProjectForm.astro";
+import ToastContainer from "../../components/ui/ToastContainer";
+import PopupBox from "../../components/ui/PopupBox";
+
+import PlayCircleIcon from "@mui/icons-material/PlayCircle";
+import ImageIcon from "@mui/icons-material/Image";
+import AddCircleIcon from "@mui/icons-material/AddCircle";
+import CancelIcon from "@mui/icons-material/Cancel";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
+---
+
+<Layout title="Admin Dashboard - Călărași Warriors">
+    <div class="min-h-screen bg-neutral-200 dark:bg-neutral-800">
+        <!-- Header -->
+        <header class="mt-4">
+            <div class="mx-auto max-w-7xl py-4 sm:px-6 lg:px-8">
+                <div
+                    class="flex flex-col items-center justify-center gap-4 py-6 sm:flex-row sm:justify-between"
+                >
+                    <div class="flex items-center">
+                        <h1
+                            class="text-3xl font-bold text-black dark:text-white"
+                        >
+                            Dashboard
+                        </h1>
+                    </div>
+                    <div
+                        class="flex flex-col items-center space-y-2 sm:flex-row sm:items-center sm:space-y-0 sm:space-x-4"
+                    >
+                        <span
+                            id="adminName"
+                            class="text-lg text-black dark:text-white"></span>
+                        <!-- <button
+                            id="logoutButton"
+                            class="rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700"
+                        >
+                            Deconectare
+                        </button> -->
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="mx-auto max-w-7xl py-6 sm:px-6 lg:px-8">
+            <!-- Action Buttons -->
+            <div class="mb-8">
+                <div
+                    class="rounded-lg bg-yellow-50/60 p-6 shadow dark:bg-neutral-700/80"
+                >
+                    <h2
+                        class="mb-4 text-center text-lg font-medium text-black sm:text-left dark:text-white"
+                    >
+                        Acțiuni pentru <span id="currentSection">Proiecte</span>
+                    </h2>
+                    <div class="flex justify-center space-x-4 sm:justify-start">
+                        <button
+                            id="addButton"
+                            class="fade-in-element group relative overflow-hidden rounded-xl bg-gradient-to-br from-green-50 to-green-300 p-4 shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl dark:from-green-700/30 dark:to-green-900/30"
+                        >
+                            <AddCircleIcon sx={{ color: "#33a133" }} />
+                        </button>
+                        <button
+                            id="editButton"
+                            class="fade-in-element group relative overflow-hidden rounded-xl bg-gradient-to-br from-blue-50 to-indigo-300 p-4 shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl dark:from-blue-900/30 dark:to-indigo-900/30"
+                        >
+                            <EditIcon sx={{ color: "#3333a1" }} />
+                        </button>
+                        <button
+                            id="deleteButton"
+                            class="fade-in-element group relative overflow-hidden rounded-xl bg-gradient-to-br from-pink-50 to-red-100 p-4 shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl dark:from-pink-900/30 dark:to-red-900/30"
+                        >
+                            <DeleteIcon sx={{ color: "#f02e1d" }} />
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Search Section (for Edit/Delete) -->
+            <div id="searchSection" class="mb-8 hidden">
+                <div
+                    class="rounded-lg bg-yellow-50/60 p-6 shadow dark:bg-neutral-700/80"
+                >
+                    <h3
+                        class="mb-4 text-lg font-medium text-black dark:text-white"
+                    >
+                        Caută <span id="searchSectionType">proiect</span> pentru
+                        <span id="searchAction">editare</span>
+                    </h3>
+                    <div class="relative">
+                        <input
+                            type="text"
+                            id="searchInput"
+                            placeholder="Caută după titlu..."
+                            class="w-full rounded-md border-gray-300 bg-yellow-50/60 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-neutral-700/80 dark:text-white dark:placeholder:text-neutral-400 dark:focus:ring-1"
+                        />
+                        <div id="searchResults" class="mt-4 hidden">
+                            <div class="space-y-2" id="searchResultsList"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Projects Form -->
+            <ProjectForm />
+
+            <!-- Success/Error Messages -->
+            <div id="messageContainer" class="mt-6"></div>
+        </main>
+    </div>
+
+    <!-- Toast Container -->
+    <ToastContainer client:load />
+
+    <!-- Popup Container -->
+    <div id="popup-container"></div>
+
+    <script>
+        // Global state management
+        let currentMode = "none"; // 'none', 'add', 'edit', 'delete'
+        let currentSection = "projects"; // 'projects', 'news'
+        let selectedPost: any = null;
+
+        // Check authentication
+        const token = localStorage.getItem("adminToken");
+        const adminInfo = localStorage.getItem("adminInfo");
+
+        console.log("Token from localStorage:", token ? "Present" : "Missing");
+        console.log(
+            "Admin info from localStorage:",
+            adminInfo ? "Present" : "Missing",
+        );
+        console.log(
+            "Token value:",
+            token ? token.substring(0, 20) + "..." : "No token",
+        );
+
+        if (!token || !adminInfo) {
+            console.log("No token or admin info, redirecting to login");
+            window.location.href = "/admin/login";
+        } else {
+            const admin = JSON.parse(adminInfo);
+            const adminNameElement = document.getElementById("adminName");
+            if (adminNameElement) {
+                adminNameElement.textContent = `Buna, ${admin.fullName}`;
+            }
+        }
+
+        // Logout functionality
+        const logoutButton = document.getElementById("logoutButton");
+        if (logoutButton) {
+            logoutButton.addEventListener("click", () => {
+                localStorage.removeItem("adminToken");
+                localStorage.removeItem("adminInfo");
+                window.location.href = "/admin/login";
+            });
+        }
+
+        // State management functions
+        function updateUI() {
+            const currentSectionElement =
+                document.getElementById("currentSection");
+            const searchSectionType =
+                document.getElementById("searchSectionType");
+            const searchAction = document.getElementById("searchAction");
+            const searchSection = document.getElementById("searchSection");
+            const projectsForm = document.getElementById("projectsForm");
+            const newsForm = document.getElementById("newsForm");
+            const projectSubmitText =
+                document.getElementById("projectSubmitText");
+            const newsSubmitText = document.getElementById("newsSubmitText");
+
+            // Update section name
+            if (currentSectionElement) {
+                currentSectionElement.textContent =
+                    currentSection === "projects" ? "Proiecte" : "Știri";
+            }
+
+            // Update search section
+            if (searchSectionType) {
+                searchSectionType.textContent =
+                    currentSection === "projects" ? "proiect" : "știre";
+            }
+
+            if (searchAction) {
+                searchAction.textContent =
+                    currentMode === "edit" ? "editare" : "ștergere";
+            }
+
+            // Show/hide search section
+            if (searchSection) {
+                if (currentMode === "edit" || currentMode === "delete") {
+                    searchSection.classList.remove("hidden");
+                } else {
+                    searchSection.classList.add("hidden");
+                }
+            }
+
+            // Show/hide forms
+            if (currentMode === "add") {
+                if (currentSection === "projects") {
+                    projectsForm?.classList.remove("hidden");
+                    newsForm?.classList.add("hidden");
+                } else {
+                    newsForm?.classList.remove("hidden");
+                    projectsForm?.classList.add("hidden");
+                }
+            } else if (currentMode === "edit") {
+                // În modul edit, afișează formularul doar dacă există un post selectat
+                if (selectedPost) {
+                    if (currentSection === "projects") {
+                        projectsForm?.classList.remove("hidden");
+                        newsForm?.classList.add("hidden");
+                    } else {
+                        newsForm?.classList.remove("hidden");
+                        projectsForm?.classList.add("hidden");
+                    }
+                } else {
+                    // Dacă nu există post selectat, ascunde formularul
+                    projectsForm?.classList.add("hidden");
+                    newsForm?.classList.add("hidden");
+                }
+            } else {
+                projectsForm?.classList.add("hidden");
+                newsForm?.classList.add("hidden");
+            }
+
+            // Update submit button text
+            if (projectSubmitText) {
+                projectSubmitText.textContent =
+                    currentMode === "edit"
+                        ? "Actualizează proiect"
+                        : "Adaugă proiect";
+            }
+            if (newsSubmitText) {
+                newsSubmitText.textContent =
+                    currentMode === "edit"
+                        ? "Actualizează știre"
+                        : "Adaugă știre";
+            }
+        }
+
+        // Toggle between forms
+        const projectsToggle = document.getElementById("projectsToggle");
+        const newsToggle = document.getElementById("newsToggle");
+
+        if (projectsToggle && newsToggle) {
+            projectsToggle.addEventListener("click", () => {
+                currentSection = "projects";
+                currentMode = "none"; // Nu afișa formularul inițial
+                selectedPost = null; // Resetează postul selectat
+                projectsToggle.className =
+                    "px-6 py-3 rounded-md font-medium transition-colors bg-indigo-600 text-white dark:bg-yellow-400 dark:text-neutral-800 dark:hover:bg-yellow-400";
+                newsToggle.className =
+                    "px-6 py-3 rounded-md font-medium transition-colors bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-neutral-700/80 dark:text-white dark:hover:bg-neutral-700/80";
+                updateUI();
+                resetForm();
+            });
+
+            newsToggle.addEventListener("click", () => {
+                currentSection = "news";
+                currentMode = "none"; // Nu afișa formularul inițial
+                selectedPost = null; // Resetează postul selectat
+                newsToggle.className =
+                    "px-6 py-3 rounded-md font-medium transition-colors bg-indigo-600 text-white dark:bg-yellow-400 dark:text-neutral-800 dark:hover:bg-yellow-400";
+                projectsToggle.className =
+                    "px-6 py-3 rounded-md font-medium transition-colors bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-neutral-700/80 dark:text-white dark:hover:bg-neutral-700/80";
+                updateUI();
+                resetForm();
+            });
+        }
+
+        // Action buttons
+        const addButton = document.getElementById("addButton");
+        const editButton = document.getElementById("editButton");
+        const deleteButton = document.getElementById("deleteButton");
+
+        if (addButton) {
+            addButton.addEventListener("click", () => {
+                currentMode = "add";
+                selectedPost = null; // Resetează postul selectat
+                updateUI();
+                resetForm();
+            });
+        }
+
+        if (editButton) {
+            editButton.addEventListener("click", () => {
+                currentMode = "edit";
+                selectedPost = null; // Resetează postul selectat
+                updateUI();
+                clearSearchResults();
+            });
+        }
+
+        if (deleteButton) {
+            deleteButton.addEventListener("click", () => {
+                currentMode = "delete";
+                selectedPost = null; // Resetează postul selectat
+                updateUI();
+                clearSearchResults();
+            });
+        }
+
+        // Search functionality
+        const searchInput = document.getElementById("searchInput");
+        if (searchInput) {
+            searchInput.addEventListener("input", async (e) => {
+                const query = (e.target as HTMLInputElement).value.trim();
+                if (query.length < 2) {
+                    clearSearchResults();
+                    return;
+                }
+
+                await searchPosts(query);
+            });
+        }
+
+        async function searchPosts(query: string) {
+            try {
+                const endpoint =
+                    currentSection === "projects"
+                        ? "/api/admin/projects/search"
+                        : "/api/admin/news/search";
+                const response = await fetch(
+                    `${endpoint}?q=${encodeURIComponent(query)}`,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                    },
+                );
+
+                const results = await response.json();
+                displaySearchResults(results);
+            } catch (error) {
+                console.error("Search error:", error);
+                showMessage("Eroare la căutare", "error");
+            }
+        }
+
+        function displaySearchResults(results: any[]) {
+            const searchResults = document.getElementById("searchResults");
+            const searchResultsList =
+                document.getElementById("searchResultsList");
+
+            if (!searchResults || !searchResultsList) return;
+
+            if (results.length === 0) {
+                searchResultsList.innerHTML =
+                    '<p class="text-black dark:text-white">Nu s-au găsit rezultate</p>';
+                searchResults.classList.remove("hidden");
+                return;
+            }
+
+            searchResultsList.innerHTML = results
+                .map(
+                    (post) => `
+        <div class="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50 cursor-pointer dark:hover:bg-neutral-800/80" 
+             onclick="${currentMode === "delete" ? `deletePost(${post.id})` : `selectPost(${post.id})`}">
+          <div>
+            <h4 class="font-medium text-black dark:text-white">${post.title}</h4>
+            <p class="text-sm text-black dark:text-white">${new Date(post.createdAt).toLocaleDateString("ro-RO")}</p>
+          </div>
+          ${
+              currentMode === "delete"
+                  ? `
+            <div class="flex items-center gap-2">
+             
+              <svg class="w-5 h-5 text-red-600 dark:text-red" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+              </svg>
+            </div>
+          `
+                  : currentMode === "edit"
+                    ? `
+            <div class="flex items-center gap-2">
+           
+              <svg class="w-5 h-5 text-black dark:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+              </svg>
+            </div>
+          `
+                    : ""
+          }
+        </div>
+      `,
+                )
+                .join("");
+
+            searchResults.classList.remove("hidden");
+        }
+
+        function clearSearchResults() {
+            const searchResults = document.getElementById("searchResults");
+
+            if (searchResults) searchResults.classList.add("hidden");
+        }
+
+        function selectPost(postId: number) {
+            console.log("selectPost called with ID:", postId);
+            console.log("Current mode:", currentMode);
+            console.log("Current section:", currentSection);
+
+            // Validate postId before proceeding
+            if (!postId || isNaN(postId) || postId <= 0) {
+                console.log("Invalid post ID:", postId);
+                showMessage("ID-ul postării este invalid", "error");
+                return;
+            }
+
+            if (currentMode === "edit") {
+                console.log("Loading post for edit...");
+                loadPostForEdit(postId);
+            }
+        }
+
+        async function loadPostForEdit(postId: number) {
+            try {
+                console.log("Loading post for edit, ID:", postId);
+                console.log("Using token:", token ? "Present" : "Missing");
+
+                const endpoint =
+                    currentSection === "projects"
+                        ? "/api/admin/projects"
+                        : "/api/admin/news";
+                const fullUrl = `${endpoint}/${postId}`;
+                console.log("Full URL:", fullUrl);
+                console.log(
+                    "Authorization header:",
+                    `Bearer ${token ? token.substring(0, 20) + "..." : "No token"}`,
+                );
+
+                const response = await fetch(fullUrl, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+
+                console.log("Response status:", response.status);
+                console.log("Response ok:", response.ok);
+
+                if (!response.ok) {
+                    if (response.status === 404) {
+                        showMessage(
+                            "Postarea nu a fost găsită în baza de date",
+                            "error",
+                        );
+                        return;
+                    }
+                    if (response.status === 401) {
+                        showMessage(
+                            "Token-ul de autentificare a expirat. Te rugăm să te autentifici din nou.",
+                            "error",
+                        );
+                        window.location.href = "/admin/login";
+                        return;
+                    }
+                    throw new Error(`HTTP ${response.status}`);
+                }
+
+                clearSearchResults();
+
+                const post = await response.json();
+                fillFormWithPost(post);
+                selectedPost = post;
+
+                // Afișează formularul completat
+                updateUI();
+            } catch (error) {
+                console.error("Load post error:", error);
+                showMessage(
+                    "Eroare la încărcarea postării. Verifică dacă postarea există.",
+                    "error",
+                );
+            }
+        }
+
+        function fillFormWithPost(post: any) {
+            if (currentSection === "projects") {
+                // Fill project form
+                const projectId = document.getElementById(
+                    "projectId",
+                ) as HTMLInputElement;
+                const projectTitle = document.getElementById(
+                    "projectTitle",
+                ) as HTMLInputElement;
+                const projectContent = document.getElementById(
+                    "projectContent",
+                ) as HTMLTextAreaElement;
+                const projectKeywords = document.getElementById(
+                    "projectKeywords",
+                ) as HTMLInputElement;
+                const projectPostType = document.getElementById(
+                    "projectPostType",
+                ) as HTMLSelectElement;
+                const projectEventType = document.getElementById(
+                    "projectEventType",
+                ) as HTMLSelectElement;
+                const projectIsActive = document.getElementById(
+                    "projectIsActive",
+                ) as HTMLInputElement;
+                const projectShowGallery = document.getElementById(
+                    "projectShowGallery",
+                ) as HTMLInputElement;
+
+                if (projectId) projectId.value = post.id;
+                if (projectTitle) projectTitle.value = post.title || "";
+                if (projectContent) projectContent.value = post.content || "";
+                if (projectKeywords)
+                    projectKeywords.value = Array.isArray(post.keywords)
+                        ? post.keywords.join(", ")
+                        : "";
+                if (projectPostType)
+                    projectPostType.value = post.postType || "";
+                if (projectEventType)
+                    projectEventType.value = post.eventType || "single-day";
+                if (projectIsActive)
+                    projectIsActive.checked = post.isActive || false;
+                if (projectShowGallery)
+                    projectShowGallery.checked = post.showGallery || false;
+
+                // Handle dates
+                if (post.eventType === "single-day" && post.createdAt) {
+                    const projectDate = document.getElementById(
+                        "projectDate",
+                    ) as HTMLInputElement;
+                    if (projectDate) {
+                        const date = new Date(post.createdAt);
+                        projectDate.value = date.toISOString().slice(0, 10);
+                    }
+                } else if (post.eventType === "multi-day") {
+                    const projectStartDate = document.getElementById(
+                        "projectStartDate",
+                    ) as HTMLInputElement;
+                    const projectEndDate = document.getElementById(
+                        "projectEndDate",
+                    ) as HTMLInputElement;
+                    if (projectStartDate && post.startDate) {
+                        const startDate = new Date(post.startDate);
+                        projectStartDate.value = startDate
+                            .toISOString()
+                            .slice(0, 10);
+                    }
+                    if (projectEndDate && post.endDate) {
+                        const endDate = new Date(post.endDate);
+                        projectEndDate.value = endDate
+                            .toISOString()
+                            .slice(0, 10);
+                    }
+                }
+
+                // Trigger event type change to show correct date fields
+                projectEventType?.dispatchEvent(new Event("change"));
+
+                // Handle media
+                if (post.youtubeVideos && post.youtubeVideos.length > 0) {
+                    showVideoFields();
+                    // Fill video fields
+                    const videoContainer = document.getElementById(
+                        "youtubeVideosContainer",
+                    );
+                    if (videoContainer) {
+                        videoContainer.innerHTML = "";
+                        post.youtubeVideos.forEach(
+                            (video: string, index: number) => {
+                                const videoField =
+                                    document.createElement("div");
+                                videoField.className =
+                                    "flex items-center gap-2";
+                                videoField.innerHTML = `
+                <input
+                  type="url"
+                  name="youtubeVideos[]"
+                  value="${video}"
+                  placeholder="https://www.youtube.com/watch?v=..."
+                  class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                />
+                <button
+                  type="button"
+                  class="remove-field rounded-md bg-red-500 px-3 py-2 text-white hover:bg-red-600"
+                  onclick="this.parentElement.remove()"
+                >
+                  ✕
+                </button>
+              `;
+                                videoContainer.appendChild(videoField);
+                            },
+                        );
+                        // Add a button to add new video field
+                        const addButton = document.createElement("div");
+                        addButton.className = "flex items-center gap-2";
+                        addButton.innerHTML = `
+              <button
+                type="button"
+                id="addVideoFieldBtn"
+                class="rounded-md bg-blue-500 px-3 py-2 text-white hover:bg-blue-600"
+              >
+                <AddCircleIcon sx={{ color: "blue" }} />
+              </button>
+            `;
+                        videoContainer.appendChild(addButton);
+                    }
+                } else if (
+                    post.cloudinaryIds &&
+                    post.cloudinaryIds.length > 0
+                ) {
+                    showImageFields();
+                    // Fill image fields
+                    const imageContainer = document.getElementById(
+                        "cloudinaryImagesContainer",
+                    );
+                    if (imageContainer) {
+                        imageContainer.innerHTML = "";
+                        post.cloudinaryIds.forEach(
+                            (id: string, index: number) => {
+                                const imageField =
+                                    document.createElement("div");
+                                imageField.className =
+                                    "flex items-center gap-2";
+                                imageField.innerHTML = `
+                <input
+                  type="text"
+                  name="cloudinaryIds[]"
+                  value="${id}"
+                  placeholder="cloudinary_public_id"
+                  class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                />
+                <button
+                  type="button"
+                  class="remove-field rounded-md bg-red-500 px-3 py-2 text-white hover:bg-red-600"
+                  onclick="this.parentElement.remove()"
+                >
+                  ✕
+                </button>
+              `;
+                                imageContainer.appendChild(imageField);
+                            },
+                        );
+                        // Add a button to add new image field
+                        const addButton = document.createElement("div");
+                        addButton.className = "flex items-center gap-2";
+                        addButton.innerHTML = `
+              <button
+                type="button"
+                id="addImageFieldBtn"
+                class="rounded-md bg-green-500 px-3 py-2 text-white hover:bg-green-600"
+              >
+                <AddCircleIcon sx={{ color: "green" }} />
+              </button>
+            `;
+                        imageContainer.appendChild(addButton);
+                    }
+                }
+
+                // Handle gallery
+                if (
+                    post.showGallery &&
+                    post.galleryIds &&
+                    post.galleryIds.length > 0
+                ) {
+                    const galleryCheckbox = document.getElementById(
+                        "projectShowGallery",
+                    ) as HTMLInputElement;
+                    if (galleryCheckbox) {
+                        galleryCheckbox.checked = true;
+                        toggleGalleryContainer();
+
+                        const galleryContainer =
+                            document.getElementById("galleryContainer");
+                        if (galleryContainer) {
+                            galleryContainer.innerHTML = "";
+                            post.galleryIds.forEach(
+                                (id: string, index: number) => {
+                                    const galleryField =
+                                        document.createElement("div");
+                                    galleryField.className =
+                                        "flex items-center gap-2";
+                                    galleryField.innerHTML = `
+                  <input
+                    type="text"
+                    name="galleryIds[]"
+                    value="${id}"
+                    placeholder="gallery_image_id"
+                    class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                  />
+                  <button
+                    type="button"
+                    class="remove-field rounded-md bg-red-500 px-3 py-2 text-white hover:bg-red-600"
+                    onclick="this.parentElement.remove()"
+                  >
+                    ✕
+                  </button>
+                `;
+                                    galleryContainer.appendChild(galleryField);
+                                },
+                            );
+                            // Add a button to add new gallery field
+                            const addButton = document.createElement("div");
+                            addButton.className = "flex items-center gap-2";
+                            addButton.innerHTML = `
+                <button
+                  type="button"
+                  id="addGalleryFieldBtn"
+                  class="rounded-md bg-purple-500 px-3 py-2 text-white hover:bg-purple-600"
+                >
+                  <span class="text-white font-bold text-lg">+</span>
+                </button>
+              `;
+                            galleryContainer.appendChild(addButton);
+                        }
+                    }
+                }
+            } else {
+                // Fill news form
+                const newsId = document.getElementById(
+                    "newsId",
+                ) as HTMLInputElement;
+                const newsTitle = document.getElementById(
+                    "newsTitle",
+                ) as HTMLInputElement;
+                const newsContent = document.getElementById(
+                    "newsContent",
+                ) as HTMLTextAreaElement;
+                const newsKeywords = document.getElementById(
+                    "newsKeywords",
+                ) as HTMLInputElement;
+                const newsPostType = document.getElementById(
+                    "newsPostType",
+                ) as HTMLSelectElement;
+                const newsDate = document.getElementById(
+                    "newsDate",
+                ) as HTMLInputElement;
+                const newsShowGallery = document.getElementById(
+                    "newsShowGallery",
+                ) as HTMLInputElement;
+                const newsShowUrl = document.getElementById(
+                    "newsShowUrl",
+                ) as HTMLInputElement;
+                const newsUrl = document.querySelector(
+                    "#newsUrlContainer input[name='url']",
+                ) as HTMLInputElement;
+
+                if (newsId) newsId.value = post.id;
+                if (newsTitle) newsTitle.value = post.title || "";
+                if (newsContent) newsContent.value = post.content || "";
+                if (newsKeywords)
+                    newsKeywords.value = Array.isArray(post.keywords)
+                        ? post.keywords.join(", ")
+                        : "";
+                if (newsPostType) newsPostType.value = post.postType || "";
+                if (newsDate && post.createdAt) {
+                    const date = new Date(post.createdAt);
+                    newsDate.value = date.toISOString().slice(0, 10);
+                }
+                if (newsShowGallery)
+                    newsShowGallery.checked = post.showGallery || false;
+
+                console.log("News form elements found:", {
+                    newsId: !!newsId,
+                    newsTitle: !!newsTitle,
+                    newsContent: !!newsContent,
+                    newsKeywords: !!newsKeywords,
+                    newsPostType: !!newsPostType,
+                    newsDate: !!newsDate,
+                    newsShowGallery: !!newsShowGallery,
+                }); // Debug log
+
+                console.log("Post data received:", {
+                    id: post.id,
+                    title: post.title,
+                    url: post.url,
+                    showGallery: post.showGallery,
+                    galleryIds: post.galleryIds,
+                }); // Debug post data
+
+                if (post.url) {
+                    console.log("Post has URL:", post.url);
+                    console.log("newsShowUrl element:", newsShowUrl);
+                    console.log("newsUrl element:", newsUrl);
+
+                    // Try to find the checkbox again if not found initially
+                    if (!newsShowUrl) {
+                        console.log("newsShowUrl not found, trying again...");
+                        const retryNewsShowUrl = document.getElementById(
+                            "newsShowUrl",
+                        ) as HTMLInputElement;
+                        console.log("Retry newsShowUrl:", retryNewsShowUrl);
+                        if (retryNewsShowUrl) {
+                            retryNewsShowUrl.checked = true;
+                            console.log(
+                                "URL checkbox checked on retry:",
+                                retryNewsShowUrl.checked,
+                            );
+                        }
+                    } else {
+                        newsShowUrl.checked = true;
+                        console.log(
+                            "URL checkbox checked:",
+                            newsShowUrl.checked,
+                        );
+                    }
+
+                    // Try to find the URL input again if not found initially
+                    if (!newsUrl) {
+                        console.log("newsUrl not found, trying again...");
+                        const retryNewsUrl = document.querySelector(
+                            "#newsUrlContainer input[name='url']",
+                        ) as HTMLInputElement;
+                        console.log("Retry newsUrl:", retryNewsUrl);
+                        if (retryNewsUrl) {
+                            retryNewsUrl.value = post.url;
+                            console.log(
+                                "URL field populated on retry:",
+                                retryNewsUrl.value,
+                            );
+                        }
+                    } else {
+                        newsUrl.value = post.url;
+                        console.log("URL field populated:", newsUrl.value);
+                    }
+
+                    toggleUrlContainer();
+                    console.log("toggleUrlContainer called");
+                } else {
+                    console.log("Post has no URL");
+                }
+
+                // Handle YouTube videos for news
+                if (post.youtubeVideos && post.youtubeVideos.length > 0) {
+                    showVideoFields();
+                    // Fill video fields for news
+                    const videoContainer = document.getElementById(
+                        "newsYoutubeVideosContainer",
+                    );
+                    if (videoContainer) {
+                        videoContainer.innerHTML = "";
+                        post.youtubeVideos.forEach(
+                            (url: string, index: number) => {
+                                const videoField =
+                                    document.createElement("div");
+                                videoField.className =
+                                    "flex items-center gap-2";
+                                videoField.innerHTML = `
+                <input
+                  type="text"
+                  name="youtubeVideos[]"
+                  value="${url}"
+                  placeholder="YouTube URL"
+                  class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                />
+                <button
+                  type="button"
+                  class="remove-field rounded-md bg-red-500 px-3 py-2 text-white hover:bg-red-600"
+                  onclick="this.parentElement.remove()"
+                >
+                  ✕
+                </button>
+              `;
+                                videoContainer.appendChild(videoField);
+                            },
+                        );
+                        // Add a button to add new video field
+                        const addButton = document.createElement("div");
+                        addButton.className = "flex items-center gap-2";
+                        addButton.innerHTML = `
+              <button
+                type="button"
+                id="newsAddVideoFieldBtn"
+                class="rounded-md bg-green-500 px-3 py-2 text-white hover:bg-green-600"
+              >
+                <AddCircleIcon sx={{ color: "green" }} />
+              </button>
+            `;
+                        videoContainer.appendChild(addButton);
+                    }
+                } else if (
+                    post.cloudinaryIds &&
+                    post.cloudinaryIds.length > 0
+                ) {
+                    showImageFields();
+                    // Fill image fields for news
+                    const imageContainer = document.getElementById(
+                        "newsCloudinaryImagesContainer",
+                    );
+                    if (imageContainer) {
+                        imageContainer.innerHTML = "";
+                        post.cloudinaryIds.forEach(
+                            (id: string, index: number) => {
+                                const imageField =
+                                    document.createElement("div");
+                                imageField.className =
+                                    "flex items-center gap-2";
+                                imageField.innerHTML = `
+                <input
+                  type="text"
+                  name="cloudinaryImages[]"
+                  value="${id}"
+                  placeholder="cloudinary_public_id"
+                  class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                />
+                <button
+                  type="button"
+                  class="remove-field rounded-md bg-red-500 px-3 py-2 text-white hover:bg-red-600"
+                  onclick="this.parentElement.remove()"
+                >
+                  ✕
+                </button>
+              `;
+                                imageContainer.appendChild(imageField);
+                            },
+                        );
+                        // Add a button to add new image field
+                        const addButton = document.createElement("div");
+                        addButton.className = "flex items-center gap-2";
+                        addButton.innerHTML = `
+              <button
+                type="button"
+                id="newsAddImageFieldBtn"
+                class="rounded-md bg-green-500 px-3 py-2 text-white hover:bg-green-600"
+              >
+                <AddCircleIcon sx={{ color: "green" }} />
+              </button>
+            `;
+                        imageContainer.appendChild(addButton);
+                    }
+                }
+
+                // Handle gallery for news
+                if (
+                    post.showGallery &&
+                    post.galleryIds &&
+                    post.galleryIds.length > 0
+                ) {
+                    const galleryCheckbox = document.getElementById(
+                        "newsShowGallery",
+                    ) as HTMLInputElement;
+
+                    if (galleryCheckbox) {
+                        galleryCheckbox.checked = true;
+                        toggleGalleryContainer();
+
+                        // Fill gallery fields for news
+                        const galleryContainer = document.getElementById(
+                            "newsGalleryContainer",
+                        );
+                        if (galleryContainer) {
+                            galleryContainer.innerHTML = "";
+                            post.galleryIds.forEach(
+                                (id: string, index: number) => {
+                                    const galleryField =
+                                        document.createElement("div");
+                                    galleryField.className =
+                                        "flex items-center gap-2";
+                                    galleryField.innerHTML = `
+                  <input
+                    type="text"
+                    name="galleryIds[]"
+                    value="${id}"
+                    placeholder="gallery_image_id"
+                    class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                  />
+                  <button
+                    type="button"
+                    class="remove-field rounded-md bg-red-500 px-3 py-2 text-white hover:bg-red-600"
+                    onclick="this.parentElement.remove()"
+                  >
+                    ✕
+                  </button>
+                `;
+                                    galleryContainer.appendChild(galleryField);
+                                },
+                            );
+                            // Add a button to add new gallery field
+                            const addButton = document.createElement("div");
+                            addButton.className = "flex items-center gap-2";
+                            addButton.innerHTML = `
+                <button
+                  type="button"
+                  id="newsAddGalleryFieldBtn"
+                  class="rounded-md bg-green-500 px-3 py-2 text-white hover:bg-green-600"
+                >
+                  <span class="text-white font-bold text-lg">+</span>
+                </button>
+              `;
+                            galleryContainer.appendChild(addButton);
+                        }
+                    }
+                }
+            }
+        }
+
+        function resetForm() {
+            if (currentSection === "projects") {
+                const projectForm = document.getElementById(
+                    "projectForm",
+                ) as HTMLFormElement;
+                if (projectForm) projectForm.reset();
+                const projectId = document.getElementById(
+                    "projectId",
+                ) as HTMLInputElement;
+                if (projectId) projectId.value = "";
+            } else {
+                const newsForm = document.getElementById(
+                    "newsFormElement",
+                ) as HTMLFormElement;
+                if (newsForm) newsForm.reset();
+                const newsId = document.getElementById(
+                    "newsId",
+                ) as HTMLInputElement;
+                if (newsId) newsId.value = "";
+            }
+            selectedPost = null;
+            clearSearchResults();
+        }
+
+        async function deletePost(postId: number) {
+            // Validate postId before proceeding
+            if (!postId || isNaN(postId) || postId <= 0) {
+                showMessage("ID-ul postării este invalid", "error");
+                return;
+            }
+
+            // Show popup confirmation instead of browser confirm
+            if (
+                typeof window !== "undefined" &&
+                (window as any).showConfirmPopup
+            ) {
+                (window as any).showConfirmPopup(
+                    "Șterge postarea",
+                    "Sigur doriți să ștergeți această postare? Această acțiune nu poate fi anulată.",
+                    () => performDelete(postId),
+                    {
+                        confirmText: "Șterge",
+                        cancelText: "Anulează",
+                        type: "danger",
+                    },
+                );
+            } else {
+                // Fallback to browser confirm
+                if (!confirm("Sigur doriți să ștergeți această postare?"))
+                    return;
+                await performDelete(postId);
+            }
+        }
+
+        async function performDelete(postId: number) {
+            try {
+                const endpoint =
+                    currentSection === "projects"
+                        ? "/api/admin/projects"
+                        : "/api/admin/news";
+                const response = await fetch(`${endpoint}/${postId}`, {
+                    method: "DELETE",
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+
+                if (!response.ok) {
+                    if (response.status === 404) {
+                        showMessage(
+                            "Postarea nu a fost găsită în baza de date",
+                            "error",
+                        );
+                        return;
+                    }
+                    throw new Error(`HTTP ${response.status}`);
+                }
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showMessage(
+                        "Postarea a fost ștearsă cu succes!",
+                        "success",
+                    );
+                    clearSearchResults();
+                } else {
+                    showMessage(
+                        result.error || "Eroare la ștergerea postării",
+                        "error",
+                    );
+                }
+            } catch (error) {
+                console.error("Delete error:", error);
+                showMessage(
+                    "Eroare la ștergerea postării. Verifică dacă postarea există.",
+                    "error",
+                );
+            }
+        }
+
+        // Dynamic date fields functionality
+        const projectEventType = document.getElementById("projectEventType");
+        const singleDateField = document.getElementById("singleDateField");
+        const multiDateFields = document.getElementById("multiDateFields");
+        const projectDate = document.getElementById("projectDate");
+        const projectStartDate = document.getElementById("projectStartDate");
+        const projectEndDate = document.getElementById("projectEndDate");
+
+        if (projectEventType && singleDateField && multiDateFields) {
+            projectEventType.addEventListener("change", function () {
+                const selectedValue = (this as HTMLSelectElement).value;
+
+                if (selectedValue === "single-day") {
+                    singleDateField.classList.remove("hidden");
+                    multiDateFields.classList.add("hidden");
+                    if (projectDate)
+                        (projectDate as HTMLInputElement).required = true;
+                    if (projectStartDate)
+                        (projectStartDate as HTMLInputElement).required = false;
+                    if (projectEndDate)
+                        (projectEndDate as HTMLInputElement).required = false;
+                } else if (selectedValue === "multi-day") {
+                    singleDateField.classList.add("hidden");
+                    multiDateFields.classList.remove("hidden");
+                    if (projectDate)
+                        (projectDate as HTMLInputElement).required = false;
+                    if (projectStartDate)
+                        (projectStartDate as HTMLInputElement).required = true;
+                    if (projectEndDate)
+                        (projectEndDate as HTMLInputElement).required = true;
+                }
+            });
+
+            // Initialize on page load
+            projectEventType.dispatchEvent(new Event("change"));
+        }
+
+        // Keyword highlighting functionality
+        function highlightKeywordsInContent() {
+            const keywordsInput = document.getElementById(
+                "projectKeywords",
+            ) as HTMLInputElement;
+            const contentTextarea = document.getElementById(
+                "projectContent",
+            ) as HTMLTextAreaElement;
+
+            if (!keywordsInput || !contentTextarea) return;
+
+            const keywords = keywordsInput.value
+                .split(",")
+                .map((keyword: string) => keyword.trim())
+                .filter((keyword) => keyword.length > 0);
+
+            if (keywords.length === 0) {
+                // Restore original content if no keywords
+                contentTextarea.value =
+                    contentTextarea.getAttribute("data-original-content") ||
+                    contentTextarea.value;
+                return;
+            }
+
+            // Store original content if not already stored
+            if (!contentTextarea.getAttribute("data-original-content")) {
+                contentTextarea.setAttribute(
+                    "data-original-content",
+                    contentTextarea.value,
+                );
+            }
+
+            let content =
+                contentTextarea.getAttribute("data-original-content") ||
+                contentTextarea.value;
+
+            // Create regex pattern for case-insensitive matching
+            const keywordPattern = keywords
+                .map((keyword) =>
+                    keyword.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"),
+                ) // Escape special regex characters
+                .join("|");
+
+            const regex = new RegExp(`\\b(${keywordPattern})\\b`, "gi");
+
+            // Replace keywords with highlighted versions
+            content = content.replace(regex, (match: string) => {
+                return `<span class="keyword-highlight text-indigo-600 dark:text-yellow-400 font-bold">${match}</span>`;
+            });
+
+            // Update textarea with highlighted content (for preview)
+            const previewDiv = document.getElementById("projectContentPreview");
+            if (previewDiv) {
+                const contentDiv = previewDiv.querySelector("div");
+                if (contentDiv) {
+                    contentDiv.innerHTML = content;
+                }
+                previewDiv.classList.remove("hidden");
+            }
+        }
+
+        // Add event listeners for keyword highlighting
+        const keywordsInput = document.getElementById("projectKeywords");
+        const contentTextarea = document.getElementById("projectContent");
+
+        if (keywordsInput && contentTextarea) {
+            keywordsInput.addEventListener("input", highlightKeywordsInContent);
+            contentTextarea.addEventListener("input", () => {
+                // Clear stored original content when user manually edits
+                contentTextarea.removeAttribute("data-original-content");
+            });
+        }
+
+        // News form keyword highlighting functionality
+        function highlightKeywordsInNewsContent() {
+            const newsKeywordsInput = document.getElementById(
+                "newsKeywords",
+            ) as HTMLInputElement;
+            const newsContentTextarea = document.getElementById(
+                "newsContent",
+            ) as HTMLTextAreaElement;
+
+            if (!newsKeywordsInput || !newsContentTextarea) return;
+
+            const keywords = newsKeywordsInput.value
+                .split(",")
+                .map((keyword: string) => keyword.trim())
+                .filter((keyword) => keyword.length > 0);
+
+            if (keywords.length === 0) {
+                // Hide preview if no keywords
+                const previewDiv =
+                    document.getElementById("newsContentPreview");
+                if (previewDiv) {
+                    previewDiv.classList.add("hidden");
+                }
+                return;
+            }
+
+            let content = newsContentTextarea.value;
+
+            // Create regex pattern for case-insensitive matching
+            const keywordPattern = keywords
+                .map((keyword) =>
+                    keyword.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"),
+                ) // Escape special regex characters
+                .join("|");
+
+            const regex = new RegExp(`\\b(${keywordPattern})\\b`, "gi");
+
+            // Replace keywords with highlighted versions
+            content = content.replace(regex, (match: string) => {
+                return `<span class="keyword-highlight text-indigo-600 dark:text-yellow-400 font-bold">${match}</span>`;
+            });
+
+            // Update preview div with highlighted content
+            const previewDiv = document.getElementById("newsContentPreview");
+            if (previewDiv) {
+                const contentDiv = previewDiv.querySelector("div");
+                if (contentDiv) {
+                    contentDiv.innerHTML = content;
+                }
+                previewDiv.classList.remove("hidden");
+            }
+        }
+
+        // Add event listeners for news keyword highlighting
+        const newsKeywordsInput = document.getElementById("newsKeywords");
+        const newsContentTextarea = document.getElementById("newsContent");
+
+        if (newsKeywordsInput && newsContentTextarea) {
+            newsKeywordsInput.addEventListener(
+                "input",
+                highlightKeywordsInNewsContent,
+            );
+            newsContentTextarea.addEventListener(
+                "input",
+                highlightKeywordsInNewsContent,
+            );
+        }
+
+        // Media management functionality
+        let currentMediaType = null; // 'video' or 'image'
+
+        function showVideoFields() {
+            // Detect which form is active
+            const projectsForm = document.getElementById("projectsForm");
+            const newsForm = document.getElementById("newsForm");
+
+            let videoContainer, imageContainer, imageInputName;
+
+            if (projectsForm && !projectsForm.classList.contains("hidden")) {
+                // Projects form is active
+                videoContainer = document.getElementById(
+                    "youtubeVideosContainer",
+                );
+                imageContainer = document.getElementById(
+                    "cloudinaryImagesContainer",
+                );
+                imageInputName = 'input[name="cloudinaryIds[]"]';
+            } else if (newsForm && !newsForm.classList.contains("hidden")) {
+                // News form is active
+                videoContainer = document.getElementById(
+                    "newsYoutubeVideosContainer",
+                );
+                imageContainer = document.getElementById(
+                    "newsCloudinaryImagesContainer",
+                );
+                imageInputName = 'input[name="cloudinaryImages[]"]';
+            }
+
+            if (videoContainer && imageContainer) {
+                // Hide image fields and show video fields
+                imageContainer.classList.add("hidden");
+                videoContainer.classList.remove("hidden");
+                currentMediaType = "video";
+
+                // Clear image fields
+                const imageInputs = imageContainer.querySelectorAll(
+                    "input",
+                ) as NodeListOf<HTMLInputElement>;
+                imageInputs.forEach((input) => (input.value = ""));
+
+                // Remove extra image fields (keep only the first one)
+                const imageFields = imageContainer.querySelectorAll(
+                    ".flex.items-center.gap-2",
+                );
+                for (let i = 1; i < imageFields.length; i++) {
+                    imageFields[i].remove();
+                }
+            }
+        }
+
+        function showImageFields() {
+            // Detect which form is active
+            const projectsForm = document.getElementById("projectsForm");
+            const newsForm = document.getElementById("newsForm");
+
+            let videoContainer, imageContainer, videoInputName;
+
+            if (projectsForm && !projectsForm.classList.contains("hidden")) {
+                // Projects form is active
+                videoContainer = document.getElementById(
+                    "youtubeVideosContainer",
+                );
+                imageContainer = document.getElementById(
+                    "cloudinaryImagesContainer",
+                );
+                videoInputName = 'input[name="youtubeVideos[]"]';
+            } else if (newsForm && !newsForm.classList.contains("hidden")) {
+                // News form is active
+                videoContainer = document.getElementById(
+                    "newsYoutubeVideosContainer",
+                );
+                imageContainer = document.getElementById(
+                    "newsCloudinaryImagesContainer",
+                );
+                videoInputName = 'input[name="youtubeVideos[]"]';
+            }
+
+            if (videoContainer && imageContainer) {
+                // Hide video fields and show image fields
+                videoContainer.classList.add("hidden");
+                imageContainer.classList.remove("hidden");
+                currentMediaType = "image";
+
+                // Clear video fields
+                const videoInputs = videoContainer.querySelectorAll(
+                    "input",
+                ) as NodeListOf<HTMLInputElement>;
+                videoInputs.forEach((input) => (input.value = ""));
+
+                // Remove extra video fields (keep only the first one)
+                const videoFields = videoContainer.querySelectorAll(
+                    ".flex.items-center.gap-2",
+                );
+                for (let i = 1; i < videoFields.length; i++) {
+                    videoFields[i].remove();
+                }
+            }
+        }
+
+        function addNewVideoField() {
+            // Detect which form is active
+            const projectsForm = document.getElementById("projectsForm");
+            const newsForm = document.getElementById("newsForm");
+
+            let container;
+
+            if (projectsForm && !projectsForm.classList.contains("hidden")) {
+                container = document.getElementById("youtubeVideosContainer");
+            } else if (newsForm && !newsForm.classList.contains("hidden")) {
+                container = document.getElementById(
+                    "newsYoutubeVideosContainer",
+                );
+            }
+
+            if (!container) return;
+
+            const newField = document.createElement("div");
+            newField.className = "flex items-center gap-2";
+            newField.innerHTML = `
+        <input
+          type="url"
+          name="youtubeVideos[]"
+          placeholder="https://www.youtube.com/watch?v=..."
+          class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+        />
+        <button
+          type="button"
+          class="remove-field rounded-md bg-red-500 px-3 py-2 text-white hover:bg-red-600"
+          onclick="this.parentElement.remove()"
+        >
+          ✕
+        </button>
+      `;
+
+            container.appendChild(newField);
+        }
+
+        function addNewImageField() {
+            // Detect which form is active
+            const projectsForm = document.getElementById("projectsForm");
+            const newsForm = document.getElementById("newsForm");
+
+            let container, inputName, placeholder;
+
+            if (projectsForm && !projectsForm.classList.contains("hidden")) {
+                container = document.getElementById(
+                    "cloudinaryImagesContainer",
+                );
+                inputName = "cloudinaryIds[]";
+                placeholder = "cloudinary_public_id";
+            } else if (newsForm && !newsForm.classList.contains("hidden")) {
+                container = document.getElementById(
+                    "newsCloudinaryImagesContainer",
+                );
+                inputName = "cloudinaryImages[]";
+                placeholder = "cloudinary_public_id";
+            }
+
+            if (!container) return;
+
+            const newField = document.createElement("div");
+            newField.className = "flex items-center gap-2";
+            newField.innerHTML = `
+        <input
+          type="text"
+          name="${inputName}"
+          placeholder="${placeholder}"
+          class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+        />
+        <button
+          type="button"
+          class="remove-field rounded-md bg-red-500 px-3 py-2 text-white hover:bg-red-600"
+          onclick="this.parentElement.remove()"
+        >
+          ✕
+        </button>
+      `;
+
+            container.appendChild(newField);
+        }
+
+        function addNewGalleryField() {
+            // Detect which form is active
+            const projectsForm = document.getElementById("projectsForm");
+            const newsForm = document.getElementById("newsForm");
+
+            let container;
+
+            if (projectsForm && !projectsForm.classList.contains("hidden")) {
+                container = document.getElementById("galleryContainer");
+            } else if (newsForm && !newsForm.classList.contains("hidden")) {
+                container = document.getElementById("newsGalleryContainer");
+            }
+
+            if (!container) return;
+
+            const newField = document.createElement("div");
+            newField.className = "flex items-center gap-2";
+            newField.innerHTML = `
+        <input
+          type="text"
+          name="galleryIds[]"
+          placeholder="gallery_image_id"
+          class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+        />
+        <button
+          type="button"
+          class="remove-field rounded-md bg-red-500 px-3 py-2 text-white hover:bg-red-600"
+          onclick="this.parentElement.remove()"
+        >
+          ✕
+        </button>
+      `;
+
+            container.appendChild(newField);
+        }
+
+        function toggleGalleryContainer() {
+            // Detect which form is active
+            const projectsForm = document.getElementById("projectsForm");
+            const newsForm = document.getElementById("newsForm");
+
+            let galleryCheckbox, galleryContainer, galleryInputName;
+
+            if (projectsForm && !projectsForm.classList.contains("hidden")) {
+                // Projects form is active
+                galleryCheckbox = document.getElementById(
+                    "projectShowGallery",
+                ) as HTMLInputElement;
+                galleryContainer = document.getElementById("galleryContainer");
+                galleryInputName = 'input[name="galleryIds[]"]';
+            } else if (newsForm && !newsForm.classList.contains("hidden")) {
+                // News form is active
+                galleryCheckbox = document.getElementById(
+                    "newsShowGallery",
+                ) as HTMLInputElement;
+                galleryContainer = document.getElementById(
+                    "newsGalleryContainer",
+                );
+                galleryInputName = 'input[name="galleryIds[]"]';
+            }
+
+            if (galleryCheckbox && galleryContainer) {
+                if (galleryCheckbox.checked) {
+                    galleryContainer.classList.remove("hidden");
+                } else {
+                    galleryContainer.classList.add("hidden");
+                    // Clear gallery fields when hidden
+                    const galleryInputs = galleryContainer.querySelectorAll(
+                        "input",
+                    ) as NodeListOf<HTMLInputElement>;
+                    galleryInputs.forEach((input) => (input.value = ""));
+
+                    // Remove extra gallery fields (keep only the first one)
+                    const galleryFields = galleryContainer.querySelectorAll(
+                        ".flex.items-center.gap-2",
+                    );
+                    for (let i = 1; i < galleryFields.length; i++) {
+                        galleryFields[i].remove();
+                    }
+                }
+            }
+        }
+
+        function toggleUrlContainer() {
+            console.log("toggleUrlContainer called");
+            const urlCheckbox = document.getElementById(
+                "newsShowUrl",
+            ) as HTMLInputElement;
+            const urlContainer = document.getElementById("newsUrlContainer");
+
+            console.log("urlCheckbox:", urlCheckbox);
+            console.log("urlContainer:", urlContainer);
+            console.log("checkbox checked:", urlCheckbox?.checked);
+
+            if (urlCheckbox && urlContainer) {
+                if (urlCheckbox.checked) {
+                    urlContainer.classList.remove("hidden");
+                    console.log("URL container shown");
+                } else {
+                    urlContainer.classList.add("hidden");
+                    console.log("URL container hidden");
+                    // Clear URL field when hidden
+                    const urlInput = urlContainer.querySelector(
+                        "input",
+                    ) as HTMLInputElement;
+                    if (urlInput) {
+                        urlInput.value = "";
+                    }
+                }
+            }
+        }
+
+        // Add event listeners for media buttons
+        const addVideoBtn = document.getElementById("addVideoBtn");
+        const addImageBtn = document.getElementById("addImageBtn");
+        const addVideoFieldBtn = document.getElementById("addVideoFieldBtn");
+        const addImageFieldBtn = document.getElementById("addImageFieldBtn");
+        const addGalleryFieldBtn =
+            document.getElementById("addGalleryFieldBtn");
+        const galleryCheckbox = document.getElementById("projectShowGallery");
+
+        if (addVideoBtn) {
+            addVideoBtn.addEventListener("click", showVideoFields);
+        }
+
+        if (addImageBtn) {
+            addImageBtn.addEventListener("click", showImageFields);
+        }
+
+        // Use event delegation for dynamically created buttons
+        document.addEventListener("click", function (event) {
+            // Check if clicked element is an add button
+            if (
+                event.target &&
+                (event.target as HTMLElement).closest('button[id$="FieldBtn"]')
+            ) {
+                const buttonId = (event.target as HTMLElement).closest(
+                    'button[id$="FieldBtn"]',
+                )?.id;
+                console.log("Add button clicked:", buttonId);
+
+                switch (buttonId) {
+                    case "addVideoFieldBtn":
+                        addNewVideoField();
+                        break;
+                    case "addImageFieldBtn":
+                        addNewImageField();
+                        break;
+                    case "addGalleryFieldBtn":
+                        addNewGalleryField();
+                        break;
+                    case "newsAddVideoFieldBtn":
+                        addNewVideoField();
+                        break;
+                    case "newsAddImageFieldBtn":
+                        addNewImageField();
+                        break;
+                    case "newsAddGalleryFieldBtn":
+                        addNewGalleryField();
+                        break;
+                }
+            }
+        });
+
+        if (galleryCheckbox) {
+            galleryCheckbox.addEventListener("change", toggleGalleryContainer);
+        }
+
+        // Add event listeners for news form media buttons
+        const newsAddVideoBtn = document.getElementById("newsAddVideoBtn");
+        const newsAddImageBtn = document.getElementById("newsAddImageBtn");
+        const newsAddVideoFieldBtn = document.getElementById(
+            "newsAddVideoFieldBtn",
+        );
+        const newsAddImageFieldBtn = document.getElementById(
+            "newsAddImageFieldBtn",
+        );
+        const newsAddGalleryFieldBtn = document.getElementById(
+            "newsAddGalleryFieldBtn",
+        );
+        const newsGalleryCheckbox = document.getElementById("newsShowGallery");
+
+        if (newsAddVideoBtn) {
+            newsAddVideoBtn.addEventListener("click", showVideoFields);
+        }
+
+        if (newsAddImageBtn) {
+            newsAddImageBtn.addEventListener("click", showImageFields);
+        }
+
+        // Event delegation handles all add buttons
+
+        if (newsGalleryCheckbox) {
+            newsGalleryCheckbox.addEventListener(
+                "change",
+                toggleGalleryContainer,
+            );
+        }
+
+        // Add event listener for URL checkbox
+        const newsShowUrlCheckbox = document.getElementById("newsShowUrl");
+        if (newsShowUrlCheckbox) {
+            newsShowUrlCheckbox.addEventListener("change", toggleUrlContainer);
+        }
+
+        // Helper function to show messages using toast
+        function showMessage(message: string, type: string = "success") {
+            if (typeof window !== "undefined") {
+                if (type === "success" && (window as any).showSuccessToast) {
+                    (window as any).showSuccessToast(message);
+                } else if (type === "error" && (window as any).showErrorToast) {
+                    (window as any).showErrorToast(message);
+                } else if (type === "info" && (window as any).showInfoToast) {
+                    (window as any).showInfoToast(message);
+                } else if (
+                    type === "warning" &&
+                    (window as any).showWarningToast
+                ) {
+                    (window as any).showWarningToast(message);
+                } else {
+                    // Fallback to console if toast functions are not available
+                    console.log(`${type.toUpperCase()}: ${message}`);
+                }
+            } else {
+                // Fallback to console if window is not available
+                console.log(`${type.toUpperCase()}: ${message}`);
+            }
+        }
+
+        // Project form submission
+        const projectForm = document.getElementById(
+            "projectForm",
+        ) as HTMLFormElement;
+        if (projectForm) {
+            projectForm.addEventListener("submit", async (e) => {
+                e.preventDefault();
+
+                const formData = new FormData(projectForm);
+                const tagsValue = formData.get("tags");
+                const tags =
+                    tagsValue && typeof tagsValue === "string"
+                        ? tagsValue.split(",").map((tag: string) => tag.trim())
+                        : [];
+
+                // Handle date fields based on event type
+                const eventType = formData.get("eventType");
+                let createdAt, startDate, endDate;
+
+                if (eventType === "single-day") {
+                    createdAt = formData.get("createdAt");
+                    startDate = null;
+                    endDate = null;
+                } else if (eventType === "multi-day") {
+                    createdAt = null;
+                    startDate = formData.get("startDate");
+                    endDate = formData.get("endDate");
+                }
+
+                // Get keywords and process them
+                const keywordsValue = formData.get("keywords");
+                const keywords =
+                    keywordsValue && typeof keywordsValue === "string"
+                        ? keywordsValue
+                              .split(",")
+                              .map((keyword: string) => keyword.trim())
+                              .filter((keyword: string) => keyword.length > 0)
+                        : [];
+
+                // Collect YouTube videos
+                const youtubeVideos = Array.from(
+                    formData.getAll("youtubeVideos[]"),
+                ).filter(
+                    (url) =>
+                        typeof url === "string" &&
+                        (url as string).trim() !== "",
+                );
+
+                // Collect Cloudinary IDs
+                const cloudinaryIds = Array.from(
+                    formData.getAll("cloudinaryIds[]"),
+                ).filter(
+                    (id) =>
+                        typeof id === "string" && (id as string).trim() !== "",
+                );
+
+                // Collect Gallery IDs
+                const galleryIds = Array.from(
+                    formData.getAll("galleryIds[]"),
+                ).filter(
+                    (id) =>
+                        typeof id === "string" && (id as string).trim() !== "",
+                );
+
+                const projectData: any = {
+                    title: formData.get("title"),
+                    content: formData.get("content"),
+                    author: formData.get("author"),
+                    createdAt: createdAt,
+                    startDate: startDate,
+                    endDate: endDate,
+                    projectType: formData.get("projectType"),
+                    postType: formData.get("postType"),
+                    eventType: eventType,
+                    tags: tags,
+                    keywords: keywords,
+                    youtubeVideos: youtubeVideos,
+                    cloudinaryIds: cloudinaryIds,
+                    galleryIds: galleryIds,
+                    showGallery: formData.get("showGallery") === "on",
+                    isActive: formData.get("isActive") === "on",
+                };
+
+                // Add ID for edit mode
+                if (currentMode === "edit") {
+                    projectData.id = formData.get("id");
+                }
+
+                try {
+                    const endpoint = "/api/admin/projects";
+                    const method = currentMode === "edit" ? "PUT" : "POST";
+
+                    const response = await fetch(endpoint, {
+                        method: method,
+                        headers: {
+                            "Content-Type": "application/json",
+                            Authorization: `Bearer ${token}`,
+                        },
+                        body: JSON.stringify(projectData),
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        const message =
+                            currentMode === "edit"
+                                ? "Proiectul a fost actualizat cu succes!"
+                                : "Postarea pentru proiecte a fost adăugată cu succes!";
+                        showMessage(message, "success");
+                        projectForm.reset();
+                        resetForm();
+                    } else {
+                        showMessage(
+                            result.error || "Eroare la adăugarea postării",
+                            "error",
+                        );
+                    }
+                } catch (error) {
+                    console.error("Error:", error);
+                    showMessage(
+                        "Eroare de conexiune. Vă rugăm să încercați din nou.",
+                        "error",
+                    );
+                }
+            });
+        }
+
+        // Functions to handle dynamic cloudinary image fields
+        function addCloudinaryImageField() {
+            const container = document.getElementById(
+                "cloudinaryImagesContainer",
+            );
+            if (!container) return;
+            const newField = document.createElement("div");
+            newField.className = "flex gap-2";
+            newField.innerHTML = `
+        <input
+          type="url"
+          name="cloudinaryImages[]"
+          class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+          placeholder="https://res.cloudinary.com/..."
+        />
+        <button
+          type="button"
+          onclick="removeCloudinaryImageField(this)"
+          class="px-3 py-2 text-red-600 hover:text-red-800"
+        >
+          ✕
+        </button>
+      `;
+            container.appendChild(newField);
+
+            // Show remove buttons for all fields if there are multiple
+            updateRemoveButtonsVisibility("cloudinaryImagesContainer");
+        }
+
+        function removeCloudinaryImageField(button: HTMLElement) {
+            button.parentElement?.remove();
+            updateRemoveButtonsVisibility("cloudinaryImagesContainer");
+        }
+
+        function addSecondCloudinaryImageField() {
+            const container = document.getElementById(
+                "secondCloudinaryImagesContainer",
+            );
+            if (!container) return;
+            const newField = document.createElement("div");
+            newField.className = "flex gap-2";
+            newField.innerHTML = `
+        <input
+          type="url"
+          name="secondCloudinaryImages[]"
+          class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+          placeholder="https://res.cloudinary.com/..."
+        />
+        <button
+          type="button"
+          onclick="removeSecondCloudinaryImageField(this)"
+          class="px-3 py-2 text-red-600 hover:text-red-800"
+        >
+          ✕
+        </button>
+      `;
+            container.appendChild(newField);
+
+            // Show remove buttons for all fields if there are multiple
+            updateRemoveButtonsVisibility("secondCloudinaryImagesContainer");
+        }
+
+        function removeSecondCloudinaryImageField(button: HTMLElement) {
+            button.parentElement?.remove();
+            updateRemoveButtonsVisibility("secondCloudinaryImagesContainer");
+        }
+
+        function updateRemoveButtonsVisibility(containerId: string) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            const fields = container.querySelectorAll(".flex.gap-2");
+
+            fields.forEach((field, index) => {
+                const removeButton = field.querySelector("button");
+                if (removeButton) {
+                    // Show remove button only if there are multiple fields
+                    removeButton.style.display =
+                        fields.length > 1 ? "block" : "none";
+                }
+            });
+        }
+
+        // News form submission
+        const newsFormElement = document.getElementById(
+            "newsFormElement",
+        ) as HTMLFormElement;
+        if (newsFormElement) {
+            newsFormElement.addEventListener("submit", async (e) => {
+                e.preventDefault();
+
+                const formData = new FormData(newsFormElement);
+                const tagsValue = formData.get("tags");
+                const tags =
+                    tagsValue && typeof tagsValue === "string"
+                        ? tagsValue.split(",").map((tag: string) => tag.trim())
+                        : [];
+
+                // Collect YouTube videos
+                const youtubeVideos = Array.from(
+                    formData.getAll("youtubeVideos[]"),
+                ).filter(
+                    (url) =>
+                        typeof url === "string" &&
+                        (url as string).trim() !== "",
+                );
+
+                // Collect Cloudinary IDs
+                const cloudinaryIds = Array.from(
+                    formData.getAll("cloudinaryImages[]"),
+                ).filter(
+                    (id) =>
+                        typeof id === "string" && (id as string).trim() !== "",
+                );
+
+                // Collect Gallery IDs
+                const galleryIds = Array.from(
+                    formData.getAll("galleryIds[]"),
+                ).filter(
+                    (id) =>
+                        typeof id === "string" && (id as string).trim() !== "",
+                );
+
+                // Get keywords and process them
+                const keywordsValue = formData.get("keywords");
+                const keywords =
+                    keywordsValue && typeof keywordsValue === "string"
+                        ? keywordsValue
+                              .split(",")
+                              .map((keyword: string) => keyword.trim())
+                              .filter((keyword: string) => keyword.length > 0)
+                        : [];
+
+                // Get URL only if checkbox is checked
+                const urlValue =
+                    formData.get("showUrl") === "on"
+                        ? formData.get("url")
+                        : null;
+
+                const newsData: any = {
+                    title: formData.get("title"),
+                    content: formData.get("content"),
+                    createdAt: formData.get("createdAt"),
+                    postType: formData.get("postType"),
+                    url: urlValue,
+                    keywords: keywords,
+                    youtubeVideos: youtubeVideos,
+                    cloudinaryIds: cloudinaryIds,
+                    galleryIds: galleryIds,
+                    showGallery: formData.get("showGallery") === "on",
+                };
+
+                // Add ID for edit mode
+                if (currentMode === "edit") {
+                    newsData.id = formData.get("id");
+                }
+
+                try {
+                    const endpoint = "/api/admin/news";
+                    const method = currentMode === "edit" ? "PUT" : "POST";
+
+                    const response = await fetch(endpoint, {
+                        method: method,
+                        headers: {
+                            "Content-Type": "application/json",
+                            Authorization: `Bearer ${token}`,
+                        },
+                        body: JSON.stringify(newsData),
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        const message =
+                            currentMode === "edit"
+                                ? "Știrea a fost actualizată cu succes!"
+                                : "Postarea pentru știri a fost adăugată cu succes!";
+                        showMessage(message, "success");
+                        newsFormElement.reset();
+                        resetForm();
+                    } else {
+                        showMessage(
+                            result.error || "Eroare la adăugarea postării",
+                            "error",
+                        );
+                    }
+                } catch (error) {
+                    console.error("Error:", error);
+                    showMessage(
+                        "Eroare de conexiune. Vă rugăm să încercați din nou.",
+                        "error",
+                    );
+                }
+            });
+        }
+
+        // Make functions globally available
+        (window as any).selectPost = selectPost;
+        (window as any).deletePost = deletePost;
+        (window as any).toggleUrlContainer = toggleUrlContainer;
+        (window as any).toggleGalleryContainer = toggleGalleryContainer;
+        (window as any).showVideoFields = showVideoFields;
+        (window as any).showImageFields = showImageFields;
+        (window as any).addNewVideoField = addNewVideoField;
+        (window as any).addNewImageField = addNewImageField;
+        (window as any).addNewGalleryField = addNewGalleryField;
+
+        // Import and expose popup function
+        import("../../components/ui/PopupBox").then((module) => {
+            (window as any).showConfirmPopup = module.showConfirmPopup;
+        });
+
+        // Initialize UI
+        updateUI();
+    </script></Layout
+>

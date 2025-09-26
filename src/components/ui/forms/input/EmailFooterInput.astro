@@ -1,0 +1,37 @@
+---
+const {
+  label = "Search",
+  title = Astro.currentLocale === "fr" ? "S'abonner" : "Conectează-te",
+  id = "footer-input",
+} = Astro.props;
+
+interface Props {
+  label?: string;
+  title?: string;
+  id?: string;
+}
+
+const placeholder =
+  Astro.currentLocale === "fr" ? "Entrez votre email" : "Introdu email-ul tau";
+---
+
+<div
+  class="mt-4 ml-auto flex w-full max-w-md flex-col items-end gap-2 rounded-lg bg-neutral-200 p-2 sm:flex-row sm:gap-3 dark:bg-neutral-800"
+>
+  <div class="w-full">
+    <label for={id} class="sr-only">{label}</label>
+    <input
+      type="text"
+      id={id}
+      name="footer-input"
+      class="block w-full rounded-lg border-transparent bg-neutral-100 px-4 py-3 text-sm text-neutral-600 caret-yellow-400 focus:border-yellow-400 focus:ring-yellow-400 disabled:pointer-events-none disabled:opacity-50 dark:border-transparent dark:bg-neutral-700 dark:text-gray-300 dark:placeholder:text-neutral-300"
+      placeholder={placeholder}
+    />
+  </div>
+  <a
+    class="inline-flex w-full items-center justify-center gap-x-2 rounded-lg border border-transparent bg-indigo-600 p-3 text-sm font-bold whitespace-nowrap text-white ring-zinc-500 outline-hidden transition duration-300 hover:shadow-[0_0_20px_rgba(55,83,255,1)] focus-visible:ring-3 disabled:pointer-events-none disabled:opacity-50 sm:w-auto dark:bg-yellow-400 dark:text-black dark:ring-zinc-200 dark:hover:shadow-[0_0_20px_rgba(255,204,0,1)] dark:focus:ring-1 dark:focus:outline-hidden"
+    href="#"
+  >
+    {title}
+  </a>
+</div>

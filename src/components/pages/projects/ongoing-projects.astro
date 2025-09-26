@@ -1,0 +1,1811 @@
+---
+// Importing necessary components
+import MainLayout from "@/layouts/MainLayout.astro";
+import VideoCarousel from "@components/ui/blocks/VideoCarousel.astro";
+import ImageCarousel from "@components/ui/blocks/ImageCarousel.astro";
+import GalleryPopup from "@components/ui/GalleryPopup.astro";
+import { SITE } from "@data/constants";
+import { fetchProjectPostsFromDB } from "@/components/pages/projects/projectData";
+import { highlightKeywords, mapToPastProject } from "@/components/pages/projects/projectUtils";
+import databaseManager from "../../../../database.mjs";
+import ImageIcon from '@mui/icons-material/Image';
+
+// Helper function to extract YouTube ID from URL
+function extractYouTubeId(url: string): string {
+  const regex = /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/;
+  const match = url.match(regex);
+  return match ? match[1] : '';
+}
+
+// Funcție pentru împărțirea inteligentă a conținutului în paragrafe
+function splitContentIntoParagraphs(content: string): string[] {
+  if (!content || content.trim().length === 0) {
+    return [];
+  }
+
+  // Împărțim pe puncte urmate de spațiu, dar păstrăm structura logică
+  const sentences = content
+    .split(/\.\s+/)
+    .filter(sentence => sentence.trim().length > 0)
+    .map(sentence => sentence.trim());
+
+  // Grupăm propozițiile în paragrafe logice (2-3 propoziții per paragraf)
+  const paragraphs: string[] = [];
+  let currentParagraph = '';
+
+  for (let i = 0; i < sentences.length; i++) {
+    const sentence = sentences[i];
+    
+    // Adăugăm punctul la sfârșitul propoziției dacă nu există
+    const formattedSentence = sentence.endsWith('.') ? sentence : sentence + '.';
+    
+    if (currentParagraph === '') {
+      currentParagraph = formattedSentence;
+    } else {
+      currentParagraph += ' ' + formattedSentence;
+    }
+
+    // Creăm un paragraf nou după 2-3 propoziții sau la sfârșitul textului
+    const shouldCreateParagraph = 
+      (i + 1) % 2 === 0 || // La fiecare 2 propoziții
+      i === sentences.length - 1; // Sau la sfârșitul textului
+
+    if (shouldCreateParagraph && currentParagraph.trim().length > 0) {
+      paragraphs.push(currentParagraph.trim());
+      currentParagraph = '';
+    }
+  }
+
+  // Dacă rămâne conținut neprocesat, îl adăugăm ca ultimul paragraf
+  if (currentParagraph.trim().length > 0) {
+    paragraphs.push(currentParagraph.trim());
+  }
+
+  return paragraphs.length > 0 ? paragraphs : [content];
+}
+
+// Obținem datele din baza de date pentru proiectele trecute
+let ongoingProjects: any[] = [];
+
+try {
+  const knex = await databaseManager.getKnex();
+  
+  if (knex) {
+    // Verifică dacă tabela există
+    const tableExists = await knex.schema.hasTable('posts');
+    
+    if (tableExists) {
+      // Obține postările pentru proiecte trecute
+      const posts = await knex('posts')
+        .where({ 
+          category: 'project',
+          project_type: 'ongoing',
+          is_published: true 
+        })
+        .orderBy('created_at', 'desc');
+
+      // Transformă datele în formatul așteptat
+      ongoingProjects = posts.map((post: any) => {
+        // Împărțim content-ul în paragrafe inteligent și evidențiem cuvintele cheie
+        const paragraphs = splitContentIntoParagraphs(post.content).map(paragraph => {
+          const keywords = typeof post.keywords === 'string' ? JSON.parse(post.keywords) : post.keywords;
+          return highlightKeywords(paragraph, keywords || []);
+        });
+
+        return {
+          id: post.id,
+          title: post.title,
+          content: post.content,
+          createdAt: post.created_at,
+          keywords: typeof post.keywords === 'string' ? JSON.parse(post.keywords) : post.keywords,
+          projectType: post.project_type,
+          postType: post.post_type,
+          eventType: post.event_type,
+          startDate: post.start_date,
+          endDate: post.end_date,
+          duration: post.duration,
+          isActive: post.is_active,
+          cloudinaryIds: typeof post.cloudinary_ids === 'string' ? JSON.parse(post.cloudinary_ids) : post.cloudinary_ids,
+          galleryIds: typeof post.gallery_image_ids === 'string' ? JSON.parse(post.gallery_image_ids) : post.gallery_image_ids,
+          showGallery: Boolean(post.gallery_flag),
+          testimonialVideos: typeof post.testimonial_videos === 'string' ? JSON.parse(post.testimonial_videos) : post.testimonial_videos,
+          youtubeVideos: typeof post.youtube_videos === 'string' ? JSON.parse(post.youtube_videos) : post.youtube_videos,
+          // Format pentru afișare - folosim startDate/endDate pentru evenimente multi-zile
+          date: (() => {
+            if (post.event_type === 'multi-day' && post.start_date && post.end_date) {
+              const startDate = new Date(post.start_date);
+              const endDate = new Date(post.end_date);
+              return `${startDate.toLocaleDateString('ro-RO')} - ${endDate.toLocaleDateString('ro-RO')}`;
+            } else if (post.start_date) {
+              return new Date(post.start_date).toLocaleDateString('ro-RO');
+            } else {
+              return new Date(post.created_at).toLocaleDateString('ro-RO');
+            }
+          })(),
+          paragraphs: paragraphs,
+          leftPhotos: [], // Va fi populat din cloudinaryIds dacă este necesar
+          rightPhotos: [], // Va fi populat din cloudinaryIds dacă este necesar
+          galleryPhotos: (typeof post.gallery_image_ids === 'string' ? JSON.parse(post.gallery_image_ids) : post.gallery_image_ids || []).map((cloudinaryId: string, index: number) => ({
+            url: `https://res.cloudinary.com/drtkpapql/image/upload/q_auto/${cloudinaryId}`,
+            alt: `${post.title} - Imagine ${index + 1}`,
+            title: `${post.title} - Imagine ${index + 1}`
+          })),
+          videos: (typeof post.youtube_videos === 'string' ? JSON.parse(post.youtube_videos) : post.youtube_videos || []).map((url: string, index: number) => ({
+            id: `youtube-${index}`,
+            title: `Video ${index + 1}`,
+            description: `YouTube video ${index + 1}`,
+            youtubeId: extractYouTubeId(url)
+          }))
+        };
+      });
+    }
+  }
+} catch (error) {
+  console.error('Error fetching past projects from database:', error);
+  // Fallback la datele statice dacă baza de date nu este disponibilă
+  const { getMappedPastProjects } = await import("@/components/pages/projects/projectData");
+  const fallbackProjects = getMappedPastProjects();
+  
+  // Aplicăm aceeași logică de împărțire în paragrafe pentru datele fallback
+  ongoingProjects = fallbackProjects.map((project: any) => {
+    const paragraphs = splitContentIntoParagraphs(project.content).map(paragraph => {
+      return highlightKeywords(paragraph, project.keywords || []);
+    });
+
+    return {
+      ...project,
+      paragraphs: paragraphs
+    };
+  });
+}
+
+const pageTitle = `Proiecte În Curs | ${SITE.title}`;
+const metaDescription = "Explorează proiectele realizate de Clubul Sportiv Calarasi Warriors. O călătorie prin realizările noastre în dezvoltarea comunității prin sport și educație.";
+---
+
+<MainLayout
+  title={pageTitle}
+  customDescription={metaDescription}
+  customOgTitle={pageTitle}
+  structuredData={{
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "@id": "https://credinta.live/ongoing-projects",
+    url: "https://credinta.live/ongoing-projects",
+    name: pageTitle,
+    description: metaDescription,
+    isPartOf: {
+      "@type": "WebSite",
+      url: "https://credinta.live",
+      name: "Biserica Credința",
+      description: "Biserica Credința este o biserică din Voluntari, Ilfov.",
+    },
+    inLanguage: "ro-RO",
+    breadcrumb: {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Acasă",
+          "item": "https://credinta.live"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Proiecte În Curs",
+          "item": "https://credinta.live/ongoing-projects"
+        }
+      ]
+    },
+    mainEntity: {
+      "@type": "ItemList",
+      "name": "Proiecte În Curs",
+      "description": "Lista cu toate proiectele realizate de Biserica Credința",
+      "numberOfItems": ongoingProjects.length,
+      "itemListElement": ongoingProjects.map((project, index) => ({
+        "@type": "Project",
+        "position": index + 1,
+        "name": project.title,
+        "description": project.content.substring(0, 160) + "...",
+        "startDate": project.startDate,
+        "endDate": project.endDate,
+        "projectStatus": "Ongoing",
+        "organizer": {
+          "@type": "Organization",
+          "name": "Biserica Credința",
+          "url": "https://credinta.live"
+        },
+        "url": project.url || `https://credinta.live/ongoing-projects#project-${project.id}`,
+        "image": project.cloudinaryIds && project.cloudinaryIds.length > 0 ? 
+          project.cloudinaryIds.map((id: string) => `https://res.cloudinary.com/drtkpapql/image/upload/q_auto/${id}`) : 
+          undefined,
+        "keywords": project.keywords || [],
+        "projectType": project.projectType || "Sport",
+        "inLanguage": "ro-RO"
+      }))
+    },
+    potentialAction: {
+      "@type": "SearchAction",
+      "target": {
+        "@type": "EntryPoint",
+        "urlTemplate": "https://credinta.live/ongoing-projects?search={search_term_string}"
+      },
+      "query-input": "required name=search_term_string"
+    },
+    about: {
+      "@type": "Organization",
+      "name": "Biserica Credința",
+      "description": "Biserica Credința este o biserică din Voluntari, Ilfov.",
+      "url": "https://credinta.live",
+      "logo": "https://credinta.live/images/logo.png",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Voluntari",
+        "addressCountry": "RO"
+      }
+    },
+    audience: {
+      "@type": "Audience",
+      "audienceType": "Comunitatea vie de creștini care Îl urmează pe Hristos"
+    },
+    genre: "Credință și dragoste",
+    keywords: "proiecte, proiecte în curs, Biserica Credința, comunitate vie de creștini care Îl urmează pe Hristos, credință, dragoste, comunitate, Voluntari",
+    dateCreated: "2024-01-01",
+    dateModified: new Date().toISOString().split('T')[0],
+    lastReviewed: new Date().toISOString().split('T')[0],
+    reviewRating: {
+      "@type": "Rating",
+      "ratingValue": "5",
+      "bestRating": "5",
+      "worstRating": "1"
+    },
+    aggregateRating: {
+      "@type": "AggregateRating",
+      "ratingValue": "4.8",
+      "reviewCount": "150",
+      "bestRating": "5",
+      "worstRating": "1"
+    }
+  }}
+>
+  <div class="mx-auto max-w-[85rem] px-4 py-10 sm:px-6 lg:px-8 lg:py-14 2xl:max-w-full">
+    <!-- Page Header -->
+    <!-- <div class="mb-8 text-center"> -->
+      <!-- <h1 class="text-4xl font-bold tracking-tight text-balance text-neutral-800 md:text-5xl md:leading-tight dark:text-neutral-200">
+        Proiecte Trecute
+      </h1> -->
+      <!-- <p class="mt-4 max-w-2xl mx-auto text-lg text-neutral-600 dark:text-neutral-400">
+        Explorează proiectele realizate de Clubul Sportiv Calarasi Warriors. O călătorie prin realizările noastre în dezvoltarea comunității prin sport și educație.
+      </p> -->
+    <!-- </div> -->
+
+    <!-- Navigation Buttons -->
+    <div class="mb-4 flex justify-center">
+      <div class="flex rounded-lg border border-gray-200 bg-yellow-50/60 dark:border-neutral-700 dark:bg-neutral-700">
+        <a
+          href="/past-projects"
+          class="px-5 py-3 text-sm font-medium rounded-md text-gray-700 hover:text-black dark:text-gray-300 dark:hover:text-white transition-colors"
+        >
+        În Trecut
+        </a>
+        <a
+          href="/ongoing-projects"
+          class="px-5 py-3 text-sm font-medium rounded-md bg-[#305c76] text-white shadow-sm transition-colors dark:bg-[#74becc] dark:text-neutral-800"
+        >
+        În Curs
+        </a>
+        <a
+          href="/future-projects"
+          class="px-5 py-3 text-sm font-medium rounded-md text-gray-700 hover:text-black dark:text-gray-300 dark:hover:text-white transition-colors"
+        >
+        În Viitor
+        </a>
+      </div>
+    </div>
+
+      <!-- Search Bar -->
+    <div class="mb-4 max-w-md mx-auto">
+      <div class="relative">
+        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+          <svg class="h-5 w-5 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+          </svg>
+        </div>
+        <input
+          type="text"
+          id="searchInput"
+          placeholder="Caută în proiecte..."
+          class="block w-full pl-10 pr-3 py-3 border border-neutral-300 rounded-lg leading-5 bg-yellow-50/60 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 placeholder-neutral-500 dark:placeholder-neutral-400 focus:outline-none focus:placeholder-neutral-400 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:focus:ring-yellow-400 dark:focus:border-yellow-400 transition-colors duration-200"
+        />
+        <button
+          id="clearSearch"
+          class="absolute inset-y-0 right-0 pr-3 flex items-center text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300 transition-colors duration-200 hidden"
+        >
+          <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+     
+      <div id="searchResults" class="mt-2 text-sm text-neutral-600 dark:text-neutral-400 text-center hidden">
+        <span id="resultsCount">0</span> rezultate găsite
+      </div>
+    </div>
+
+    <!-- Projects List -->
+    <div class="grid gap-8 md:grid-cols-3 items-start">
+      {ongoingProjects.map((project, index) => (
+        <article class="fade-in-element bg-yellow-50/60 dark:bg-neutral-700 rounded-lg shadow-lg p-6 
+        hover:shadow-xl transition-shadow duration-300">
+          <!-- Project Header -->
+          <div class="mb-6">
+            <div class="flex flex-wrap items-center gap-2 mb-3">
+              <span class="inline-flex items-center rounded-full bg-[#305c76] px-2 py-1 text-xs font-medium text-white dark:bg-[#74becc] dark:text-neutral-800">
+                {project.date}
+              </span>
+              {/* <span class="inline-flex items-center rounded-full bg-yellow-400 px-2 py-1 text-xs font-medium text-neutral-800 font-bold dark:bg-indigo-600 dark:text-white">
+                {project.postType || ""}
+              </span> */}
+            </div>
+            <h2 class="text-2xl font-bold text-black dark:text-white mb-3">
+              {project.title}
+            </h2>
+          </div>
+
+          <!-- Project Content -->
+          <div class="space-y-4">
+            <!-- Paragraphs Section -->
+            <div class="space-y-2">
+             
+              {project.paragraphs.length > 0 && (
+                <div class="space-y-3">
+                  
+                  {/* Buttons Row - Fixed Position */}
+                  <div class="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
+                  <button
+                    data-project-index={index}
+                    class="toggle-content-btn flex items-center gap-2 rounded-lg bg-cyan-200 dark:bg-yellow-200 px-3 py-2 text-sm font-medium text-[#305c76] dark:text-neutral-800 hover:bg-cyan-200 dark:hover:bg-yellow-200 transition-colors duration-200"
+                  >
+                    <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                    <span>Afișează</span>
+                  </button>
+
+                    {/* Gallery Button - Fixed Position */}
+              {project.showGallery && (
+                      <div class="fade-in-element" data-delay={index * 200 + 100}>
+                  <button
+                    type="button"
+                          class="gallery-button rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 px-4 py-2 text-white shadow-lg transition-all duration-300 hover:from-purple-600 hover:to-pink-600 hover:shadow-xl hover:scale-105"
+                    data-project-index={index}
+                    data-gallery-photos={JSON.stringify(project.galleryPhotos)}
+                  >
+                          <div class="flex items-center justify-center space-x-2">
+                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 4L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                      </svg>
+                            <ImageIcon sx={{ color: "blue", fontSize: "30px" }} />
+                            <span class="text-xs opacity-90">({project.galleryPhotos.length})</span>
+                    </div>
+                  </button>
+                </div>
+              )}
+                  </div>
+                  
+                  {/* Content Section */}
+                  <div class="hidden full-content space-y-2">
+                    {project.paragraphs.map((paragraph: any, pIndex: number) => (
+                      <p class="text-black dark:text-white leading-relaxed text-lg">
+                        <Fragment set:html={paragraph} />
+                      </p>
+                    ))}
+            </div>
+                  
+                </div>
+              )}
+              
+            </div>
+
+
+            <!-- Media Section -->
+            <div class="space-y-4">
+                  
+              {/* Photo Carousel */}
+              {project.cloudinaryIds && Array.isArray(project.cloudinaryIds) && project.cloudinaryIds.length > 0 && <div
+                class="fade-in-element w-full"
+                // data-delay={index * 200 + 100}
+              >
+                <div class="relative overflow-hidden rounded-lg shadow-lg">
+                  <div class="carousel-container relative w-full">
+                    {project.cloudinaryIds.map((cloudinaryId: string, photoIndex: number) => (
+                      <div
+                        class={`carousel-item ${photoIndex === 0 ? "opacity-100" : "opacity-0"} cursor-pointer transition-opacity duration-500`}
+                        data-event-index={index}
+                        data-photo-index={photoIndex}
+                      >
+                        <img
+                          src={`https://res.cloudinary.com/drtkpapql/image/upload/${cloudinaryId}`}
+                          alt={`${project.title} - Imagine ${photoIndex + 1}`}
+                          title={`${project.title} - Imagine ${photoIndex + 1}`}
+                          class="h-auto w-auto object-contain transition-transform duration-300 hover:scale-105"
+                          loading="lazy"
+                          onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgdmlld0JveD0iMCAwIDQwMCAzMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iMzAwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0xNzUgMTI1SDIyNVYxNzVIMTc1VjEyNVoiIGZpbGw9IiM5Q0EzQUYiLz4KPHN2Zz4K'"
+                        />
+                      </div>
+                    ))}
+
+                    {/* Carousel Navigation */}
+                    <div class="absolute bottom-2 left-1/2 flex -translate-x-1/2 space-x-1">
+                      {project.cloudinaryIds.map((_: string, photoIndex: number) => (
+                        <button
+                          class="carousel-dot h-1.5 w-1.5 rounded-full bg-white opacity-50 transition-opacity hover:opacity-100"
+                          data-carousel-index={photoIndex}
+                          data-event-index={index}
+                        />
+                      ))}
+                    </div>
+
+                    {/* Previous/Next buttons */}
+                    {project.cloudinaryIds.length > 1 && (
+                      
+                      <button
+                      class="carousel-prev bg-opacity-50 hover:bg-opacity-75 absolute top-1/2 left-1 -translate-y-1/2 rounded-full bg-black p-1.5 text-white transition-opacity"
+                      data-event-index={index}
+                    >
+                      <svg
+                        class="h-3 w-3"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M15 19l-7-7 7-7"
+                        />
+                      </svg>
+                    </button>
+                    <button
+                      class="carousel-next bg-opacity-50 hover:bg-opacity-75 absolute top-1/2 right-1 -translate-y-1/2 rounded-full bg-black p-1.5 text-white transition-opacity"
+                      data-event-index={index}
+                    >
+                      <svg
+                        class="h-4 w-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M9 5l7 7-7 7"
+                        />
+                      </svg>
+                    </button>
+                    )}
+                  </div>
+                </div>
+              </div>}
+
+              <!-- Video Carousel -->
+              {project.videos && project.videos.length > 0 && (
+                <div>
+                  <VideoCarousel videos={project.videos} />
+                  
+                  <!-- Action Buttons -->
+                  <div class="mt-6 flex flex-col sm:flex-row gap-4 w-full">
+                    {project.isActive && (
+                      
+                        
+                         
+                        <div class="w-full sm:w-1/2">
+                          <a
+                            href={`/event-participants/${project.id}`}
+                            class="flex flex-1 items-center justify-center rounded-lg bg-yellow-400 px-8 py-4 text-lg font-bold text-neutral-800 shadow-lg transition 
+                            duration-200 hover:shadow-[0_0_20px_rgba(255,204,0,1)] dark:bg-indigo-600 dark:hover:shadow-[0_0_20px_rgba(55,83,255,1)] dark:text-white"
+                            title={`Vezi lista participanților pentru ${project.title}`}
+                          >
+                            👥Participanți
+                          </a>
+                        </div>
+                      
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+
+        </article>
+      ))}
+    </div>
+  </div>
+</MainLayout>
+
+<style>
+  .fade-in-element {
+    opacity: 0;
+    transform: translateY(30px);
+    transition:
+      opacity 0.8s ease-out,
+      transform 0.8s ease-out;
+  }
+
+  .fade-in-element.fade-in {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* Individual card height management */
+  article {
+    transition: height 0.3s ease-in-out;
+    align-self: start;
+  }
+
+  /* Remove grid row span to prevent affecting other cards */
+  article.expanded {
+    /* Individual expansion without affecting grid layout */
+  }
+
+  /* Ensure grid maintains consistent row heights */
+  .grid {
+    grid-auto-rows: auto;
+  }
+</style>
+
+<script>
+  // Fade-in animation
+  document.addEventListener('DOMContentLoaded', function() {
+    const observerOptions = {
+      threshold: 0.1,
+      rootMargin: "0px 0px -50px 0px",
+    };
+    
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const delay = entry.target.getAttribute('data-delay') || '0';
+          setTimeout(() => {
+            entry.target.classList.add('fade-in');
+          }, parseInt(delay));
+        }
+      });
+    }, observerOptions);
+    
+    document.querySelectorAll('.fade-in-element').forEach((element) => {
+      observer.observe(element);
+    });
+  });
+
+  // Toggle full content functionality
+  function toggleFullContent(button: HTMLElement) {
+    const contentContainer = button.parentElement?.parentElement; // Go up two levels
+    const fullContent = contentContainer?.querySelector('.full-content') as HTMLElement;
+    const buttonText = button.querySelector('span') as HTMLElement;
+    const buttonIcon = button.querySelector('svg') as SVGElement;
+    const article = button.closest('article') as HTMLElement;
+    
+    if (fullContent && fullContent.classList.contains('hidden')) {
+      // Show full content
+      fullContent.classList.remove('hidden');
+      if (buttonText) buttonText.textContent = 'Ascunde';
+      if (buttonIcon) buttonIcon.style.transform = 'rotate(180deg)';
+      button.classList.remove('bg-indigo-100', 'dark:bg-neutral-700');
+      button.classList.add('bg-indigo-100', 'dark:bg-neutral-700');
+      
+      // Add expanded class to article for individual height adjustment
+      if (article) {
+        article.classList.add('expanded');
+      }
+    } else if (fullContent) {
+      // Hide full content
+      fullContent.classList.add('hidden');
+      if (buttonText) buttonText.textContent = 'Afișează';
+      if (buttonIcon) buttonIcon.style.transform = 'rotate(0deg)';
+      button.classList.remove('bg-red-100', 'dark:bg-neutral-600');
+      button.classList.add('bg-indigo-100', 'dark:bg-neutral-700');
+      
+      // Remove expanded class from article
+      if (article) {
+        article.classList.remove('expanded');
+      }
+    }
+  }
+
+  // Add event listeners for toggle content buttons
+  document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('click', function(e) {
+      const target = e.target as HTMLElement;
+      const button = target.closest('.toggle-content-btn');
+      
+      if (button) {
+        toggleFullContent(button as HTMLElement);
+      }
+    });
+  });
+
+  // Video Carousel functionality
+  document.addEventListener('DOMContentLoaded', function() {
+    // Initialize video carousels
+    const videoCarousels = document.querySelectorAll('#video-carousel');
+    videoCarousels.forEach(carousel => {
+      if (carousel) {
+        initializeVideoCarousel(carousel as HTMLElement);
+      }
+    });
+  });
+
+  function initializeVideoCarousel(carousel: HTMLElement) {
+    const totalSlides = carousel.querySelectorAll('.video-preview-container').length;
+    let currentSlide = 0;
+    let autoAdvanceInterval;
+    let currentlyPlayingVideo: number | null = null;
+    let videoStates = new Map();
+
+    function showSlide(index: number) {
+      if (carousel) {
+        carousel.style.transform = `translateX(-${index * 100}%)`;
+      }
+      
+      // Update dots
+      const dots = carousel.parentElement?.querySelectorAll('.carousel-dot');
+      dots?.forEach((dot, i) => {
+        if (dot) {
+          dot.classList.toggle('bg-white', i === index);
+          dot.classList.toggle('bg-white/50', i !== index);
+        }
+      });
+      
+      currentSlide = index;
+    }
+
+    function nextSlide() {
+      if (totalSlides > 1) {
+        const next = (currentSlide + 1) % totalSlides;
+        showSlide(next);
+      }
+    }
+
+    function previousSlide() {
+      if (totalSlides > 1) {
+        const prev = (currentSlide - 1 + totalSlides) % totalSlides;
+        showSlide(prev);
+      }
+    }
+
+    function goToSlide(index: number) {
+      if (index >= 0 && index < totalSlides) {
+        showSlide(index);
+      }
+    }
+
+    function toggleVideo(videoIndex: number) {
+      const previewContainer = carousel.querySelector(`.video-preview-container[data-video-index="${videoIndex}"]`);
+      const playerWrapper = previewContainer?.querySelector('.video-player-wrapper');
+      const thumbnailWrapper = previewContainer?.querySelector('.video-thumbnail-wrapper');
+      const playPauseBtn = previewContainer?.querySelector('.play-pause-btn');
+      
+      if (!previewContainer || !playerWrapper || !thumbnailWrapper || !playPauseBtn) return;
+      
+      const isCurrentlyPlaying = videoStates.get(videoIndex) || false;
+      
+      if (isCurrentlyPlaying) {
+        pauseVideo(videoIndex);
+      } else {
+        playVideo(videoIndex);
+      }
+    }
+
+    function playVideo(videoIndex: number) {
+      // Stop any currently playing video first
+      if (currentlyPlayingVideo !== null && currentlyPlayingVideo !== videoIndex) {
+        pauseVideo(currentlyPlayingVideo);
+      }
+      
+      const previewContainer = carousel.querySelector(`.video-preview-container[data-video-index="${videoIndex}"]`);
+      if (!previewContainer) return;
+      
+      const playerWrapper = previewContainer.querySelector('.video-player-wrapper');
+      const thumbnailWrapper = previewContainer.querySelector('.video-thumbnail-wrapper');
+      const playPauseBtn = previewContainer.querySelector('.play-pause-btn');
+      
+      if (!playerWrapper || !thumbnailWrapper || !playPauseBtn) return;
+      
+      const iframe = playerWrapper.querySelector('iframe');
+      if (!iframe) return;
+      
+      // Show player and hide thumbnail
+      playerWrapper.classList.remove('hidden');
+      thumbnailWrapper.classList.add('hidden');
+      
+      // Update button state
+      const playIcon = playPauseBtn.querySelector('.play-icon');
+      const pauseIcon = playPauseBtn.querySelector('.pause-icon');
+      if (playIcon) playIcon.classList.add('hidden');
+      if (pauseIcon) pauseIcon.classList.remove('hidden');
+      
+      // Set video state
+      videoStates.set(videoIndex, true);
+      currentlyPlayingVideo = videoIndex;
+      
+      // Set the iframe source with autoplay
+      const youtubeId = playPauseBtn.getAttribute('data-youtube-id');
+      if (youtubeId) {
+        iframe.src = `https://www.youtube.com/embed/${youtubeId}?autoplay=1&mute=1&rel=0&modestbranding=0&enablejsapi=1&controls=1&showinfo=1&iv_load_policy=3&fs=1&color=white&theme=dark&cc_load_policy=1&playsinline=1`;
+      }
+    }
+
+    function pauseVideo(videoIndex: number) {
+      const previewContainer = carousel.querySelector(`.video-preview-container[data-video-index="${videoIndex}"]`);
+      if (!previewContainer) return;
+      
+      const playerWrapper = previewContainer.querySelector('.video-player-wrapper');
+      const thumbnailWrapper = previewContainer.querySelector('.video-thumbnail-wrapper');
+      const playPauseBtn = previewContainer.querySelector('.play-pause-btn');
+      const playIcon = playPauseBtn?.querySelector('.play-icon');
+      const pauseIcon = playPauseBtn?.querySelector('.pause-icon');
+      const iframe = playerWrapper?.querySelector('iframe');
+      
+      if (previewContainer && playerWrapper && thumbnailWrapper && playPauseBtn && iframe) {
+        // Hide player and show thumbnail
+        playerWrapper.classList.add('hidden');
+        thumbnailWrapper.classList.remove('hidden');
+        
+        // Update button state
+        if (playIcon) playIcon.classList.remove('hidden');
+        if (pauseIcon) pauseIcon.classList.add('hidden');
+        
+        // Set video state
+        videoStates.set(videoIndex, false);
+        
+        if (currentlyPlayingVideo === videoIndex) {
+          currentlyPlayingVideo = null;
+        }
+        
+        // Reset iframe to stop the video
+        const youtubeId = playPauseBtn.getAttribute('data-youtube-id');
+        if (youtubeId) {
+          iframe.src = `https://www.youtube.com/embed/${youtubeId}?autoplay=0&mute=1&rel=0&modestbranding=0&enablejsapi=1&controls=1&showinfo=1&iv_load_policy=3&fs=1&color=white&theme=dark&cc_load_policy=1&playsinline=1`;
+        }
+      }
+    }
+
+    // Navigation buttons
+    const prevBtn = carousel.parentElement?.querySelector('#prev-btn');
+    const nextBtn = carousel.parentElement?.querySelector('#next-btn');
+    
+    if (prevBtn) {
+      prevBtn.addEventListener('click', function() {
+        if (totalSlides > 1) {
+          const prev = (currentSlide - 1 + totalSlides) % totalSlides;
+          showSlide(prev);
+        }
+      });
+    }
+    
+    if (nextBtn) {
+      nextBtn.addEventListener('click', function() {
+        if (totalSlides > 1) {
+          const next = (currentSlide + 1) % totalSlides;
+          showSlide(next);
+        }
+      });
+    }
+
+    // Dot navigation
+    const dots = carousel.parentElement?.querySelectorAll('.carousel-dot');
+    dots?.forEach((dot, index) => {
+      dot.addEventListener('click', function() {
+        goToSlide(index);
+      });
+    });
+
+    // Auto-advance slides every 5 seconds (only if more than one slide and no video is playing)
+    if (totalSlides > 1) {
+      autoAdvanceInterval = setInterval(() => {
+        // Only auto-advance if no video is currently playing
+        if (currentlyPlayingVideo === null) {
+          nextSlide();
+        }
+      }, 5000);
+    }
+
+    // Add event listeners for play/pause buttons
+    const playPauseButtons = carousel.querySelectorAll('.play-pause-btn');
+    playPauseButtons.forEach(button => {
+      button.addEventListener('click', function(this: HTMLElement) {
+        const videoIndex = this.getAttribute('data-video-index');
+        if (videoIndex !== null) {
+          toggleVideo(parseInt(videoIndex));
+        }
+      });
+    });
+
+    // Add event listeners for volume buttons
+    const volumeButtons = carousel.querySelectorAll('.volume-control-btn');
+    volumeButtons.forEach(button => {
+      button.addEventListener('click', function(this: HTMLElement) {
+        const videoIndex = this.getAttribute('data-video-index');
+        if (videoIndex !== null) {
+          // Toggle mute/unmute
+          const previewContainer = carousel.querySelector(`.video-preview-container[data-video-index="${videoIndex}"]`);
+          const iframe = previewContainer?.querySelector('iframe');
+          if (iframe) {
+            const currentSrc = iframe.src;
+            if (currentSrc.includes('mute=1')) {
+              iframe.src = currentSrc.replace('mute=1', 'mute=0');
+            } else {
+              iframe.src = currentSrc.replace('mute=0', 'mute=1');
+            }
+          }
+        }
+      });
+    });
+
+    // Add event listeners for close buttons
+    const closeButtons = carousel.querySelectorAll('.close-video-btn');
+    closeButtons.forEach(button => {
+      button.addEventListener('click', function(this: HTMLElement) {
+        const videoIndex = this.getAttribute('data-video-index');
+        if (videoIndex !== null) {
+          pauseVideo(parseInt(videoIndex));
+        }
+      });
+    });
+  }
+</script>
+
+
+
+<!-- Photo Popup Modal -->
+<div id="photoModal" class="bg-opacity-90 fixed inset-0 z-50 hidden bg-black">
+  <div class="flex h-full w-full items-center justify-center p-4">
+    <div class="relative max-h-full max-w-4xl">
+      <!-- Close button -->
+      <button
+        id="closeModal"
+        class="absolute -top-12 right-0 z-10 rounded-full bg-white p-2 text-black hover:bg-gray-200"
+      >
+        <svg
+          class="h-6 w-6"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+
+      <!-- Photo container -->
+      <div class="relative">
+        <img
+          id="modalPhoto"
+          src=""
+          alt=""
+          class="max-h-[80vh] max-w-full object-contain"
+        />
+
+        <!-- Navigation arrows -->
+        <button
+          id="prevPhoto"
+          class="bg-opacity-50 hover:bg-opacity-75 absolute top-1/2 left-4 -translate-y-1/2 rounded-full bg-black p-3 text-white"
+        >
+          <svg
+            class="h-6 w-6"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M15 19l-7-7 7-7"></path>
+          </svg>
+        </button>
+        <button
+          id="nextPhoto"
+          class="bg-opacity-50 hover:bg-opacity-75 absolute top-1/2 right-4 -translate-y-1/2 rounded-full bg-black p-3 text-white"
+        >
+          <svg
+            class="h-6 w-6"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M9 5l7 7-7 7"></path>
+          </svg>
+        </button>
+
+        <!-- Photo counter -->
+        <div
+          class="bg-opacity-50 absolute bottom-4 left-1/2 -translate-x-1/2 rounded-full bg-black px-4 py-2 text-white"
+        >
+          <span id="photoCounter">1 / 10</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* Custom styles for timeline */
+  .timeline-dot {
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%,
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+    50% {
+      transform: scale(1.1);
+      opacity: 0.8;
+    }
+  }
+
+  /* Fade-in animation styles */
+  .fade-in-element {
+    opacity: 0;
+    transform: translateY(30px);
+    transition:
+      opacity 0.6s ease-out,
+      transform 0.6s ease-out;
+  }
+
+  .fade-in-element.fade-in {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Timeline dot movement */
+  #timeline-dot {
+    position: absolute;
+    transition: top 0.5s ease-out;
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .timeline-line {
+      left: 2rem;
+    }
+
+    .timeline-content {
+      width: 100%;
+      padding-left: 4rem;
+      text-align: left;
+    }
+
+    .timeline-image {
+      width: 100%;
+      margin-top: 1rem;
+    }
+  }
+
+  /* Modal styles */
+  #photoModal {
+    backdrop-filter: blur(5px);
+  }
+
+  .modal-enter {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+
+  .modal-enter-active {
+    opacity: 1;
+    transform: scale(1);
+    transition:
+      opacity 300ms,
+      transform 300ms;
+  }
+
+  .modal-exit {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .modal-exit-active {
+    opacity: 0;
+    transform: scale(0.9);
+    transition:
+      opacity 300ms,
+      transform 300ms;
+  }
+</style>
+
+<script>
+  // Carousel functionality and timeline animations
+  document.addEventListener("DOMContentLoaded", function () {
+    const carousels = document.querySelectorAll(".carousel-container");
+    const modal = document.getElementById("photoModal");
+    const modalPhoto = document.getElementById(
+      "modalPhoto",
+    ) as HTMLImageElement;
+    const photoCounter = document.getElementById("photoCounter");
+    const closeModal = document.getElementById("closeModal");
+    const prevPhoto = document.getElementById("prevPhoto");
+    const nextPhoto = document.getElementById("nextPhoto");
+    const timelineDot = document.getElementById("timeline-dot") as HTMLElement;
+    const timelineEvents = document.querySelectorAll(".timeline-event");
+
+    let currentEventIndex = 0;
+    let currentPhotoIndex = 0;
+    let currentPhotos: Array<{ url: string; alt: string; title?: string }> = [];
+
+    // Timeline dot movement and fade-in animations
+    function updateTimelineDot() {
+      if (!timelineDot) return;
+
+      const timelineEvents = document.querySelectorAll(".timeline-event");
+      const timelineLine = document.getElementById("timeline-line");
+
+      if (!timelineLine) return;
+
+      const lineRect = timelineLine.getBoundingClientRect();
+      const lineTop = lineRect.top;
+      const lineHeight = lineRect.height;
+      const windowHeight = window.innerHeight;
+
+      // Find the current active event
+      let activeEventIndex = 0;
+      let minDistance = Infinity;
+
+      timelineEvents.forEach((event, index) => {
+        const eventRect = event.getBoundingClientRect();
+        const eventCenter = eventRect.top + eventRect.height / 2;
+        const distance = Math.abs(eventCenter - windowHeight / 2);
+
+        if (distance < minDistance) {
+          minDistance = distance;
+          activeEventIndex = index;
+        }
+      });
+
+      // Calculate the position for the dot
+      const activeEvent = timelineEvents[activeEventIndex] as HTMLElement;
+      if (activeEvent) {
+        const eventRect = activeEvent.getBoundingClientRect();
+        const eventCenter = eventRect.top + eventRect.height / 2;
+        const dotPosition = ((eventCenter - lineTop) / lineHeight) * 100;
+
+        // Clamp the position between 0 and 100
+        const clampedPosition = Math.max(0, Math.min(100, dotPosition));
+
+        timelineDot.style.top = `${clampedPosition}%`;
+      }
+    }
+
+    // Fade-in animation for timeline elements
+    function handleFadeIn() {
+      const fadeElements = document.querySelectorAll(".fade-in-element");
+
+      fadeElements.forEach((element) => {
+        const elementRect = element.getBoundingClientRect();
+        const elementTop = elementRect.top;
+        const elementBottom = elementRect.bottom;
+        const windowHeight = window.innerHeight;
+
+        // Check if element is in viewport
+        if (elementTop < windowHeight * 0.8 && elementBottom > 0) {
+          const delay = element.getAttribute("data-delay") || "0";
+          setTimeout(() => {
+            element.classList.add("fade-in");
+          }, parseInt(delay));
+        }
+      });
+    }
+
+    // Initialize timeline dot position
+    function initTimelineDot() {
+      if (timelineDot && timelineEvents.length > 0) {
+        const firstEvent = timelineEvents[0] as HTMLElement;
+        const eventRect = firstEvent.getBoundingClientRect();
+        const timelineLine = document.getElementById("timeline-line");
+
+        if (timelineLine) {
+          const lineRect = timelineLine.getBoundingClientRect();
+          const eventCenter = eventRect.top + eventRect.height / 2;
+          const dotPosition =
+            ((eventCenter - lineRect.top) / lineRect.height) * 100;
+          timelineDot.style.top = `${Math.max(0, Math.min(100, dotPosition))}%`;
+        }
+      }
+    }
+
+    // Event listeners for scroll and resize
+    window.addEventListener("scroll", () => {
+      updateTimelineDot();
+      handleFadeIn();
+    });
+
+    window.addEventListener("resize", () => {
+      updateTimelineDot();
+      handleFadeIn();
+    });
+
+    // Initialize on page load
+    initTimelineDot();
+    handleFadeIn();
+
+    carousels.forEach((carousel, eventIndex) => {
+      const items = carousel.querySelectorAll(".carousel-item");
+      const dots = carousel.querySelectorAll(".carousel-dot");
+      const prevBtn = carousel.querySelector(".carousel-prev");
+      const nextBtn = carousel.querySelector(".carousel-next");
+
+      let currentIndex = 0;
+
+      function showItem(index: number) {
+        items.forEach((item, i) => {
+          const element = item as HTMLElement;
+          element.style.opacity = i === index ? "1" : "0";
+        });
+
+        dots.forEach((dot, i) => {
+          const element = dot as HTMLElement;
+          element.style.opacity = i === index ? "1" : "0.5";
+        });
+      }
+
+      // Dot navigation
+      dots.forEach((dot, index) => {
+        dot.addEventListener("click", () => {
+          currentIndex = index;
+          showItem(currentIndex);
+        });
+      });
+
+      // Previous button
+      if (prevBtn) {
+        prevBtn.addEventListener("click", () => {
+          currentIndex = (currentIndex - 1 + items.length) % items.length;
+          showItem(currentIndex);
+        });
+      }
+
+      // Next button
+      if (nextBtn) {
+        nextBtn.addEventListener("click", () => {
+          currentIndex = (currentIndex + 1) % items.length;
+          showItem(currentIndex);
+        });
+      }
+
+      // Photo click to open modal
+      items.forEach((item, photoIndex) => {
+        item.addEventListener("click", () => {
+          currentEventIndex = eventIndex;
+          currentPhotoIndex = photoIndex;
+          // Get photos from the current carousel
+          const photos: Array<{ url: string; alt: string; title?: string }> =
+            [];
+          items.forEach((item) => {
+            const img = item.querySelector("img") as HTMLImageElement;
+            if (img) {
+              photos.push({
+                url: img.src || "",
+                alt: img.alt || "",
+                title: img.title || "",
+              });
+            }
+          });
+          currentPhotos = photos;
+          openModal();
+        });
+      });
+
+      // Auto-advance carousel
+      setInterval(() => {
+        currentIndex = (currentIndex + 1) % items.length;
+        showItem(currentIndex);
+      }, 5000);
+    });
+
+    function openModal() {
+      if (modal && modalPhoto && photoCounter && currentPhotos.length > 0) {
+        const photo = currentPhotos[currentPhotoIndex];
+        if (photo) {
+          modalPhoto.src = photo.url;
+          modalPhoto.alt = photo.alt;
+          photoCounter.textContent = `${currentPhotoIndex + 1} / ${currentPhotos.length}`;
+          modal.classList.remove("hidden");
+          document.body.style.overflow = "hidden";
+        }
+      }
+    }
+
+    function closeModalFunc() {
+      if (modal) {
+        modal.classList.add("hidden");
+        document.body.style.overflow = "auto";
+      }
+    }
+
+    function showPhoto(index: number) {
+      if (
+        index >= 0 &&
+        index < currentPhotos.length &&
+        modalPhoto &&
+        photoCounter
+      ) {
+        currentPhotoIndex = index;
+        const photo = currentPhotos[currentPhotoIndex];
+        if (photo) {
+          modalPhoto.src = photo.url;
+          modalPhoto.alt = photo.alt;
+          photoCounter.textContent = `${currentPhotoIndex + 1} / ${currentPhotos.length}`;
+        }
+      }
+    }
+
+    // Modal event listeners
+    if (closeModal) {
+      closeModal.addEventListener("click", closeModalFunc);
+    }
+
+    if (prevPhoto) {
+      prevPhoto.addEventListener("click", () => {
+        const newIndex =
+          (currentPhotoIndex - 1 + currentPhotos.length) % currentPhotos.length;
+        showPhoto(newIndex);
+      });
+    }
+
+    if (nextPhoto) {
+      nextPhoto.addEventListener("click", () => {
+        const newIndex = (currentPhotoIndex + 1) % currentPhotos.length;
+        showPhoto(newIndex);
+      });
+    }
+
+    // Close modal on background click
+    if (modal) {
+      modal.addEventListener("click", (e) => {
+        if (e.target === modal) {
+          closeModalFunc();
+        }
+      });
+    }
+
+    // Keyboard navigation
+    document.addEventListener("keydown", (e) => {
+      if (!modal?.classList.contains("hidden")) {
+        if (e.key === "Escape") {
+          closeModalFunc();
+        } else if (e.key === "ArrowLeft") {
+          const newIndex =
+            (currentPhotoIndex - 1 + currentPhotos.length) %
+            currentPhotos.length;
+          showPhoto(newIndex);
+        } else if (e.key === "ArrowRight") {
+          const newIndex = (currentPhotoIndex + 1) % currentPhotos.length;
+          showPhoto(newIndex);
+        }
+      }
+    });
+  });
+
+
+  // Search functionality
+  document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('searchInput') as HTMLInputElement;
+    const clearSearchBtn = document.getElementById('clearSearch') as HTMLButtonElement;
+    const searchResults = document.getElementById('searchResults') as HTMLDivElement;
+    const resultsCount = document.getElementById('resultsCount') as HTMLSpanElement;
+    const newsArticles = document.querySelectorAll('article');
+    
+     // Store original display states and order
+     const originalDisplayStates = new Map();
+     const originalOrder: Element[] = Array.from(newsArticles);
+     let currentOrder: Element[] = [...originalOrder];
+     
+     newsArticles.forEach(article => {
+       originalDisplayStates.set(article, article.style.display);
+     });
+
+     function performSearch(searchTerm: string, sortByRelevance = false) {
+       if (!searchTerm.trim()) {
+         // Show all articles if search is empty and clear highlights
+         newsArticles.forEach(article => {
+           article.style.display = '';
+           article.classList.remove('search-highlight');
+           // Clear any existing highlights completely
+           clearHighlights(article);
+         });
+         searchResults.classList.add('hidden');
+         clearSearchBtn.classList.add('hidden');
+         
+         // Reset to original order if no search
+         if (sortByRelevance) {
+           resetToOriginalOrder();
+         }
+         
+         // Clear sessionStorage when search is empty
+         sessionStorage.removeItem('searchTerm');
+         sessionStorage.removeItem('sortByRelevance');
+         return;
+       }
+
+       const searchWords = searchTerm.toLowerCase().split(' ').filter(word => word.length > 0);
+       let visibleCount = 0;
+       let matchingArticles: Array<{ article: Element; relevanceScore: number }> = [];
+
+       newsArticles.forEach(article => {
+         const title = article.querySelector('h2')?.textContent?.toLowerCase() || '';
+         const paragraphs = Array.from(article.querySelectorAll('p')).map(p => p.textContent?.toLowerCase() || '').join(' ');
+         const postType = article.querySelector('.inline-flex')?.textContent?.toLowerCase() || '';
+         const date = article.querySelector('.bg-indigo-600')?.textContent?.toLowerCase() || '';
+         
+         // Combine all searchable text
+         const searchableText = `${title} ${paragraphs} ${postType} ${date}`;
+         
+         // Check if any search word is found in the text
+         const isMatch = searchWords.some(word => 
+           searchableText.includes(word)
+         );
+
+         if (isMatch) {
+           article.style.display = '';
+           article.classList.add('search-highlight');
+           visibleCount++;
+           
+           // Calculate relevance score for sorting
+           let relevanceScore = 0;
+           searchWords.forEach(word => {
+             if (word.length > 2) {
+               // Higher score for title matches
+               if (title.includes(word)) relevanceScore += 10;
+               // Medium score for paragraph matches
+               if (paragraphs.includes(word)) relevanceScore += 5;
+               // Lower score for post type and date matches
+               if (postType.includes(word)) relevanceScore += 3;
+               if (date.includes(word)) relevanceScore += 2;
+             }
+           });
+           
+           matchingArticles.push({ article, relevanceScore });
+           
+           // Only clear and re-apply highlights if this is a new search
+           // If it's just sorting, preserve existing highlights
+           if (!article.classList.contains('search-highlight')) {
+             clearHighlights(article);
+             highlightSearchTerms(article, searchWords);
+           }
+         } else {
+           article.style.display = 'none';
+           article.classList.remove('search-highlight');
+           // Clear highlights for hidden articles
+           clearHighlights(article);
+         }
+       });
+
+       // Sort by relevance if requested
+       if (sortByRelevance && matchingArticles.length > 0) {
+         matchingArticles.sort((a, b) => b.relevanceScore - a.relevanceScore);
+         reorderArticles(matchingArticles.map(item => item.article));
+       }
+
+       // Update results count and show results info
+       resultsCount.textContent = visibleCount.toString();
+       searchResults.classList.remove('hidden');
+       clearSearchBtn.classList.remove('hidden');
+     }
+
+     function clearHighlights(article: Element) {
+       // Remove only search highlight marks (yellow), preserve original highlights (spans)
+       const title = article.querySelector('h2');
+       if (title) {
+         // Remove only <mark> tags, keep original <span> highlights
+         title.innerHTML = title.innerHTML.replace(/<mark[^>]*>(.*?)<\/mark>/gi, '$1');
+       }
+
+       // Remove only search highlight marks from paragraphs
+       const paragraphs = article.querySelectorAll('p');
+       paragraphs.forEach(p => {
+         // Remove only <mark> tags, keep original <span> highlights
+         p.innerHTML = p.innerHTML.replace(/<mark[^>]*>(.*?)<\/mark>/gi, '$1');
+       });
+     }
+
+     function reorderArticles(articles: Element[]) {
+       const container = document.querySelector('.space-y-16');
+       if (!container) return;
+       
+       // Remove all articles from container
+       articles.forEach(article => {
+         container.appendChild(article);
+       });
+       
+       // Update current order
+       currentOrder = [...articles];
+     }
+
+     function resetToOriginalOrder() {
+       const container = document.querySelector('.space-y-16');
+       if (!container) return;
+       
+       // Remove all articles from container
+       originalOrder.forEach(article => {
+         container.appendChild(article);
+       });
+       
+       // Reset current order
+       currentOrder = [...originalOrder];
+       
+       // Don't clear highlights when just resetting order
+       // Highlights will be preserved if there's an active search
+     }
+
+     function highlightSearchTerms(article: Element, searchWords: string[]) {
+       // Highlight in title
+       const title = article.querySelector('h2');
+       if (title) {
+         let titleText = title.textContent || '';
+         searchWords.forEach(word => {
+           if (word.length > 2) {
+             const regex = new RegExp(`(${word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+             titleText = titleText.replace(regex, '<mark class="bg-yellow-200 dark:bg-yellow-800 px-1 rounded">$1</mark>');
+           }
+         });
+         title.innerHTML = titleText;
+       }
+
+       // Highlight in paragraphs
+       const paragraphs = article.querySelectorAll('p');
+       paragraphs.forEach(p => {
+         let paragraphText = p.textContent || '';
+         searchWords.forEach(word => {
+           if (word.length > 2) {
+             const regex = new RegExp(`(${word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+             paragraphText = paragraphText.replace(regex, '<mark class="bg-yellow-200 dark:bg-yellow-800 px-1 rounded">$1</mark>');
+           }
+         });
+         p.innerHTML = paragraphText;
+       });
+     }
+
+     function clearSearch() {
+       searchInput.value = '';
+       newsArticles.forEach(article => {
+         article.style.display = '';
+         article.classList.remove('search-highlight');
+         // Only remove search highlights, preserve original keyword highlights
+         clearHighlights(article);
+       });
+       searchResults.classList.add('hidden');
+       clearSearchBtn.classList.add('hidden');
+       
+       // Clear sessionStorage to prevent search from persisting on refresh
+       sessionStorage.removeItem('searchTerm');
+       sessionStorage.removeItem('sortByRelevance');
+     }
+
+         // Event listeners
+     searchInput.addEventListener('input', (e) => {
+       const target = e.target as HTMLInputElement;
+       // If input is empty, clear everything including highlights
+       if (!target.value.trim()) {
+         clearSearch();
+       } else {
+         // Only filter on input, don't sort
+         performSearch(target.value, false);
+       }
+     });
+
+     clearSearchBtn.addEventListener('click', clearSearch);
+
+     // Search button click - refresh page with sorted results
+     const searchButton = document.getElementById('searchButton') as HTMLButtonElement;
+     searchButton.addEventListener('click', () => {
+       if (searchInput.value.trim()) {
+         // Store search term in sessionStorage for page refresh
+         sessionStorage.setItem('searchTerm', searchInput.value);
+         sessionStorage.setItem('sortByRelevance', 'true');
+         // Refresh the page
+         window.location.reload();
+       }
+     });
+
+     // Reset order button
+     const resetOrderButton = document.getElementById('resetOrderButton') as HTMLButtonElement;
+     resetOrderButton.addEventListener('click', () => {
+       // Clear search and reset to original order
+       searchInput.value = '';
+       sessionStorage.removeItem('searchTerm');
+       sessionStorage.removeItem('sortByRelevance');
+       performSearch('', false);
+       resetToOriginalOrder();
+     });
+
+     // Search on Enter key - refresh page with sorted results
+     searchInput.addEventListener('keydown', (e) => {
+       if (e.key === 'Enter') {
+         e.preventDefault();
+         if (searchInput.value.trim()) {
+           // Store search term in sessionStorage for page refresh
+           sessionStorage.setItem('searchTerm', searchInput.value);
+           sessionStorage.setItem('sortByRelevance', 'true');
+           // Refresh the page
+           window.location.reload();
+         }
+       }
+     });
+
+     // Check if there's a stored search on page load
+     const storedSearchTerm = sessionStorage.getItem('searchTerm');
+     const storedSortByRelevance = sessionStorage.getItem('sortByRelevance');
+     
+     if (storedSearchTerm && storedSortByRelevance === 'true') {
+       // Set the search input value
+       searchInput.value = storedSearchTerm;
+       // Perform search with sorting
+       performSearch(storedSearchTerm, true);
+       // Show search results
+       searchResults.classList.remove('hidden');
+       clearSearchBtn.classList.remove('hidden');
+     }
+  });
+
+
+</script>
+
+<!-- Gallery Popup Modal -->
+<div id="galleryModal" class="fixed inset-0 z-50 hidden bg-black bg-opacity-90">
+  <div class="flex h-full w-full items-center justify-center p-4">
+    <div class="relative max-h-full max-w-6xl w-full">
+      <!-- Close button -->
+      <button
+        id="closeGalleryModal"
+        class="absolute -top-12 right-0 z-10 rounded-full bg-white p-2 text-black hover:bg-gray-200"
+      >
+        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+
+      <!-- Main image -->
+      <div class="relative">
+        <img
+          id="galleryImage"
+          src=""
+          alt=""
+          class="max-h-[80vh] max-w-full object-contain mx-auto"
+        />
+
+        <!-- Navigation arrows -->
+        <button
+          id="prevGalleryImage"
+          class="absolute left-4 top-1/2 transform -translate-y-1/2 rounded-full bg-white bg-opacity-80 p-2 text-black hover:bg-opacity-100"
+        >
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+          </svg>
+        </button>
+
+        <button
+          id="nextGalleryImage"
+          class="absolute right-4 top-1/2 transform -translate-y-1/2 rounded-full bg-white bg-opacity-80 p-2 text-black hover:bg-opacity-100"
+        >
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+          </svg>
+        </button>
+
+        <!-- Image counter -->
+        <div class="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-black bg-opacity-50 text-white px-4 py-2 rounded-full">
+          <span id="galleryCounter">1 / 1</span>
+        </div>
+      </div>
+
+      <!-- Thumbnails -->
+      <div class="mt-4 max-h-24 overflow-x-auto">
+        <div id="galleryThumbnails" class="flex gap-2 justify-center min-w-max px-4">
+          <!-- Thumbnails will be inserted here -->
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Gallery functionality
+  document.addEventListener('DOMContentLoaded', function() {
+    const galleryModal = document.getElementById('galleryModal');
+    const galleryImage = document.getElementById('galleryImage') as HTMLImageElement;
+    const galleryCounter = document.getElementById('galleryCounter');
+    const closeGalleryModal = document.getElementById('closeGalleryModal');
+    const prevGalleryImage = document.getElementById('prevGalleryImage');
+    const nextGalleryImage = document.getElementById('nextGalleryImage');
+    const galleryThumbnails = document.getElementById('galleryThumbnails');
+
+    let currentGalleryPhotos: Array<{url: string, alt: string, title: string}> = [];
+    let currentGalleryIndex = 0;
+
+    // Gallery button click handlers
+    document.addEventListener('click', function(e) {
+      const target = e.target as HTMLElement;
+      const galleryButton = target.closest('.gallery-button');
+      
+      if (galleryButton) {
+        const galleryPhotosData = galleryButton.getAttribute('data-gallery-photos');
+        if (galleryPhotosData) {
+          currentGalleryPhotos = JSON.parse(galleryPhotosData);
+          currentGalleryIndex = 0;
+          openGallery();
+        }
+      }
+    });
+
+    function openGallery() {
+      if (currentGalleryPhotos.length === 0) return;
+      
+      galleryModal?.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+      showGalleryImage(0);
+      createThumbnails();
+    }
+
+    function closeGallery() {
+      galleryModal?.classList.add('hidden');
+      document.body.style.overflow = 'auto';
+    }
+
+    function showGalleryImage(index: number) {
+      if (index < 0 || index >= currentGalleryPhotos.length) return;
+      
+      currentGalleryIndex = index;
+      const photo = currentGalleryPhotos[index];
+      
+      if (galleryImage) {
+        galleryImage.src = photo.url;
+        galleryImage.alt = photo.alt;
+      }
+      
+      if (galleryCounter) {
+        galleryCounter.textContent = `${index + 1} / ${currentGalleryPhotos.length}`;
+      }
+      
+      updateThumbnailSelection();
+    }
+
+    function createThumbnails() {
+      if (!galleryThumbnails) return;
+      
+      galleryThumbnails.innerHTML = '';
+      
+      currentGalleryPhotos.forEach((photo, index) => {
+        const thumbnail = document.createElement('img');
+        thumbnail.src = photo.url;
+        thumbnail.alt = photo.alt;
+        thumbnail.className = 'w-16 h-16 object-cover cursor-pointer border-2 border-transparent hover:border-white transition-all duration-200';
+        thumbnail.addEventListener('click', () => showGalleryImage(index));
+        galleryThumbnails.appendChild(thumbnail);
+      });
+      
+      updateThumbnailSelection();
+    }
+
+    function updateThumbnailSelection() {
+      if (!galleryThumbnails) return;
+      
+      const thumbnails = galleryThumbnails.querySelectorAll('img');
+      thumbnails.forEach((thumb, index) => {
+        if (index === currentGalleryIndex) {
+          thumb.classList.add('border-white');
+          thumb.classList.remove('border-transparent');
+        } else {
+          thumb.classList.add('border-transparent');
+          thumb.classList.remove('border-white');
+        }
+      });
+    }
+
+    function nextImage() {
+      const nextIndex = (currentGalleryIndex + 1) % currentGalleryPhotos.length;
+      showGalleryImage(nextIndex);
+    }
+
+    function prevImage() {
+      const prevIndex = (currentGalleryIndex - 1 + currentGalleryPhotos.length) % currentGalleryPhotos.length;
+      showGalleryImage(prevIndex);
+    }
+
+    // Event listeners
+    closeGalleryModal?.addEventListener('click', closeGallery);
+    prevGalleryImage?.addEventListener('click', prevImage);
+    nextGalleryImage?.addEventListener('click', nextImage);
+
+    // Close modal on background click
+    galleryModal?.addEventListener('click', function(e) {
+      if (e.target === galleryModal) {
+        closeGallery();
+      }
+    });
+
+    // Keyboard navigation
+    document.addEventListener('keydown', function(e) {
+      if (!galleryModal?.classList.contains('hidden')) {
+        if (e.key === 'Escape') {
+          closeGallery();
+        } else if (e.key === 'ArrowLeft') {
+          prevImage();
+        } else if (e.key === 'ArrowRight') {
+          nextImage();
+        }
+      }
+    });
+  });
+</script>
+
+<style>
+/* Search highlight styles */
+.search-highlight {
+  animation: searchPulse 0.5s ease-in-out;
+}
+
+@keyframes searchPulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+  100% { transform: scale(1); }
+}
+
+/* Smooth transitions for search results */
+article {
+  transition: all 0.3s ease-in-out;
+}
+
+/* Highlight mark styles */
+mark {
+  background: linear-gradient(120deg, #fef3c7 0%, #fde68a 100%);
+  color: #92400e;
+  padding: 0.125rem 0.25rem;
+  border-radius: 0.25rem;
+  font-weight: 600;
+}
+
+.dark mark {
+  background: linear-gradient(120deg, #78350f 0%, #92400e 100%);
+  color: #fef3c7;
+}
+
+/* Search input focus animation */
+#searchInput:focus {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.1), 0 10px 10px -5px rgba(59, 130, 246, 0.04);
+}
+
+.dark #searchInput:focus {
+  box-shadow: 0 10px 25px -5px rgba(234, 179, 8, 0.1), 0 10px 10px -5px rgba(234, 179, 8, 0.04);
+}
+</style>
+

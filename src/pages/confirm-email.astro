@@ -1,0 +1,200 @@
+---
+import MainLayout from "@/layouts/MainLayout.astro";
+import Icon from "@/components/ui/icons/Icon.astro";
+import PrimaryCTA from "@/components/ui/buttons/PrimaryCTA.astro";
+import SecondaryCTA from "@/components/ui/buttons/SecondaryCTA.astro";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import CancelIcon from "@mui/icons-material/Cancel";
+import MarkEmailReadIcon from "@mui/icons-material/MarkEmailRead";
+import UnsubscribeIcon from "@mui/icons-material/Unsubscribe";
+
+// Get the token from URL params
+const token = Astro.url.searchParams.get("token");
+---
+
+<MainLayout title="Confirmă Email - Călărași Warriors">
+    <div class="mx-auto max-w-2xl px-4 py-16 text-center sm:px-6 lg:px-8">
+        <!-- <div class="mb-8">
+            <div
+                class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-yellow-100 dark:bg-yellow-900"
+            >
+                <Icon
+                    name="envelope"
+                    class="h-8 w-8 text-yellow-600 dark:text-yellow-400"
+                />
+            </div>
+        </div> -->
+
+        <div id="confirmation-content">
+            {
+                token ? (
+                    <div>
+                        <h1 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl dark:text-white">
+                            Confirmarea email-ului
+                        </h1>
+                        <p class="mt-4 text-lg text-gray-600 dark:text-gray-300">
+                            Se procesează confirmarea email-ului tău...
+                        </p>
+                        <div class="mt-6">
+                            <div class="inline-flex items-center rounded-md bg-gray-100 px-4 py-2 text-sm font-medium text-gray-500 dark:bg-gray-800 dark:text-gray-400">
+                                <svg
+                                    class="mr-3 -ml-1 h-5 w-5 animate-spin text-gray-500 dark:text-gray-400"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <circle
+                                        class="opacity-25"
+                                        cx="12"
+                                        cy="12"
+                                        r="10"
+                                        stroke="currentColor"
+                                        stroke-width="4"
+                                    />
+                                    <path
+                                        class="opacity-75"
+                                        fill="currentColor"
+                                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                    />
+                                </svg>
+                                Se verifică token-ul...
+                            </div>
+                        </div>
+                    </div>
+                ) : (
+                    <div>
+                        <h1 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl dark:text-white">
+                            Link invalid
+                        </h1>
+                        <p class="mt-4 text-lg text-gray-600 dark:text-gray-300">
+                            Link-ul de confirmare este invalid sau lipsă.
+                        </p>
+                        <div class="mt-8 flex flex-col gap-4 sm:flex-row sm:justify-center">
+                            <PrimaryCTA
+                                url="/contact"
+                                title="Mergi la Contact"
+                            />
+                            <SecondaryCTA url="/" title="Acasă" />
+                        </div>
+                    </div>
+                )
+            }
+        </div>
+
+        <div id="success-content" class="hidden">
+            <div class="mb-8">
+                <div
+                    class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-white dark:bg-white"
+                >
+                    <MarkEmailReadIcon sx={{ color: "green", fontSize: 40 }} />
+                </div>
+            </div>
+            <h1
+                class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl dark:text-white"
+            >
+                Email confirmat cu succes!
+            </h1>
+            <p class="mt-4 text-lg text-gray-600 dark:text-gray-300">
+                Mulțumim că ai confirmat adresa ta de email. Mesajul tău a fost
+                trimis cu succes și vom reveni la tine în cel mai scurt timp.
+            </p>
+            <div class="mt-8 flex flex-col gap-4 sm:flex-row sm:justify-center">
+                <PrimaryCTA url="/contact" title="Trimite alt mesaj" />
+                <SecondaryCTA url="/" title="Acasă" />
+            </div>
+        </div>
+
+        <div id="error-content" class="hidden">
+            <div class="mb-8">
+                <div
+                    class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-white dark:bg-white"
+                >
+                    <UnsubscribeIcon sx={{ color: "red", fontSize: 40 }} />
+                </div>
+            </div>
+            <h1
+                class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl dark:text-white"
+            >
+                Eroare la confirmare
+            </h1>
+            <p class="mt-4 text-lg text-gray-600 dark:text-gray-300">
+                <span id="error-message"
+                    >A apărut o eroare la confirmarea email-ului.</span
+                >
+            </p>
+            <div class="mt-8 flex flex-col gap-4 sm:flex-row sm:justify-center">
+                <PrimaryCTA url="/contact" title="Încearcă din nou" />
+                <SecondaryCTA url="/" title="Acasă" />
+            </div>
+        </div>
+    </div>
+</MainLayout>
+
+<script>
+    // Handle email confirmation
+    const token = new URLSearchParams(window.location.search).get("token");
+
+    if (token) {
+        confirmEmail(token);
+    }
+
+    async function confirmEmail(token: string) {
+        try {
+            const response = await fetch(`/api/confirm-email?token=${token}`, {
+                method: "GET",
+            });
+
+            const data = await response.json();
+
+            // Hide the confirmation content
+            const confirmationContent = document.getElementById(
+                "confirmation-content",
+            );
+            if (confirmationContent) {
+                confirmationContent.classList.add("hidden");
+            }
+
+            if (data.ok) {
+                // Show success content
+                const successContent =
+                    document.getElementById("success-content");
+                if (successContent) {
+                    successContent.classList.remove("hidden");
+                }
+            } else {
+                // Show error content
+                const errorContent = document.getElementById("error-content");
+                if (errorContent) {
+                    errorContent.classList.remove("hidden");
+                }
+                const errorMessage = document.getElementById("error-message");
+                if (errorMessage) {
+                    errorMessage.textContent =
+                        data.error ||
+                        "A apărut o eroare la confirmarea email-ului.";
+                }
+            }
+        } catch (error) {
+            console.error("Error confirming email:", error);
+
+            // Hide the confirmation content
+            const confirmationContent = document.getElementById(
+                "confirmation-content",
+            );
+            if (confirmationContent) {
+                confirmationContent.classList.add("hidden");
+            }
+
+            // Show error content
+            const errorContent = document.getElementById("error-content");
+            if (errorContent) {
+                errorContent.classList.remove("hidden");
+            }
+            const errorMessage = document.getElementById("error-message");
+            if (errorMessage) {
+                errorMessage.textContent =
+                    "A apărut o eroare de rețea. Încearcă din nou.";
+            }
+        }
+    }
+</script>

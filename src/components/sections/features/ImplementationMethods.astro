@@ -1,0 +1,366 @@
+---
+// Import the necessary dependencies
+import { Image } from "astro:assets";
+import IconBlock from "@components/ui/blocks/IconBlock.astro";
+import Icon from "@components/ui/icons/Icon.astro";
+import FormatQuoteIcon from "@mui/icons-material/FormatQuote";
+import AvatarTestimonialSection from "@components/ui/avatars/AvatarTestimonialSection.astro";
+
+interface Feature {
+  heading: string;
+  content: string;
+  svg: string;
+}
+
+interface Props {
+  title?: string;
+  subTitle?: string;
+  secondSubTitle?: string;
+  thirdSubTitle?: string;
+  fourthSubTitle?: string;
+  fifthSubTitle?: string;
+  sixthSubTitle?: string;
+  seventhSubTitle?: string;
+  eighthSubTitle?: string;
+  ninthSubTitle?: string;
+  tenthSubTitle?: string;
+  eleventhSubTitle?: string;
+  twelfthSubTitle?: string;
+  thirteenthSubTitle?: string;
+  fourteenthSubTitle?: string;
+  features?: Feature[];
+  src?: any;
+  alt?: string;
+}
+// Define props from Astro
+const { title, subTitle, secondSubTitle, thirdSubTitle, fourthSubTitle, fifthSubTitle, sixthSubTitle, seventhSubTitle, eighthSubTitle, ninthSubTitle, tenthSubTitle, eleventhSubTitle, twelfthSubTitle, thirteenthSubTitle, fourteenthSubTitle, src, alt, features } = Astro.props;
+---
+
+<section
+  class="mx-auto max-w-[85rem] px-4 py-10 sm:px-6 lg:px-8 lg:py-14 2xl:max-w-full"
+>
+  <!-- Block to display the feature image -->
+  <div
+    class="fade-in-element relative mb-6 flex justify-center overflow-hidden md:mb-8"
+  >
+    {
+      src && alt && (
+        <Image
+          src={src}
+          alt={alt}
+          class="h-full w-full object-cover object-center"
+          draggable={"false"}
+          format={"avif"}
+          loading={"eager"}
+        />
+      )
+    }
+  </div>
+
+  <!-- Displaying the main content consisting of title, subtitle, and several `IconBlock` components -->
+  <div class="mt-2 grid gap-8 lg:mt-2 lg:grid-cols-3 lg:gap-12 overflow-hidden">
+    <!-- Block for title and subtitle -->
+    <div class="text-center lg:col-span-1 lg:text-left min-w-0">
+      <!-- Rendering title -->
+      <h2
+        class="fade-in-element text-2xl font-bold text-balance text-black md:text-2xl dark:text-white"
+        
+      >
+        {title}
+      </h2>
+      <!-- Rendering subtitle -->
+      {
+        subTitle && (
+          <p
+            class="fade-in-element mt-2 text-left text-lg text-pretty text-indigo-600 font-bold md:mt-4 dark:text-yellow-400"
+          
+          >
+            <Fragment set:html={subTitle} />
+          </p>
+        )
+      }
+      {secondSubTitle && (
+        <p
+          class="fade-in-element mt-2 text-left text-lg text-pretty text-indigo-600 font-bold md:mt-4 dark:text-yellow-400"
+         
+        >
+          <Fragment set:html={secondSubTitle} />
+        </p>
+      )}
+      {thirdSubTitle && (
+        <p
+          class="fade-in-element mt-2 text-left text-lg text-pretty text-indigo-600 font-bold md:mt-4 dark:text-yellow-400"
+          
+        >
+          <Fragment set:html={thirdSubTitle} />
+        </p>
+      )}
+      {fourthSubTitle && (
+        <p
+          class="fade-in-element mt-2 text-left text-lg text-pretty text-indigo-600 font-bold md:mt-4 dark:text-yellow-400"
+         
+        >
+          <Fragment set:html={fourthSubTitle} />
+        </p>
+      )}
+      {fifthSubTitle && (
+        <p
+          class="fade-in-element mt-2 text-left text-lg text-pretty text-indigo-600 font-bold md:mt-4 dark:text-yellow-400"
+          
+        >
+          <Fragment set:html={fifthSubTitle} />
+        </p>
+      )}
+      {sixthSubTitle && (
+        <p
+          class="fade-in-element mt-2 text-left text-lg text-pretty text-indigo-600 font-bold md:mt-4 dark:text-yellow-400"
+         
+        >
+          <Fragment set:html={sixthSubTitle} />
+        </p>
+      )}
+      {seventhSubTitle && (
+        <p
+          class="fade-in-element mt-2 text-left text-lg text-pretty text-indigo-600 font-bold md:mt-4 dark:text-yellow-400"
+       
+        >
+          <Fragment set:html={seventhSubTitle} />
+        </p>
+      )}
+      {eighthSubTitle && (
+        <p
+          class="fade-in-element mt-2 text-left text-2xl text-pretty text-black font-bold md:mt-4 dark:text-white"
+          
+        >   
+          <Fragment set:html={eighthSubTitle} />
+        </p>
+        
+      )}
+      {ninthSubTitle && (
+        <p
+          class="fade-in-element mt-2 text-left text-lg text-pretty text-black  md:mt-4 dark:text-white"
+          
+        >   
+          <Fragment set:html={ninthSubTitle} />
+        </p>
+      )}
+     
+      {
+        ninthSubTitle && (
+        <div class="mt-10 flex h-auto min-w-0">
+      <div
+        class="fade-in-element flex h-full flex-col rounded-xl border-l-5 border-indigo-600 bg-yellow-50/60 dark:border-yellow-400 dark:bg-neutral-700 min-w-0"
+      >
+        <div class="flex-auto p-4 md:p-6">
+          <!-- Testimonial content -->
+          <p
+            class="text-left text-pretty text-black italic md:text-lg dark:text-white"
+          >
+            <FormatQuoteIcon style={{ transform: "rotate(180deg)" }} />
+            <Fragment set:html={tenthSubTitle} />
+            <FormatQuoteIcon />
+          </p>
+         
+        
+          
+        </div>
+
+        <div
+          class="rounded-b-xl bg-neutral-300/30 p-4 md:px-7 dark:bg-neutral-900/30"
+        >
+          <div class="flex items-center text-left">
+            <AvatarTestimonialSection src={'https://res.cloudinary.com/drtkpapql/image/upload/w_50,h_50,c_fill,q_auto/calarasi_warriors_logo_ws33uj'} alt={alt || ""} />
+
+            <div class="ms-3 grow min-w-0">
+              <p
+                class="text-sm font-bold text-black sm:text-base dark:text-white"
+              >
+                {"Echipa Călărași Warriors"}
+              </p>
+              <p class="text-sm font-bold text-indigo-600 dark:text-yellow-400">
+                {"Antrenori, părinți și sportivi"}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+        )
+      }
+
+      {eleventhSubTitle && (
+        <p
+          class="fade-in-element mt-2 text-left text-lg text-pretty text-indigo-600 font-bold italic md:mt-4 dark:text-yellow-400"
+          
+        >   
+        <FormatQuoteIcon style={{ transform: "rotate(180deg)" }} />
+          <Fragment set:html={eleventhSubTitle} />
+          <FormatQuoteIcon />
+        </p>
+      )}
+      {twelfthSubTitle && (
+        <p
+          class="fade-in-element mt-2 text-left text-lg text-pretty text-black md:mt-4 dark:text-white"
+          
+        >   
+          <Fragment set:html={twelfthSubTitle} />
+        </p>
+      )}
+
+{
+  thirteenthSubTitle && (
+  <div class="mt-10 flex h-auto min-w-0">
+<div
+  class="fade-in-element flex h-full flex-col rounded-xl border-l-5 border-indigo-600 bg-yellow-50/60 dark:border-yellow-400 dark:bg-neutral-700 min-w-0"
+>
+  <div class="flex-auto p-4 md:p-6">
+    <!-- Testimonial content -->
+    <p
+      class="text-left text-pretty text-black italic md:text-lg dark:text-white"
+    >
+      <FormatQuoteIcon style={{ transform: "rotate(180deg)" }} />
+      <Fragment set:html={thirteenthSubTitle} />
+      <FormatQuoteIcon />
+    </p>
+   
+  
+    
+  </div>
+
+  <div
+    class="rounded-b-xl bg-neutral-300/30 p-4 md:px-7 dark:bg-neutral-900/30"
+  >
+    <div class="flex items-center text-left">
+      <AvatarTestimonialSection src={'https://res.cloudinary.com/drtkpapql/image/upload/w_50,h_50,c_fill,q_auto/calarasi_warriors_logo_ws33uj'} alt={alt || ""} />
+
+      <div class="ms-3 grow min-w-0">
+        <p
+          class="text-sm font-bold text-black sm:text-base dark:text-white"
+        >
+          {"Echipa Călărași Warriors"}
+        </p>
+        <p class="text-sm font-bold text-indigo-600 dark:text-yellow-400">
+          {"Antrenori, părinți și sportivi"}
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+  )
+}
+    </div>
+
+    <!-- Block to display the IconBlock components -->
+    <div class="lg:col-span-2 min-w-0">
+      <div class="grid gap-8 sm:grid-cols-2 md:gap-12">
+        <!-- Injecting IconBlock components with different properties -->
+        {
+          features &&
+            features.map((feature, index) => (
+              <div class="fade-in-element min-w-0">
+                <IconBlock heading={feature.heading} content={feature.content}>
+                  <Icon name={feature.svg} />
+                </IconBlock>
+              </div>
+            ))
+        }
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .fade-in-element {
+    opacity: 0;
+    transform: translateY(30px);
+    transition:
+      opacity 0.8s ease-out,
+      transform 0.8s ease-out;
+  }
+  
+  /* Prevent horizontal overflow from HTML content */
+  .fade-in-element p {
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    max-width: 100%;
+  }
+  
+  /* Ensure all content stays within bounds */
+  .fade-in-element * {
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .fade-in-element.fade-in {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Staggered animation delays */
+  .fade-in-element[data-delay="0"] {
+    transition-delay: 0ms;
+  }
+  .fade-in-element[data-delay="200"] {
+    transition-delay: 200ms;
+  }
+  .fade-in-element[data-delay="400"] {
+    transition-delay: 400ms;
+  }
+  .fade-in-element[data-delay="600"] {
+    transition-delay: 600ms;
+  }
+  .fade-in-element[data-delay="800"] {
+    transition-delay: 800ms;
+  }
+  .fade-in-element[data-delay="1000"] {
+    transition-delay: 1000ms;
+  }
+  .fade-in-element[data-delay="1200"] {
+    transition-delay: 1200ms;
+  }
+  .fade-in-element[data-delay="1400"] {
+    transition-delay: 1400ms;
+  }
+  .fade-in-element[data-delay="1600"] {
+    transition-delay: 1600ms;
+  }
+  .fade-in-element[data-delay="1800"] {
+    transition-delay: 1800ms;
+  }
+  .fade-in-element[data-delay="2000"] {
+    transition-delay: 2000ms;
+  }
+</style>
+
+<script>
+  // Intersection Observer for fade-in animations
+  const observerOptions = {
+    threshold: 0.1,
+    rootMargin: "0px 0px -50px 0px",
+  };
+
+  const fadeInObserver = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        const element = entry.target as HTMLElement;
+        const delay = parseInt(element.dataset.delay || "0");
+
+        setTimeout(() => {
+          element.classList.add("fade-in");
+        }, delay);
+
+        // Unobserve after animation is triggered
+        fadeInObserver.unobserve(element);
+      }
+    });
+  }, observerOptions);
+
+  // Observe all fade-in elements
+  document.addEventListener("DOMContentLoaded", () => {
+    const fadeElements = document.querySelectorAll(".fade-in-element");
+    fadeElements.forEach((element) => {
+      fadeInObserver.observe(element);
+    });
+  });
+</script>

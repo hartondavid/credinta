@@ -1,0 +1,182 @@
+---
+import MainLayout from "@/layouts/MainLayout.astro";
+import { getMappedCurrentProjects } from "@/components/pages/projects/projectData";
+
+const projects = getMappedCurrentProjects();
+---
+
+<MainLayout title="Test Carousel">
+    <div class="container mx-auto p-8">
+        <h1 class="mb-8 text-3xl font-bold">Test Carousel - Debug</h1>
+
+        {
+            projects.map((project, index) => (
+                <div class="mb-12 rounded-lg border p-6">
+                    <h2 class="mb-4 text-xl font-semibold">{project.title}</h2>
+
+                    <div class="mb-4">
+                        <p>
+                            <strong>Photo Count:</strong>{" "}
+                            {project.photos.length}
+                        </p>
+                        <p>
+                            <strong>Post Type:</strong> {project.postType}
+                        </p>
+                    </div>
+
+                    {project.photos.length > 0 ? (
+                        <div class="carousel-container relative h-64 w-full border-2 border-red-500">
+                            {project.photos.map((photo, photoIndex) => (
+                                <div
+                                    class={`carousel-item absolute inset-0 transition-opacity duration-500 ${
+                                        photoIndex === 0
+                                            ? "opacity-100"
+                                            : "opacity-0"
+                                    }`}
+                                    data-event-index={index}
+                                    data-photo-index={photoIndex}
+                                >
+                                    <img
+                                        src={photo.url}
+                                        alt={photo.alt}
+                                        title={photo.title}
+                                        class="h-full w-full object-cover"
+                                        loading="lazy"
+                                        onload="console.log('✅ Image loaded successfully:', this.src)"
+                                        onerror="console.error('❌ Image failed to load:', this.src, 'Error:', this.naturalWidth, 'x', this.naturalHeight)"
+                                    />
+                                    <div class="bg-opacity-75 absolute bottom-2 left-2 rounded bg-black px-2 py-1 text-sm text-white">
+                                        Photo {photoIndex + 1} of{" "}
+                                        {project.photos.length}
+                                    </div>
+                                </div>
+                            ))}
+
+                            {/* Carousel Navigation */}
+                            <div class="absolute bottom-4 left-1/2 flex -translate-x-1/2 space-x-2">
+                                {project.photos.map((_, photoIndex) => (
+                                    <button
+                                        class="carousel-dot h-3 w-3 rounded-full bg-white opacity-50 transition-opacity hover:opacity-100"
+                                        data-carousel-index={photoIndex}
+                                        data-event-index={index}
+                                    />
+                                ))}
+                            </div>
+
+                            {/* Previous/Next buttons */}
+                            <button
+                                class="carousel-prev bg-opacity-75 absolute top-1/2 left-2 -translate-y-1/2 rounded-full bg-black p-2 text-white"
+                                data-event-index={index}
+                            >
+                                ←
+                            </button>
+                            <button
+                                class="carousel-next bg-opacity-75 absolute top-1/2 right-2 -translate-y-1/2 rounded-full bg-black p-2 text-white"
+                                data-event-index={index}
+                            >
+                                →
+                            </button>
+                        </div>
+                    ) : (
+                        <div class="flex h-32 items-center justify-center rounded bg-gray-200">
+                            <p class="text-gray-500">No photos available</p>
+                        </div>
+                    )}
+
+                    <div class="mt-4 text-sm text-gray-600">
+                        <p>
+                            <strong>Photo URLs:</strong>
+                        </p>
+                        <ul class="list-inside list-disc">
+                            {project.photos.map((photo, photoIndex) => (
+                                <li>
+                                    Photo {photoIndex + 1}: {photo.url}
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                </div>
+            ))
+        }
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            console.log("🚀 Test Carousel Page Loaded");
+
+            const carousels = document.querySelectorAll(".carousel-container");
+            console.log(`Found ${carousels.length} carousels`);
+
+            carousels.forEach((carousel, eventIndex) => {
+                const items = carousel.querySelectorAll(".carousel-item");
+                const dots = carousel.querySelectorAll(".carousel-dot");
+                const prevBtn = carousel.querySelector(".carousel-prev");
+                const nextBtn = carousel.querySelector(".carousel-next");
+
+                console.log(`Carousel ${eventIndex}:`, {
+                    items: items.length,
+                    dots: dots.length,
+                    hasPrevBtn: !!prevBtn,
+                    hasNextBtn: !!nextBtn,
+                });
+
+                let currentIndex = 0;
+
+                function showItem(index: number) {
+                    console.log(
+                        `Showing item ${index} in carousel ${eventIndex}`,
+                    );
+                    items.forEach((item, i) => {
+                        const element = item as HTMLElement;
+                        element.style.opacity = i === index ? "1" : "0";
+                    });
+
+                    dots.forEach((dot, i) => {
+                        const element = dot as HTMLElement;
+                        element.style.opacity = i === index ? "1" : "0.5";
+                    });
+                }
+
+                // Dot navigation
+                dots.forEach((dot, index) => {
+                    dot.addEventListener("click", () => {
+                        console.log(
+                            `Dot ${index} clicked in carousel ${eventIndex}`,
+                        );
+                        currentIndex = index;
+                        showItem(currentIndex);
+                    });
+                });
+
+                // Previous button
+                if (prevBtn) {
+                    prevBtn.addEventListener("click", () => {
+                        console.log(
+                            `Prev button clicked in carousel ${eventIndex}`,
+                        );
+                        currentIndex =
+                            (currentIndex - 1 + items.length) % items.length;
+                        showItem(currentIndex);
+                    });
+                }
+
+                // Next button
+                if (nextBtn) {
+                    nextBtn.addEventListener("click", () => {
+                        console.log(
+                            `Next button clicked in carousel ${eventIndex}`,
+                        );
+                        currentIndex = (currentIndex + 1) % items.length;
+                        showItem(currentIndex);
+                    });
+                }
+
+                // Auto-advance carousel
+                setInterval(() => {
+                    currentIndex = (currentIndex + 1) % items.length;
+                    showItem(currentIndex);
+                }, 5000);
+            });
+        });
+    </script>
+</MainLayout>

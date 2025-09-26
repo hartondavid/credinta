@@ -1,0 +1,437 @@
+---
+import MainLayout from "../layouts/MainLayout.astro";
+
+// Get token from URL params
+const token = Astro.url.searchParams.get("token");
+---
+
+<MainLayout title="Confirmare participare - Calarași Warriors">
+    <div class="min-h-screen py-12">
+        <div class="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 dark:bg-neutral-700">
+            <div id="confirmationContent" class="text-center">
+                <!-- Loading state -->
+                <div id="loadingState" class="space-y-6">
+                    <div
+                        class="mx-auto h-16 w-16 animate-spin rounded-full border-4 border-blue-600 border-t-transparent"
+                    >
+                    </div>
+                    <h1
+                        class="text-2xl font-semibold text-gray-700 dark:text-white"
+                    >
+                        Se procesează confirmarea...
+                    </h1>
+                    <p class="text-gray-500 dark:text-white">
+                        Te rugăm să aștepți câteva momente.
+                    </p>
+                </div>
+
+                <!-- Success state -->
+                <div id="successState" class="hidden space-y-6">
+                    <div
+                        class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-green-100"
+                    >
+                        <svg
+                            class="h-8 w-8 text-green-600"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M5 13l4 4L19 7"></path>
+                        </svg>
+                    </div>
+                    <h1
+                        class="text-3xl font-bold text-gray-900 dark:text-white"
+                    >
+                        🎉 Participarea confirmată!
+                    </h1>
+                    <p class="text-xl text-gray-600 dark:text-white">
+                        Mulțumim că ai confirmat participarea la eveniment!
+                    </p>
+
+                    <div
+                        id="eventInfo"
+                        class="mx-auto max-w-md rounded-lg bg-white p-6 shadow-lg"
+                    >
+                        <h3
+                            id="eventTitle"
+                            class="mb-4 text-xl font-semibold text-gray-800"
+                        >
+                        </h3>
+                        <div class="space-y-2 text-gray-600">
+                            <p
+                                id="eventDate"
+                                class="flex items-center justify-center"
+                            >
+                                <svg
+                                    class="mr-2 h-4 w-4"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                                    ></path>
+                                </svg>
+                                <span id="eventDateText"></span>
+                            </p>
+                            <p
+                                id="eventStatus"
+                                class="flex items-center justify-center"
+                            >
+                                <svg
+                                    class="mr-2 h-4 w-4"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                                    ></path>
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                                    ></path>
+                                </svg>
+                                <span id="eventStatusText"></span>
+                            </p>
+                        </div>
+                    </div>
+
+                    <div
+                        class="mx-auto max-w-md rounded-lg border border-green-200 bg-green-50 p-4"
+                    >
+                        <p class="text-green-800 dark:text-white">
+                            Ai primit un email de confirmare cu toate detaliile
+                            evenimentului.
+                        </p>
+                    </div>
+
+                    <div
+                        class="flex flex-col items-center justify-center gap-4 text-center sm:flex-row"
+                    >
+                        <a
+                            href="/future-projects"
+                            class="inline-flex items-center rounded-lg bg-blue-600 px-6 py-3 font-semibold text-white transition duration-200 hover:bg-blue-700"
+                        >
+                            <svg
+                                class="mr-2 h-4 w-4"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                            </svg>
+                            Înapoi la evenimente
+                        </a>
+                        <a
+                            href="/"
+                            class="inline-flex items-center rounded-lg bg-gray-600 px-6 py-3 font-semibold text-white transition duration-200 hover:bg-gray-700"
+                        >
+                            <svg
+                                class="mr-2 h-4 w-4"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+                                ></path>
+                            </svg>
+                            Acasă
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Error state -->
+                <div id="errorState" class="hidden space-y-6">
+                    <div
+                        class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-red-100"
+                    >
+                        <svg
+                            class="h-8 w-8 text-red-600"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                            ></path>
+                        </svg>
+                    </div>
+                    <h1
+                        class="text-3xl font-bold text-gray-900 dark:text-white"
+                    >
+                        ❌ Eroare
+                    </h1>
+                    <p
+                        id="errorMessage"
+                        class="text-xl text-gray-600 dark:text-white"
+                    >
+                        A apărut o eroare la confirmarea participării.
+                    </p>
+
+                    <div
+                        class="flex flex-col items-center justify-center gap-4 text-center sm:flex-row"
+                    >
+                        <a
+                            href="/future-projects"
+                            class="inline-flex items-center rounded-lg bg-blue-600 px-6 py-3 font-semibold text-white transition duration-200 hover:bg-blue-700"
+                        >
+                            <svg
+                                class="mr-2 h-4 w-4"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                            </svg>
+                            Înapoi la evenimente
+                        </a>
+                        <a
+                            href="/"
+                            class="inline-flex items-center rounded-lg bg-gray-600 px-6 py-3 font-semibold text-white transition duration-200 hover:bg-gray-700 dark:bg-yellow-400 dark:text-neutral-800 dark:hover:shadow-[0_0_20px_rgba(255,204,0,1)]"
+                        >
+                            <svg
+                                class="mr-2 h-4 w-4"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+                                ></path>
+                            </svg>
+                            Acasă
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Already confirmed state -->
+                <div id="alreadyConfirmedState" class="hidden space-y-6">
+                    <div
+                        class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-blue-100"
+                    >
+                        <svg
+                            class="h-8 w-8 text-blue-600"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M5 13l4 4L19 7"></path>
+                        </svg>
+                    </div>
+                    <h1
+                        class="text-3xl font-bold text-gray-900 dark:text-white"
+                    >
+                        ✅ Deja confirmat
+                    </h1>
+                    <p class="text-xl text-gray-600 dark:text-white">
+                        Participarea ta a fost deja confirmată!
+                    </p>
+
+                    <div
+                        class="flex flex-col items-center justify-center gap-4 text-center sm:flex-row"
+                    >
+                        <a
+                            href="/future-projects"
+                            class="inline-flex items-center rounded-lg bg-blue-600 px-6 py-3 font-semibold text-white transition duration-200 hover:bg-blue-700"
+                        >
+                            <svg
+                                class="mr-2 h-4 w-4"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                            </svg>
+                            Înapoi la evenimente
+                        </a>
+                        <a
+                            href="/"
+                            class="inline-flex items-center rounded-lg bg-gray-600 px-6 py-3 font-semibold text-white transition duration-200 hover:bg-gray-700"
+                        >
+                            <svg
+                                class="mr-2 h-4 w-4"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+                                ></path>
+                            </svg>
+                            Acasă
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</MainLayout>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Get token from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const token = urlParams.get("token");
+
+        if (!token) {
+            showError("Token-ul de confirmare lipsește!");
+            return;
+        }
+
+        // Process confirmation
+        processConfirmation(token);
+
+        async function processConfirmation(token: string) {
+            try {
+                console.log("🔍 Processing confirmation for token:", token);
+                const response = await fetch(
+                    `/api/confirm-event-participation?token=${token}`,
+                );
+                console.log("📡 Response status:", response.status);
+                const result = await response.json();
+                console.log("📋 Response data:", result);
+
+                if (result.success) {
+                    console.log("✅ Success - showing success state");
+                    showSuccess(result.event);
+                } else if (result.alreadyConfirmed) {
+                    console.log(
+                        "🔄 Already confirmed - showing already confirmed state",
+                    );
+                    showAlreadyConfirmed();
+                } else {
+                    console.log("❌ Error - showing error state");
+                    showError(
+                        result.error ||
+                            "A apărut o eroare la confirmarea participării.",
+                    );
+                }
+            } catch (error) {
+                console.error("Confirmation error:", error);
+                showError(
+                    "A apărut o eroare la confirmarea participării. Încearcă din nou sau contactează-ne.",
+                );
+            }
+        }
+
+        function showSuccess(event: any) {
+            console.log("🎯 showSuccess called with event:", event);
+            const loadingState = document.getElementById("loadingState");
+            const successState = document.getElementById("successState");
+
+            console.log("🔍 Loading state element:", loadingState);
+            console.log("🔍 Success state element:", successState);
+
+            if (loadingState) {
+                loadingState.classList.add("hidden");
+                console.log("✅ Hidden loading state");
+            }
+            if (successState) {
+                successState.classList.remove("hidden");
+                console.log("✅ Showed success state");
+            }
+
+            if (event) {
+                const eventTitle = document.getElementById("eventTitle");
+                const eventDateText = document.getElementById("eventDateText");
+                const eventStatusText =
+                    document.getElementById("eventStatusText");
+
+                if (eventTitle) eventTitle.textContent = event.title;
+                if (eventDateText)
+                    eventDateText.textContent = event.plannedDate;
+                if (eventStatusText)
+                    eventStatusText.textContent = `Status: ${event.status}`;
+            }
+        }
+
+        function showError(message: string) {
+            console.log("🎯 showError called with message:", message);
+            const loadingState = document.getElementById("loadingState");
+            const errorState = document.getElementById("errorState");
+            const errorMessage = document.getElementById("errorMessage");
+
+            console.log("🔍 Loading state element:", loadingState);
+            console.log("🔍 Error state element:", errorState);
+            console.log("🔍 Error message element:", errorMessage);
+
+            if (loadingState) {
+                loadingState.classList.add("hidden");
+                console.log("✅ Hidden loading state");
+            }
+            if (errorState) {
+                errorState.classList.remove("hidden");
+                console.log("✅ Showed error state");
+            }
+            if (errorMessage) {
+                errorMessage.textContent = message;
+                console.log("✅ Set error message");
+            }
+        }
+
+        function showAlreadyConfirmed() {
+            console.log("🎯 showAlreadyConfirmed called");
+            const loadingState = document.getElementById("loadingState");
+            const alreadyConfirmedState = document.getElementById(
+                "alreadyConfirmedState",
+            );
+
+            console.log("🔍 Loading state element:", loadingState);
+            console.log(
+                "🔍 Already confirmed state element:",
+                alreadyConfirmedState,
+            );
+
+            if (loadingState) {
+                loadingState.classList.add("hidden");
+                console.log("✅ Hidden loading state");
+            }
+            if (alreadyConfirmedState) {
+                alreadyConfirmedState.classList.remove("hidden");
+                console.log("✅ Showed already confirmed state");
+            }
+        }
+    });
+</script>

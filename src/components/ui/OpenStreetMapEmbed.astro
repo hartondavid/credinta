@@ -1,0 +1,317 @@
+---
+// OpenStreetMap Component with Leaflet (100% FREE) - Production Ready
+interface Props {
+  address: string;
+  latitude?: number;
+  longitude?: number;
+  width?: string;
+  height?: string;
+  zoom?: number;
+  className?: string;
+}
+
+const {
+  address,
+  latitude = 0, // Default coordinates
+  longitude = 0,
+  width = "100%",
+  height = "300px",
+  zoom = 16,
+  className = "",
+} = Astro.props;
+---
+
+<div class={`openstreetmap-container ${className}`}>
+  <!-- Map Container -->
+  <div
+    id="map"
+    class="w-full rounded-lg border border-neutral-200 bg-gray-100 dark:border-neutral-700 dark:bg-gray-800"
+    style={`height: ${height}; width: ${width};`}
+    data-latitude={latitude}
+    data-longitude={longitude}
+    data-zoom={zoom}
+    data-address={address}
+  >
+    <!-- Fallback content when map fails to load -->
+    <div
+      id="map-fallback"
+      class="flex h-full w-full items-center justify-center"
+    >
+      <div class="text-center">
+        <svg
+          class="mx-auto h-12 w-12 text-gray-400"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+          ></path>
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+        </svg>
+        <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-gray-100">
+          Se încarcă harta...
+        </h3>
+        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+          Dacă harta nu se încarcă, folosește link-ul de mai jos
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Address Display with Google Maps Link -->
+  <div class="mt-3 rounded-lg bg-gray-50 p-3 dark:bg-gray-800">
+    <div class="flex items-center justify-between">
+      <div
+        class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300"
+      >
+        <svg
+          class="h-4 w-4 text-red-500"
+          fill="currentColor"
+          viewBox="0 0 20 20"
+        >
+          <path
+            fill-rule="evenodd"
+            d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z"
+            clip-rule="evenodd"></path>
+        </svg>
+        <span class="font-medium">{address}</span>
+      </div>
+      <a
+        href={`https://maps.google.com/?q=${encodeURIComponent(address)}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="inline-flex items-center gap-1 rounded-md bg-black px-3 py-1 text-xs font-medium text-white transition-colors hover:bg-black"
+      >
+        <svg class="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
+          <path
+            fill-rule="evenodd"
+            d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
+            clip-rule="evenodd"></path>
+        </svg>
+        Vezi pe Google Maps
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- Leaflet CSS with fallback -->
+<link
+  rel="stylesheet"
+  href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+  crossorigin=""
+  onerror="this.onerror=null; this.href='https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css';"
+/>
+
+<!-- Leaflet JavaScript with fallback -->
+<script
+  src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+  integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+  crossorigin=""
+  onerror="this.onerror=null; this.src='https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js';"
+></script>
+
+<script>
+  // TypeScript declarations for Leaflet
+  declare const L: any;
+
+  // Production-ready map initialization with error handling
+  (function () {
+    let mapInitialized = false;
+    let retryCount = 0;
+    const maxRetries = 5;
+
+    function initializeMap() {
+      try {
+        // Check if Leaflet is loaded
+        if (typeof L === "undefined" || !L.map) {
+          throw new Error("Leaflet not loaded");
+        }
+
+        const mapElement = document.getElementById("map");
+        if (!mapElement) {
+          throw new Error("Map element not found");
+        }
+
+        // Get coordinates from data attributes
+        const mapLatitude = parseFloat(mapElement.dataset.latitude || "") || 0;
+        const mapLongitude =
+          parseFloat(mapElement.dataset.longitude || "") || 0;
+        const mapZoom = parseInt(mapElement.dataset.zoom || "16") || 16;
+        const mapAddress = mapElement.dataset.address || "";
+
+        // Hide fallback
+        const fallback = document.getElementById("map-fallback");
+        if (fallback) {
+          fallback.style.display = "none";
+        }
+
+        // Create map instance
+        const map = L.map("map").setView([mapLatitude, mapLongitude], mapZoom);
+
+        // Add OpenStreetMap tiles with error handling
+        const tileLayer = L.tileLayer(
+          "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+          {
+            attribution:
+              '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+            maxZoom: 19,
+          },
+        ).addTo(map);
+
+        // Handle tile loading errors
+        tileLayer.on("tileerror", function () {
+          console.warn("Tile loading error, trying alternative source...");
+          // Try alternative tile source
+          L.tileLayer("https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png", {
+            attribution:
+              '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+            maxZoom: 19,
+          }).addTo(map);
+        });
+
+        // Add custom marker
+        const customIcon = L.divIcon({
+          className: "custom-marker",
+          html: '<div class="bg-red-500 w-8 h-8 rounded-full border-4 border-white shadow-lg flex items-center justify-center"><svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" /></svg></div>',
+          iconSize: [32, 32],
+          iconAnchor: [16, 32],
+          popupAnchor: [0, -32],
+        });
+
+        // Add marker to map
+        const marker = L.marker([mapLatitude, mapLongitude], {
+          icon: customIcon,
+        }).addTo(map);
+
+        // Add popup with address
+        marker.bindPopup(
+          `<div class="text-center"><h3 class="font-bold text-black mb-1">Biserica Credința</h3><p class="text-sm text-black">${mapAddress}</p><a href="https://maps.google.com/?q=${encodeURIComponent(mapAddress)}" target="_blank" style="display: inline-block; margin-top: 8px; padding: 4px 12px; background-color: black; color: white; font-size: 12px; border-radius: 4px; text-decoration: none;">Vezi pe Google Maps</a></div>`,
+        );
+
+        // Add click event to open Google Maps
+        map.on("click", function () {
+          window.open(
+            `https://maps.google.com/?q=${encodeURIComponent(mapAddress)}`,
+            "_blank",
+          );
+        });
+
+        // Add hover effect
+        mapElement.style.cursor = "pointer";
+        mapElement.title = "Click pentru a deschide pe Google Maps";
+
+        mapInitialized = true;
+        console.log("Map initialized successfully");
+      } catch (error) {
+        console.error("Map initialization error:", error);
+
+        if (retryCount < maxRetries) {
+          retryCount++;
+          console.log(
+            `Retrying map initialization (${retryCount}/${maxRetries})...`,
+          );
+          setTimeout(initializeMap, 1000 * retryCount); // Exponential backoff
+        } else {
+          console.error("Failed to initialize map after multiple attempts");
+          // Show fallback with better error message
+          const fallback = document.getElementById("map-fallback");
+          if (fallback) {
+            fallback.innerHTML = `
+              <div class="text-center">
+                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 12h6m-6-4h6m2 5.291A7.962 7.962 0 0112 15c-2.34 0-4.29-1.009-5.824-2.562M15 9.75a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-gray-100">Harta nu s-a putut încărca</h3>
+                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Folosește link-ul de mai jos pentru a vedea locația</p>
+              </div>
+            `;
+          }
+        }
+      }
+    }
+
+    // Wait for Leaflet to be fully loaded before initializing
+    function waitForLeaflet(callback: Function, maxAttempts = 20) {
+      let attempts = 0;
+      const checkInterval = setInterval(() => {
+        attempts++;
+        if (typeof L !== "undefined" && L.map) {
+          clearInterval(checkInterval);
+          callback();
+        } else if (attempts >= maxAttempts) {
+          clearInterval(checkInterval);
+          console.error("Leaflet failed to load after maximum attempts");
+          showMapError();
+        }
+      }, 200);
+    }
+
+    function showMapError() {
+      const fallback = document.getElementById("map-fallback");
+      if (fallback) {
+        fallback.innerHTML = `
+          <div class="text-center">
+            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 12h6m-6-4h6m2 5.291A7.962 7.962 0 0112 15c-2.34 0-4.29-1.009-5.824-2.562M15 9.75a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-gray-100">Harta nu s-a putut încărca</h3>
+            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Folosește link-ul de mai jos pentru a vedea locația</p>
+          </div>
+        `;
+      }
+    }
+
+    // Wait for Leaflet to be fully loaded before initializing
+    waitForLeaflet(() => {
+      initializeMap();
+    });
+
+    // Fallback: try to initialize after a longer delay
+    setTimeout(() => {
+      if (!mapInitialized) {
+        waitForLeaflet(() => {
+          initializeMap();
+        });
+      }
+    }, 2000);
+  })();
+</script>
+
+<style>
+  .openstreetmap-container {
+    position: relative;
+  }
+
+  .custom-marker {
+    background: transparent;
+    border: none;
+  }
+
+  /* Dark mode adjustments for map */
+  @media (prefers-color-scheme: dark) {
+    .leaflet-container {
+      background: #1f2937;
+    }
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 640px) {
+    .openstreetmap-container #map {
+      height: 250px !important;
+    }
+  }
+
+  /* Loading state */
+  #map-fallback {
+    transition: opacity 0.3s ease;
+  }
+</style>

@@ -1,0 +1,340 @@
+---
+import MainLayout from "../../layouts/MainLayout.astro";
+import { getMappedFutureProjects } from "../../components/pages/projects/projectPosts";
+
+// Remove getStaticPaths to enable dynamic generation
+
+const { eventId } = Astro.params;
+console.log("Event ID from params:", eventId);
+
+// Get event from projectPosts instead of database
+const futureProjects = getMappedFutureProjects();
+const event = futureProjects.find((project) => project.id === eventId);
+
+if (!event) {
+    console.log("Event not found, redirecting to 404");
+    return Astro.redirect("/404");
+}
+---
+
+<MainLayout title={`Participă la ${event.title} - Calarași Warriors`}>
+    <div class="min-h-screen bg-gradient-to-br py-12">
+        <div
+            class="mx-auto max-w-4xl rounded-lg bg-neutral-300 px-4 pb-12 sm:px-6 lg:px-8 dark:bg-neutral-600"
+        >
+            <!-- Header -->
+            <div
+                class="mb-12 pt-12 text-center dark:bg-neutral-600 dark:text-white"
+            >
+                <h1 class="mb-4 text-4xl font-bold dark:text-white">
+                    Participă la eveniment
+                </h1>
+                <div
+                    class="mb-8 rounded-lg bg-white p-6 text-black shadow-lg dark:bg-neutral-700"
+                >
+                    <h2 class="mb-2 text-2xl font-semibold dark:text-white">
+                        {event.title}
+                    </h2>
+                    <p class="mb-4 text-gray-600 dark:text-white">
+                        {event.description}
+                    </p>
+                    <p class="mb-4 text-gray-500 dark:text-white">
+                        <strong>Data:</strong>
+                        {event.plannedDate}
+                    </p>
+                    <div
+                        class="flex flex-wrap gap-4 text-sm text-black dark:text-white"
+                    >
+                        <span class="flex items-center">
+                            <svg
+                                class="mr-2 h-4 w-4"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                                ></path>
+                            </svg>
+                            {event.plannedDate}
+                        </span>
+                        <span class="flex items-center">
+                            <svg
+                                class="mr-2 h-4 w-4"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                                ></path>
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            </svg>
+                            Status: {event.status}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Participation Form -->
+            <div class="rounded-lg bg-white p-8 shadow-lg dark:bg-neutral-700">
+                <h3
+                    class="mb-6 text-2xl font-semibold text-black dark:text-white"
+                >
+                    Formular de participare
+                </h3>
+
+                <form id="participationForm" class="space-y-6">
+                    <input type="hidden" id="eventId" value={eventId} />
+
+                    <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+                        <div>
+                            <label
+                                for="firstName"
+                                class="mb-2 block text-sm font-medium text-black dark:text-white"
+                            >
+                                Prenume *
+                            </label>
+                            <input
+                                type="text"
+                                id="firstName"
+                                name="firstName"
+                                required
+                                class="w-full rounded-lg border border-gray-300 px-4 py-3 transition duration-200 focus:border-transparent focus:ring-2 focus:ring-blue-500"
+                                placeholder="Introdu prenumele tău"
+                            />
+                        </div>
+
+                        <div>
+                            <label
+                                for="lastName"
+                                class="mb-2 block text-sm font-medium text-black dark:text-white"
+                            >
+                                Nume *
+                            </label>
+                            <input
+                                type="text"
+                                id="lastName"
+                                name="lastName"
+                                required
+                                class="w-full rounded-lg border border-gray-300 px-4 py-3 transition duration-200 focus:border-transparent focus:ring-2 focus:ring-blue-500"
+                                placeholder="Introdu numele tău"
+                            />
+                        </div>
+                    </div>
+
+                    <div>
+                        <label
+                            for="email"
+                            class="mb-2 block text-sm font-medium text-black dark:text-white"
+                        >
+                            Email *
+                        </label>
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            required
+                            class="w-full rounded-lg border border-gray-300 px-4 py-3 transition duration-200 focus:border-transparent focus:ring-2 focus:ring-blue-500"
+                            placeholder="Introdu adresa ta de email"
+                        />
+                    </div>
+
+                    <div
+                        class="flex flex-col items-center justify-center gap-4 pt-6 sm:flex-col"
+                    >
+                        <button
+                            type="submit"
+                            id="submitBtn"
+                            class="flex flex-1 items-center justify-center rounded-lg bg-indigo-600 px-8 py-4 text-lg font-bold text-white shadow-lg transition duration-200 hover:shadow-[0_0_20px_rgba(55,83,255,1)] dark:bg-yellow-400 dark:text-neutral-800 dark:hover:shadow-[0_0_20px_rgba(255,204,0,1)]"
+                        >
+                            🚀 Participa acum!
+                        </button>
+
+                        <!-- <button
+                            type="button"
+                            id="testBtn"
+                            class="flex flex-1 items-center justify-center rounded-lg bg-green-600 px-6 py-3 font-semibold text-white transition duration-200 hover:bg-green-700"
+                        >
+                            <svg
+                                class="mr-2 h-5 w-5"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                                ></path>
+                            </svg>
+                            Test Submit
+                        </button> -->
+
+                        <a
+                            href="/future-projects"
+                            class="flex flex-1 items-center justify-center rounded-lg bg-yellow-500 px-6 py-3 font-semibold text-black transition duration-200 hover:shadow-[0_0_20px_rgba(255,204,0,1)] dark:bg-indigo-600 dark:text-white dark:hover:shadow-[0_0_20px_rgba(55,83,255,1)]"
+                        >
+                            <svg
+                                class="mr-2 h-5 w-5"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                            </svg>
+                            Înapoi la evenimente
+                        </a>
+                    </div>
+                </form>
+
+                <!-- Success Message -->
+                <div
+                    id="successMessage"
+                    class="mt-6 hidden rounded-lg border border-green-200 bg-green-50 p-4"
+                >
+                    <div class="flex items-center">
+                        <svg
+                            class="mr-2 h-5 w-5 text-green-500 dark:text-white"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        <p class="font-medium text-black dark:text-white">
+                            Confirmarea a fost trimisă cu succes! Verifică
+                            email-ul pentru a confirma participarea.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Error Message -->
+                <div
+                    id="errorMessage"
+                    class="mt-6 hidden rounded-lg border border-red-200 bg-red-50 p-4"
+                >
+                    <div class="flex items-center">
+                        <svg
+                            class="mr-2 h-5 w-5 text-red-400"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                            ></path>
+                        </svg>
+                        <p class="font-medium text-red-800" id="errorText">
+                            A apărut o eroare. Încearcă din nou.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</MainLayout>
+
+<script>
+    // Form submission
+    (
+        document.getElementById("participationForm") as HTMLFormElement
+    ).addEventListener("submit", async function (e: Event) {
+        e.preventDefault();
+
+        const submitBtn = document.getElementById(
+            "submitBtn",
+        ) as HTMLButtonElement;
+        const successMessage = document.getElementById(
+            "successMessage",
+        ) as HTMLDivElement;
+        const errorMessage = document.getElementById(
+            "errorMessage",
+        ) as HTMLDivElement;
+
+        // Reset messages
+        successMessage?.classList.add("hidden");
+        errorMessage?.classList.add("hidden");
+
+        // Disable submit button
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = `
+            <svg class="animate-spin w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            Se trimite...
+        `;
+
+        try {
+            const formData = {
+                eventId: (
+                    document.getElementById("eventId") as HTMLInputElement
+                )?.value,
+                firstName: (
+                    document.getElementById("firstName") as HTMLInputElement
+                )?.value,
+                lastName: (
+                    document.getElementById("lastName") as HTMLInputElement
+                )?.value,
+                email: (document.getElementById("email") as HTMLInputElement)
+                    ?.value,
+            };
+
+            const response = await fetch("/api/event-participation", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(formData),
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                successMessage.classList.remove("hidden");
+                (
+                    document.getElementById(
+                        "participationForm",
+                    ) as HTMLFormElement
+                ).reset();
+            } else {
+                throw new Error(result.error || "A apărut o eroare");
+            }
+        } catch (error) {
+            (
+                document.getElementById("errorText") as HTMLParagraphElement
+            ).textContent = (error as Error).message;
+            errorMessage?.classList.remove("hidden");
+        } finally {
+            // Re-enable submit button
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = `
+
+                    🚀 Participa acum!
+            `;
+        }
+    });
+</script>

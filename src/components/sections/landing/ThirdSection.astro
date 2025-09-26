@@ -1,0 +1,214 @@
+---
+// Import the necessary dependencies
+import { Image } from "astro:assets";
+import PrimaryCTA from "@components/ui/buttons/PrimaryCTA.astro";
+import SecondaryCTA from "@components/ui/buttons/SecondaryCTA.astro";
+import ReviewComponent from "@components/ui/blocks/ReviewComponent.astro";
+import VideoCarousel from "@components/ui/blocks/VideoCarousel.astro";
+import FormatQuoteIcon from "@mui/icons-material/FormatQuote";
+
+// Define props from Astro
+const {
+  title,
+  subTitle,
+  primaryBtn,
+  primaryBtnURL,
+  secondaryBtn,
+  secondaryBtnURL,
+  withReview,
+  avatars,
+  starCount,
+  rating,
+  reviews,
+  src,
+  alt,
+  secondSubTitle,
+  thirdSubTitle,
+  videos,
+} = Astro.props;
+
+// Define TypeScript interface for props
+interface Video {
+  id: string;
+  title: string;
+  description?: string;
+  thumbnail?: string;
+  youtubeId: string;
+}
+
+interface Props {
+  title: string;
+  subTitle?: string;
+  primaryBtn?: string;
+  primaryBtnURL?: string;
+  secondaryBtn?: string;
+  secondaryBtnURL?: string;
+  withReview?: boolean;
+  avatars?: Array<string>;
+  starCount?: number;
+  rating?: string;
+  reviews?: string;
+  src?: any;
+  alt?: string;
+  secondSubTitle?: string;
+  thirdSubTitle?: string;
+  videos?: Video[];
+}
+---
+
+<!-- Defining a grid container that holds all the content -->
+<section
+  class="mx-auto grid max-w-[85rem] gap-4 px-4 py-14 sm:px-6 md:grid-cols-2 md:items-center md:gap-8 lg:px-8 2xl:max-w-full"
+>
+  <!-- Title and description -->
+  <div>
+    <!-- Each h1 and p tag renders a portion of the title and subTitle defined above -->
+    <h1
+      class="fade-in-element block text-lg font-bold tracking-tight text-balance text-black sm:text-xl lg:text-3xl lg:leading-tight dark:text-white"
+      data-delay="0"
+    >
+      <!-- About Fragment: https://docs.astro.build/en/basics/astro-syntax/#fragments -->
+      <Fragment set:html={title} />
+    </h1>
+    {
+      subTitle && (
+        <p
+          class="fade-in-element mt-3 text-lg leading-relaxed text-pretty text-black lg:w-4/5 dark:text-white"
+          data-delay="200"
+        >
+          {subTitle}
+        </p>
+      )
+    }
+    {
+      secondSubTitle && (
+        <p
+          class="fade-in-element mt-3 text-lg leading-relaxed text-pretty text-black lg:w-4/5 dark:text-white"
+          data-delay="400"
+        >
+          <Fragment set:html={secondSubTitle} />
+        </p>
+      )
+    }
+    <!-- {
+      thirdSubTitle && (
+        <p
+          class="fade-in-element mt-3 text-lg leading-relaxed text-pretty text-black lg:w-4/5 dark:text-white"
+          data-delay="600"
+        >
+          {thirdSubTitle}
+        </p>
+      )
+    } -->
+    <!-- Action Button Section: This section includes two CTAs with their own styles and URL -->
+    <div
+      class="fade-in-element mt-7 grid w-full gap-3 sm:inline-flex"
+      data-delay="800"
+    >
+      {primaryBtn && <PrimaryCTA title={primaryBtn} url={primaryBtnURL} />}
+      {
+        secondaryBtn && (
+          <SecondaryCTA title={secondaryBtn} url={secondaryBtnURL} />
+        )
+      }
+    </div>
+
+    <!-- Review Section: This section presents avatars, review ratings and the number of reviews -->
+    {
+      withReview ? (
+        <div class="fade-in-element" data-delay="1000">
+          <ReviewComponent
+            avatars={avatars}
+            starCount={starCount}
+            rating={rating}
+            reviews={reviews}
+          />
+        </div>
+      ) : (
+        ""
+      )
+    }
+  </div>
+
+  <!-- Media Section -->
+  <div class="space-y-8">
+    <!-- Video Carousel -->
+    {
+      videos && videos.length > 0 && (
+        <div>
+          <h3 class="mb-4 text-xl font-semibold text-neutral-800 dark:text-neutral-200">
+            Videoclipuri
+          </h3>
+          <VideoCarousel videos={videos} />
+        </div>
+      )
+    }
+  </div>
+</section>
+
+<style>
+  .fade-in-element {
+    opacity: 0;
+    transform: translateY(30px);
+    transition:
+      opacity 0.8s ease-out,
+      transform 0.8s ease-out;
+  }
+
+  .fade-in-element.fade-in {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Staggered animation delays */
+  .fade-in-element[data-delay="0"] {
+    transition-delay: 0ms;
+  }
+  .fade-in-element[data-delay="200"] {
+    transition-delay: 200ms;
+  }
+  .fade-in-element[data-delay="400"] {
+    transition-delay: 400ms;
+  }
+  .fade-in-element[data-delay="600"] {
+    transition-delay: 600ms;
+  }
+  .fade-in-element[data-delay="800"] {
+    transition-delay: 800ms;
+  }
+  .fade-in-element[data-delay="1000"] {
+    transition-delay: 1000ms;
+  }
+</style>
+
+<script>
+  // Intersection Observer for fade-in animations
+  const observerOptions = {
+    threshold: 0.1,
+    rootMargin: "0px 0px -50px 0px",
+  };
+
+  const fadeInObserver = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        const element = entry.target as HTMLElement;
+        const delay = parseInt(element.dataset.delay || "0");
+
+        setTimeout(() => {
+          element.classList.add("fade-in");
+        }, delay);
+
+        // Unobserve after animation is triggered
+        fadeInObserver.unobserve(element);
+      }
+    });
+  }, observerOptions);
+
+  // Observe all fade-in elements
+  document.addEventListener("DOMContentLoaded", () => {
+    const fadeElements = document.querySelectorAll(".fade-in-element");
+    fadeElements.forEach((element) => {
+      fadeInObserver.observe(element);
+    });
+  });
+</script>

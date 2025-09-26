@@ -1,0 +1,168 @@
+---
+// Main about us page component
+// This component handles all the data processing and rendering logic
+
+import MainLayout from "@/layouts/MainLayout.astro";
+import FeaturesGeneral from "@components/sections/features/FeaturesGeneral.astro";
+import FifthSection from "@components/sections/landing/FifthSection.astro";
+
+// Import images
+import heroImage from "@images/hero-image.avif";
+
+// Import data
+import lessons from "@data/lessons.json";
+
+// Import keywords
+
+import { lessonsKeywords } from "./keywords";
+
+// Import constants
+import {
+  featuresSectionSubTitleKeywords,
+  fifthSectionSubTitleKeywords,
+  fifthSectionSecondSubTitleKeywords,
+  fifthSectionThirdSubTitleKeywords,
+  thirdSectionSubTitleKeywords,
+} from "./keywords";
+
+// Import data processing function
+import { processAboutUsPageData } from "./AboutUsData";
+
+// Process all data
+const pageData = processAboutUsPageData(lessons as any[], {
+  featuresSectionSubTitleKeywords,
+  fifthSectionSubTitleKeywords,
+  fifthSectionSecondSubTitleKeywords,
+  fifthSectionThirdSubTitleKeywords,
+  thirdSectionSubTitleKeywords,
+  lessonsKeywords: lessonsKeywords as string[],
+});
+
+const { lessons: processedLessons, sections } = pageData;
+---
+
+<MainLayout
+  title="Despre noi | Biserica Credința"
+  customDescription="Care este identitatea Bisericii Credința."
+  customOgTitle="Despre Noi | Biserica Credința"
+  structuredData={{
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "@id": "https://credinta.live/aboutUs",
+    url: "https://credinta.live/aboutUs",
+    name: "Despre Noi | Biserica Credința",
+    description: "Care este identitatea Bisericii Credința.",
+    isPartOf: {
+      "@type": "WebSite",
+      url: "https://credinta.live",
+      name: "Biserica Credința",
+      description: "Biserica Credința este o biserică din Voluntari, Ilfov.",
+    },
+    inLanguage: "ro-RO",
+    breadcrumb: {
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        {
+          "@type": "ListItem",
+          position: 1,
+          name: "Acasă",
+          item: "https://credinta.live",
+        },
+        {
+          "@type": "ListItem",
+          position: 2,
+          name: "Despre Noi",
+          item: "https://credinta.live/aboutUs",
+        },
+      ],
+    },
+    mainEntity: {
+      "@type": "AboutPage",
+      name: "Despre Biserica Credința",
+      description: "Care este identitatea Bisericii Credința.",
+      about: {
+        "@type": "Organization",
+        name: "Biserica Credința",
+        description:
+          "Biserica Credința - Comunitate vie de creștini care Îl urmează pe Hristos",
+        url: "https://credinta.live",
+        logo: "https://credinta.live/images/logo.png",
+        image: "https://credinta.live/images/hero-image.avif",
+        address: {
+          "@type": "PostalAddress",
+          addressLocality: "Voluntari",
+          addressCountry: "RO",
+        },
+        foundingDate: "2024",
+        slogan: "Comunitate vie de creștini care Îl urmează pe Hristos",
+        mission: "Dezvoltarea comunității prin credință și dragoste",
+        values: [
+          "Credința",
+          "Dragoste",
+          "Comunitate",
+          "Unitate",
+          "Sprijin Spiritual",
+          "Prietenie",
+          "Încurajare",
+          "Implicare Socială",
+          "Mărturie a Credinței și a Speranței",
+        ],
+      },
+    },
+    potentialAction: {
+      "@type": "SearchAction",
+      target: {
+        "@type": "EntryPoint",
+        urlTemplate:
+          "https://credinta.live/aboutUs?search={search_term_string}",
+      },
+      "query-input": "required name=search_term_string",
+    },
+    about: {
+      "@type": "Organization",
+      name: "Biserica Credința",
+      description: "Comunitate vie de creștini care Îl urmează pe Hristos",
+      url: "https://credinta.live",
+      logo: "https://credinta.live/images/logo.png",
+      address: {
+        "@type": "PostalAddress",
+        addressLocality: "Voluntari",
+        addressCountry: "RO",
+      },
+    },
+    audience: {
+      "@type": "Audience",
+      audienceType: "Comunitatea vie de creștini care Îl urmează pe Hristos",
+    },
+    genre: "Credință și dragoste",
+    keywords:
+      "despre noi, Biserica Credința, comunitate vie de creștini care Îl urmează pe Hristos, poveste, misiune, comunitate, credință, dragoste",
+    dateCreated: "2024-01-01",
+    dateModified: new Date().toISOString().split("T")[0],
+    lastReviewed: new Date().toISOString().split("T")[0],
+    reviewRating: {
+      "@type": "Rating",
+      ratingValue: "5",
+      bestRating: "5",
+      worstRating: "1",
+    },
+    aggregateRating: {
+      "@type": "AggregateRating",
+      ratingValue: "4.8",
+      reviewCount: "150",
+      bestRating: "5",
+      worstRating: "1",
+    },
+  }}
+>
+  <FifthSection
+    title={`Care este identitatea noastră?`}
+    subTitle={sections.fifthSectionSubTitle}
+    src={heroImage}
+    alt=""
+    secondSubTitle={sections.fifthSectionSecondSubTitle}
+    thirdSubTitle={sections.fifthSectionThirdSubTitle}
+    videos={[]}
+    cloudinaryIds={["Retreat_Loteia_21-23_august_2025_tpd2zi.mp4"]}
+  />
+</MainLayout>

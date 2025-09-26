@@ -1,0 +1,30 @@
+---
+export interface Props {
+    eventId: string;
+    eventTitle: string;
+    className?: string;
+}
+
+const { eventId, eventTitle, className = "" } = Astro.props;
+---
+
+<a
+    href={`/participa-la-eveniment?eventId=${eventId}&eventTitle=${encodeURIComponent(eventTitle)}`}
+    class="flex flex-1 items-center justify-center rounded-lg bg-indigo-600 px-8 py-4 text-lg font-bold text-white shadow-lg transition duration-200 hover:shadow-[0_0_20px_rgba(55,83,255,1)] dark:bg-yellow-400 dark:text-neutral-800 dark:hover:shadow-[0_0_20px_rgba(255,204,0,1)]"
+    title={`Participă la ${eventTitle}`}
+>
+    <!-- <svg
+        class="mr-2 h-5 w-5"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+    >
+        <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 00-2-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 2z"
+        ></path>
+    </svg> -->
+    🚀 Participă!
+</a>

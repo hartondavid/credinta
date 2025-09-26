@@ -1,0 +1,310 @@
+---
+// Main index page component
+// This component handles all the data processing and rendering logic
+
+import MainLayout from "@/layouts/MainLayout.astro";
+import HeroSection from "@components/sections/landing/HeroSection.astro";
+import ClientsSection from "@components/sections/landing/ClientsSection.astro";
+import FeaturesGeneral from "@components/sections/features/FeaturesGeneral.astro";
+import SecondSection from "@components/sections/landing/SecondSection.astro";
+import TestimonialsSectionAlt from "@components/sections/testimonials/TestimonialsSectionAlt.astro";
+import CoachesSection from "@components/sections/testimonials/coachesSection.astro";
+import ActivitiesSection from "@components/ui/blocks/activitiesSection.astro";
+import { sportiveSections } from "@/components/pages/index/IndexConstants";
+
+// Import images
+import heroImage from "@images/hero-image.avif";
+
+// Import data
+import features from "@data/features.json";
+
+// Import keywords
+import {
+  coacheKeywords,
+  secondContentForCoacheKeywords,
+  thirdContentForCoacheKeywords,
+  fourthContentForCoacheKeywords,
+  featuresKeywords,
+  secondSectionKeywords,
+  heroKeywords,
+  fifthContentForCoacheKeywords,
+  contentForFourthCoacheKeywords,
+  secondContentForFourthCoacheKeywords,
+  thirdContentForFourthCoacheKeywords,
+  fourthContentForFourthCoacheKeywords,
+  contentForSecondCoacheKeywords,
+  secondContentForSecondCoacheKeywords,
+  contentForThirdCoacheKeywords,
+  secondContentForThirdCoacheKeywords,
+} from "@components/pages/index/keywords";
+
+// Import data processing function
+import { processIndexPageData } from "@/components/pages/index/IndexData";
+
+// Process all data
+const pageData = processIndexPageData(features, {
+  coacheKeywords,
+  secondContentForCoacheKeywords,
+  thirdContentForCoacheKeywords,
+  fourthContentForCoacheKeywords,
+  featuresKeywords,
+  secondSectionKeywords,
+  heroKeywords,
+  fifthContentForCoacheKeywords,
+  contentForFourthCoacheKeywords,
+  secondContentForFourthCoacheKeywords,
+  thirdContentForFourthCoacheKeywords,
+  fourthContentForFourthCoacheKeywords,
+  contentForSecondCoacheKeywords,
+  secondContentForSecondCoacheKeywords,
+  contentForThirdCoacheKeywords,
+  secondContentForThirdCoacheKeywords,
+});
+
+const { heroVideos, testimonials, coaches, sections, featuresSections } =
+  pageData;
+---
+
+<MainLayout
+  title="Biserica Credința - Comunitate vie de creștini care Îl urmează pe Hristos"
+  customDescription="Club Sportiv Calarasi Warriors - Suntem o comunitate vie de creștini care Îl urmează pe Hristos și caută să trăiască credința în mod autentic, prin dragoste față de Dumnezeu și față de semeni."
+  customOgTitle="Biserica Credința - Comunitate vie de creștini care Îl urmează pe Hristos"
+  structuredData={{
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "@id": "https://credinta.live",
+    url: "https://credinta.live",
+    name: "Biserica Credința - Comunitate vie de creștini care Îl urmează pe Hristos",
+    description:
+      "Biserica Credința - Suntem o comunitate vie de creștini care Îl urmează pe Hristos și caută să trăiască credința în mod autentic, prin dragoste față de Dumnezeu și față de semeni.",
+    isPartOf: {
+      "@type": "WebSite",
+      url: "https://credinta.live",
+      name: "Biserica Credința",
+      description: "Biserica Credința este o biserică din Voluntari, Ilfov.",
+    },
+    inLanguage: "ro-RO",
+    breadcrumb: {
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        {
+          "@type": "ListItem",
+          position: 1,
+          name: "Acasă",
+          item: "https://credinta.live",
+        },
+      ],
+    },
+    mainEntity: {
+      "@type": "Organization",
+      name: "Biserica Credința",
+      description:
+        "Biserica Credința - Suntem o comunitate vie de creștini care Îl urmează pe Hristos și caută să trăiască credința în mod autentic, prin dragoste față de Dumnezeu și față de semeni.",
+      url: "https://credinta.live",
+      logo: "https://credinta.live/images/logo.png",
+      image: "https://credinta.live/images/hero-image.avif",
+      address: {
+        "@type": "PostalAddress",
+        addressLocality: "Voluntari",
+        addressCountry: "RO",
+      },
+      contactPoint: {
+        "@type": "ContactPoint",
+        contactType: "customer service",
+        availableLanguage: "Romanian",
+      },
+      sameAs: ["https://credinta.live"],
+      foundingDate: "2024",
+      slogan: "Comunitate vie de creștini care Îl urmează pe Hristos",
+      knowsAbout: [
+        "Credința",
+        "Dragoste",
+        "Comunitate",
+        "Comunitate",
+        "Unitate",
+        "Sprijin Spiritual",
+        "Prietenie",
+        "Încurajare",
+        "Implicare Socială",
+        "Mărturie a Credinței și a Speranței",
+      ],
+    },
+    potentialAction: {
+      "@type": "SearchAction",
+      target: {
+        "@type": "EntryPoint",
+        urlTemplate: "https://credinta.live?search={search_term_string}",
+      },
+      "query-input": "required name=search_term_string",
+    },
+    about: {
+      "@type": "Organization",
+      name: "Biserica Credința",
+      description: "Comunitate vie de creștini care Îl urmează pe Hristos",
+      url: "https://credinta.live",
+      logo: "https://credinta.live/images/logo.png",
+      address: {
+        "@type": "PostalAddress",
+        addressLocality: "Voluntari",
+        addressCountry: "RO",
+      },
+    },
+    audience: {
+      "@type": "Audience",
+      audienceType: "Comunitatea vie de creștini care Îl urmează pe Hristos",
+    },
+    genre: "Credință și dragoste",
+    keywords:
+      "comunitate vie de creștini care Îl urmează pe Hristos, credință, dragoste, comunitate, Voluntari",
+    dateCreated: "2024-01-01",
+    dateModified: new Date().toISOString().split("T")[0],
+    lastReviewed: new Date().toISOString().split("T")[0],
+    reviewRating: {
+      "@type": "Rating",
+      ratingValue: "5",
+      bestRating: "5",
+      worstRating: "1",
+    },
+    aggregateRating: {
+      "@type": "AggregateRating",
+      ratingValue: "4.8",
+      reviewCount: "150",
+      bestRating: "5",
+      worstRating: "1",
+    },
+  }}
+>
+  <HeroSection
+    title={`Biserica <span class="text-[#305c76] underline decoration-5 underline-offset-5 dark:text-[#74becc]">Credința</span>`}
+    subTitle="Suntem o comunitate vie de creștini care Îl urmează pe Hristos și caută să trăiască credința în mod autentic, prin dragoste față de Dumnezeu și față de semeni."
+    src={heroImage}
+    alt=""
+    secondSubTitle={sections.secondSubTitle}
+    thirdSubTitle={sections.secondSectionSecondSubTitle}
+    videos={[]}
+    cloudinaryIds={["Retreat_Loteia_21-23_august_2025_tpd2zi.mp4"]}
+    primaryBtn="CONTACTEAZĂ-NE!"
+    primaryBtnURL="/contact"
+    secondaryBtn="PROIECTELE NOASTRE"
+    secondaryBtnURL="/past-projects"
+  />
+
+  <!-- <CoachesSection
+    title={`Cine sunt <span class="text-[#08BABE] dark:text-[#08BABE]">antrenorii</span>?`}
+    photos={coaches}
+  />
+  <ActivitiesSection
+    title={`Care sunt <span class="text-[#08BABE] dark:text-[#08BABE]">secțiile</span> noastre?`}
+    photos={sportiveSections as any}
+  /> -->
+  <!-- <ClientsSection title="" partners={[]} /> -->
+
+  <!-- Testimonials section -->
+  <!-- <TestimonialsSectionAlt
+    title={`Ce spun <span class="text-[#08BABE] dark:text-[#08BABE]">oamenii</span> despre noi?`}
+    testimonials={testimonials as any}
+  /> -->
+
+  <!-- <SecondSection
+    title={`Ce facem <span class="text-[#08BABE] dark:text-[#08BABE]">diferit</span>?`}
+    subTitle={sections.secondSectionSubTitle}
+    alt="Stack of ScrewFast product boxes containing assorted hardware tools"
+    secondSubTitle={sections.secondSectionSecondSubTitle}
+    videos={[]}
+  /> -->
+
+  <FeaturesGeneral
+    title="Valorile fundamentale ale bisericii"
+    subTitle={"Pentru noi, biserica nu este doar o clădire sau un program de duminică, ci o comunitate vie, implicată în proiecte și inițiative care întăresc legăturile dintre oameni și aduc impact social în comunitate. Prin tot ceea ce facem, vrem să fim o mărturie a credinței și a speranței."}
+    alt="Valorile fundamentale ale bisericii"
+    features={featuresSections}
+  />
+
+  <!-- Navigation Structured Data -->
+  <script
+    is:inline
+    type="application/ld+json"
+    set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "SiteNavigationElement",
+      "@id": "https://calarasiwarriors.club/#main-navigation",
+      name: "Navigația Principală",
+      hasPart: [
+        {
+          "@type": "WebPage",
+          "@id": "https://calarasiwarriors.club/",
+          url: "https://calarasiwarriors.club/",
+          name: "Acasă",
+          description: "Pagina principală a Clubului Sportiv Călărași Warriors",
+        },
+        {
+          "@type": "WebPage",
+          "@id": "https://calarasiwarriors.club/past-projects",
+          url: "https://calarasiwarriors.club/past-projects",
+          name: "Proiecte",
+          description:
+            "Proiecte trecute ale Clubului Sportiv Călărași Warriors",
+        },
+        {
+          "@type": "WebPage",
+          "@id": "https://calarasiwarriors.club/aboutUs",
+          url: "https://calarasiwarriors.club/aboutUs",
+          name: "Despre Noi",
+          description: "Informații despre Clubul Sportiv Călărași Warriors",
+        },
+        {
+          "@type": "WebPage",
+          "@id": "https://calarasiwarriors.club/contact",
+          url: "https://calarasiwarriors.club/contact",
+          name: "Contact",
+          description:
+            "Informații de contact pentru Clubul Sportiv Călărași Warriors",
+        },
+      ],
+    })}
+  />
+
+  <!-- PDF Document Structured Data -->
+  <script
+    is:inline
+    type="application/ld+json"
+    set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "Document",
+      "@id":
+        "https://calarasiwarriors.club/REGULAMENT-DE-ORDINE-INTERIOARĂ.pdf",
+      name: "Regulament de Ordine Interioară",
+      description:
+        "Regulament de ordine interioară al Clubului Sportiv Călărași Warriors.",
+      url: "https://calarasiwarriors.club/REGULAMENT-DE-ORDINE-INTERIOARĂ.pdf",
+      fileFormat: "application/pdf",
+      contentSize: "PDF Document",
+      encodingFormat: "application/pdf",
+      isPartOf: {
+        "@type": "WebSite",
+        name: "Calarasi Warriors",
+        url: "https://calarasiwarriors.club",
+      },
+      author: {
+        "@type": "Organization",
+        name: "Club Sportiv Călărași Warriors",
+      },
+      publisher: {
+        "@type": "Organization",
+        name: "Club Sportiv Călărași Warriors",
+        url: "https://calarasiwarriors.club",
+      },
+      datePublished: "2024-01-01",
+      dateModified: new Date().toISOString().split("T")[0],
+      keywords:
+        "regulament, ordine interioară, club sportiv, Călărași Warriors, reguli, proceduri",
+      inLanguage: "ro-RO",
+      about: {
+        "@type": "Thing",
+        name: "Regulament Club Sportiv",
+        description:
+          "Regulamentul oficial al Clubului Sportiv Călărași Warriors",
+      },
+    })}
+  />
+</MainLayout>

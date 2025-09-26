@@ -1,0 +1,723 @@
+---
+// Import necessary dependencies
+
+// Define props from Astro
+const { videos = [] } = Astro.props;
+
+// Define TypeScript interface for props
+interface Video {
+  id: string;
+  title: string;
+  description?: string;
+  thumbnail?: string;
+  youtubeId: string;
+}
+
+interface Props {
+  videos: Video[];
+}
+
+// Function to generate YouTube thumbnail URL with multiple fallbacks
+function getYouTubeThumbnail(youtubeId: string): string {
+  // Clean the YouTube ID (remove any extra characters)
+  const cleanId = youtubeId.trim();
+  // Use the most reliable thumbnail format for production
+  return `https://img.youtube.com/vi/${cleanId}/hqdefault.jpg`;
+}
+
+// Function to generate YouTube video URL for native player with all controls
+function getYouTubeVideoUrl(youtubeId: string, autoplay = false): string {
+  const cleanId = youtubeId.trim();
+  const autoplayParam = autoplay ? '1' : '0';
+  
+  // YouTube embed parameters:
+  // - autoplay: 1 to autoplay, 0 to not autoplay
+  // - mute: 1 to mute, 0 to unmute
+  // - rel: 0 to not show related videos
+  // - modestbranding: 0 to show YouTube logo and controls
+  // - enablejsapi: 1 to enable JavaScript API
+  // - controls: 1 to show video controls
+  // - showinfo: 1 to show video title and uploader info
+  // - iv_load_policy: 3 to disable video annotations
+  // - fs: 1 to enable fullscreen button
+  // - color: white for white progress bar
+  // - theme: dark for dark theme
+  // - cc_load_policy: 1 to show closed captions by default
+  // - playsinline: 1 to play inline on mobile devices
+  
+     return `https://www.youtube.com/embed/${cleanId}?autoplay=0&mute=1&rel=0&modestbranding=0&enablejsapi=1&controls=1&showinfo=1&iv_load_policy=3&fs=1&color=white&theme=dark&cc_load_policy=1&playsinline=1`;
+}
+
+// Generate unique ID for this carousel instance
+const carouselId = `carousel-${Math.random().toString(36).substr(2, 9)}`;
+
+// Generate unique IDs for each video in this carousel
+const videoIds = videos.map((_, index) => `${carouselId}-video-${index}`);
+---
+
+  {videos && videos.length > 0 ? (
+  <!-- Video Carousel Container -->
+  <div class="relative w-full overflow-hidden rounded-xl" id={carouselId} data-carousel-instance>
+    <!-- Carousel Container -->
+    <div class="video-carousel flex transition-transform duration-500 ease-in-out">
+      {
+        videos.map((video, index) => (
+          <div class="w-full flex-shrink-0">
+            <div class="relative aspect-video w-full overflow-hidden rounded-xl bg-neutral-100 dark:bg-neutral-800">
+              <!-- Video Preview Container -->
+               <div class="video-preview-container h-full w-full relative" data-video-index={index} data-video-id={videoIds[index]}>
+                <!-- Video Player (hidden by default, shown when playing) -->
+                <div class="video-player-wrapper h-full w-full hidden" data-video-index={index}>
+                  <iframe
+                    class="h-full w-full rounded-xl"
+                    frameborder="0"
+                    allowfullscreen
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    loading="lazy"
+                    title={video.title}
+                    src={getYouTubeVideoUrl(video.youtubeId)}
+                  ></iframe>
+                  
+                                     <!-- Volume Control Button - Only visible on mobile -->
+                   <div class="absolute z-10 md:hidden">
+                     <button
+                       class="volume-control-btn group flex h-6 w-6 items-center justify-center rounded-full bg-white/90 shadow-lg transition-all duration-300 hover:bg-white hover:scale-110 dark:bg-neutral-800/90 dark:hover:bg-neutral-800"
+                       data-video-index={index}
+                       data-youtube-id={video.youtubeId}
+                       title="Control Volume"
+                     >
+                       <!-- Volume Icon - Only visible on mobile -->
+                       <svg class="h-3 w-3 text-black transition-colors group-hover:text-yellow-500 dark:text-black" fill="currentColor" viewBox="0 0 24 24">
+                         <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+                       </svg>
+                     </button>
+                   </div>
+                </div>
+                
+                <!-- Video Thumbnail (shown when video is not playing) -->
+                <div class="video-thumbnail-wrapper h-full w-full absolute inset-0" data-video-index={index}>
+                  <!-- Custom Thumbnail or Generated Thumbnail -->
+                  {video.thumbnail ? (
+                    <img
+                      src={video.thumbnail}
+                      alt={video.title}
+                      class="h-full w-full object-cover rounded-xl"
+                      loading="lazy"
+                      onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                      onload="this.nextElementSibling.style.display='none';"
+                    />
+                  ) : video.youtubeId ? (
+                    <img
+                      src={getYouTubeThumbnail(video.youtubeId)}
+                      alt={video.title}
+                      class="h-full w-full object-cover rounded-xl"
+                      loading="lazy"
+                      onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                      onload="this.nextElementSibling.style.display='none';"
+                    />
+                  ) : null}
+                  
+                  <!-- Fallback Placeholder (shown when thumbnail fails to load or is blocked) -->
+                  <div class="flex h-full w-full items-center justify-center bg-gradient-to-br from-neutral-200 to-neutral-300 dark:from-neutral-700 dark:to-neutral-800 rounded-xl" style={video.thumbnail || video.youtubeId ? 'display: none;' : 'display: flex;'}>
+                    <div class="text-center">
+                      <div class="relative mx-auto h-16 w-16">
+                        <!-- Video Icon Background -->
+                        <div class="absolute inset-0 rounded-full bg-neutral-300 dark:bg-neutral-600"></div>
+                        <!-- Play Icon -->
+                        <svg class="absolute inset-0 h-full w-full text-neutral-500 dark:text-neutral-400" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M8 5v14l11-7z"/>
+                        </svg>
+                      </div>
+                      <p class="mt-4 text-sm font-medium text-neutral-600 dark:text-neutral-300">{video.title}</p>
+                      {video.description && (
+                        <p class="mt-1 text-xs text-neutral-500 dark:text-neutral-400">{video.description}</p>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <!-- Play/Pause Button Overlay -->
+                  <div class="absolute inset-0 flex items-center justify-center">
+                    <button
+                      class="play-pause-btn group relative flex h-16 w-16 items-center justify-center rounded-full bg-white/90 shadow-lg transition-all duration-300 hover:bg-white hover:scale-110 dark:bg-neutral-800/90 dark:hover:bg-neutral-800"
+                      data-youtube-id={video.youtubeId}
+                      data-video-title={video.title}
+                      data-video-index={index}
+                       data-video-id={videoIds[index]}
+                    >
+                      <!-- Play Icon -->
+                      <svg class="play-icon ml-1 h-8 w-8 text-neutral-800 transition-colors group-hover:text-yellow-500 dark:text-neutral-200" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M8 5v14l11-7z"/>
+                      </svg>
+                      <!-- Pause Icon (hidden by default) -->
+                      <svg class="pause-icon hidden h-8 w-8 text-neutral-800 transition-colors group-hover:text-yellow-500 dark:text-neutral-200" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+                      </svg>
+                    </button>
+                  </div>
+                  
+                  <!-- Video Info Overlay -->
+                  <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4 text-white rounded-b-xl">
+                    <h3 class="text-lg font-semibold">{video.title}</h3>
+                    {video.description && (
+                      <p class="mt-1 text-sm text-neutral-200">{video.description}</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        ))
+      }
+    </div>
+    
+    <!-- Navigation Arrows -->
+    {videos.length > 1 && (
+      <>
+        <button
+          class="prev-btn absolute left-4 top-1/2 -translate-y-1/2 rounded-full bg-white/90 p-2 shadow-lg transition-all duration-300 hover:bg-white hover:scale-110 dark:bg-neutral-800/90 dark:hover:bg-neutral-800"
+        >
+          <svg class="h-6 w-6 text-neutral-800 dark:text-neutral-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+          </svg>
+        </button>
+        
+        <button
+          class="next-btn absolute right-4 top-1/2 -translate-y-1/2 rounded-full bg-white/90 p-2 shadow-lg transition-all duration-300 hover:bg-white hover:scale-110 dark:bg-neutral-800/90 dark:hover:bg-neutral-800"
+        >
+          <svg class="h-6 w-6 text-neutral-800 dark:text-neutral-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+          </svg>
+        </button>
+      </>
+    )}
+    
+    <!-- Dots Indicator -->
+    {videos.length > 1 && (
+      <div class="carousel-dots absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2">
+        {
+          videos.map((_, index) => (
+            <button
+              class={`carousel-dot h-2 w-2 rounded-full transition-all duration-300 ${
+                index === 0 ? 'bg-white' : 'bg-white/50'
+              }`}
+              data-slide={index}
+            ></button>
+          ))
+        }
+      </div>
+    )}
+    
+  
+  </div>
+) : (
+  <!-- Fallback when no videos -->
+  <div class="relative aspect-video w-full overflow-hidden rounded-xl bg-neutral-100 dark:bg-neutral-800">
+    <div class="flex h-full w-full items-center justify-center bg-neutral-200 dark:bg-neutral-700">
+      <div class="text-center">
+        <svg class="mx-auto h-16 w-16 text-neutral-400" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M8 5v14l11-7z"/>
+        </svg>
+        <p class="mt-4 text-neutral-500 dark:text-neutral-400">No videos available</p>
+      </div>
+    </div>
+  </div>
+)}
+
+<script define:vars={{ totalSlides: videos.length, carouselId }}>
+     // Each carousel instance gets its own variables
+  let currentSlide = 0;
+  let currentlyPlayingVideo = null;
+  let videoStates = new Map(); // Track play/pause state for each video
+  let videoVolumeStates = new Map(); // Track volume state for each video (false = muted, true = unmuted)
+  
+  // Find this specific carousel instance using the unique ID
+  const carouselContainer = document.getElementById(carouselId);
+  if (!carouselContainer) {
+    console.log(`Carousel container with ID ${carouselId} not found`);
+    return;
+  }
+  
+  const carouselElement = carouselContainer.querySelector('.video-carousel');
+  if (!carouselElement) {
+    console.log(`Carousel element not found in container ${carouselId}`);
+    return;
+  }
+  
+  // Check if already initialized
+  if (carouselContainer.dataset.initialized) {
+    console.log(`Carousel ${carouselId} already initialized, skipping`);
+    return;
+  }
+  
+  // Mark as initialized
+  carouselContainer.dataset.initialized = 'true';
+  
+  console.log(`Initializing VideoCarousel ${carouselId} with ${totalSlides} slides`);
+  
+  function showSlide(index) {
+    console.log(`showSlide called with index: ${index}, currentSlide: ${currentSlide}`);
+    
+    // Mute the previous video before showing new slide
+    if (currentSlide !== index && currentSlide >= 0) {
+      console.log(`Muting previous video at index: ${currentSlide}`);
+      muteVideoAtIndex(currentSlide);
+    }
+    
+    if (carouselElement) {
+      const transform = `translateX(-${index * 100}%)`;
+      console.log(`Setting carousel transform to: ${transform}`);
+      carouselElement.style.transform = transform;
+    }
+    
+    // Update dots for this carousel
+    const dots = carouselContainer.querySelectorAll('.carousel-dot');
+    dots.forEach((dot, i) => {
+      if (dot) {
+        dot.classList.toggle('bg-white', i === index);
+        dot.classList.toggle('bg-white/50', i !== index);
+      }
+    });
+    
+    currentSlide = index;
+    console.log(`Current slide updated to: ${currentSlide}`);
+  }
+  
+  function nextSlide() {
+    if (totalSlides > 1) {
+      console.log(`nextSlide: currentSlide=${currentSlide}, totalSlides=${totalSlides}`);
+      
+      // Mute current video before moving to next
+      muteVideoAtIndex(currentSlide);
+      
+      const next = (currentSlide + 1) % totalSlides;
+      console.log(`Moving to next slide: ${next}`);
+      showSlide(next);
+    }
+  }
+  
+  function previousSlide() {
+    if (totalSlides > 1) {
+      console.log(`previousSlide: currentSlide=${currentSlide}, totalSlides=${totalSlides}`);
+      
+      // Mute current video before moving to previous
+      muteVideoAtIndex(currentSlide);
+      
+      const prev = (currentSlide - 1 + totalSlides) % totalSlides;
+      console.log(`Moving to previous slide: ${prev}`);
+      showSlide(prev);
+    }
+  }
+  
+  function goToSlide(index) {
+    if (index >= 0 && index < totalSlides) {
+      console.log(`goToSlide: currentSlide=${currentSlide}, target=${index}`);
+      
+      // Mute current video before jumping to specific slide
+      muteVideoAtIndex(currentSlide);
+      
+      showSlide(index);
+    }
+  }
+  
+        function muteVideoAtIndex(videoIndex) {
+     console.log(`Video at index ${videoIndex} is already muted by default`);
+     // All videos start muted, no need to modify iframe src
+   }
+   
+   // Function to toggle volume for a specific video
+   function toggleVolume(videoIndex) {
+     console.log(`toggleVolume called for video ${videoIndex}`);
+     
+     const videoId = `${carouselId}-video-${videoIndex}`;
+     const previewContainer = carouselContainer.querySelector(`.video-preview-container[data-video-id="${videoId}"]`);
+     if (!previewContainer) return;
+     
+     const playerWrapper = previewContainer.querySelector('.video-player-wrapper');
+     const iframe = playerWrapper?.querySelector('iframe');
+     const volumeBtn = previewContainer.querySelector('.volume-control-btn');
+     
+     if (!iframe || !volumeBtn) return;
+     
+     const currentVolumeState = videoVolumeStates.get(videoIndex) || false;
+     const newVolumeState = !currentVolumeState;
+     
+     // Update volume state
+     videoVolumeStates.set(videoIndex, newVolumeState);
+     
+     // Update iframe src with new mute state
+     const youtubeId = iframe.getAttribute('data-youtube-id') || previewContainer.querySelector('.play-pause-btn')?.getAttribute('data-youtube-id');
+     if (youtubeId) {
+       const muteParam = newVolumeState ? '0' : '1'; // 0 = unmuted, 1 = muted
+       const newSrc = `https://www.youtube.com/embed/${youtubeId}?autoplay=1&mute=${muteParam}&rel=0&modestbranding=0&enablejsapi=1&controls=1&showinfo=1&iv_load_policy=3&fs=1&color=white&theme=dark&cc_load_policy=1&playsinline=1`;
+       
+       console.log(`Toggling volume for video ${videoIndex}: ${newVolumeState ? 'unmuted' : 'muted'}`);
+       iframe.src = newSrc;
+       
+       // Update volume button icon
+       const volumeIcon = volumeBtn.querySelector('svg');
+       if (volumeIcon) {
+         if (newVolumeState) {
+           // Unmuted - show muted icon
+           volumeIcon.innerHTML = `<path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>`;
+         } else {
+           // Muted - show unmuted icon
+           volumeIcon.innerHTML = `<path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>`;
+         }
+       } 
+     }
+   }
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  function toggleVideo(videoIndex) {
+     const videoId = `${carouselId}-video-${videoIndex}`;
+     const previewContainer = carouselContainer.querySelector(`.video-preview-container[data-video-id="${videoId}"]`);
+    const playerWrapper = previewContainer?.querySelector('.video-player-wrapper');
+    const thumbnailWrapper = previewContainer?.querySelector('.video-thumbnail-wrapper');
+    const playPauseBtn = previewContainer?.querySelector('.play-pause-btn');
+    
+    if (!previewContainer || !playerWrapper || !thumbnailWrapper || !playPauseBtn) return;
+    
+    const isCurrentlyPlaying = videoStates.get(videoIndex) || false;
+    
+    if (isCurrentlyPlaying) {
+      pauseVideo(videoIndex);
+    } else {
+      playVideo(videoIndex);
+    }
+  }
+  
+  function playVideo(videoIndex) {
+    console.log(`playVideo called for index ${videoIndex}`);
+    
+    // Stop any currently playing video first
+    if (currentlyPlayingVideo !== null && currentlyPlayingVideo !== videoIndex) {
+      pauseVideo(currentlyPlayingVideo);
+    }
+    
+     // Mute all other videos to prevent audio overlap
+     muteAllVideos();
+     
+           const videoId = `${carouselId}-video-${videoIndex}`;
+      const previewContainer = carouselContainer.querySelector(`.video-preview-container[data-video-id="${videoId}"]`);
+      console.log(`Found preview container:`, previewContainer);
+    if (!previewContainer) {
+       console.log(`No preview container found for index ${videoIndex}`);
+      return;
+    }
+    
+    const playerWrapper = previewContainer.querySelector('.video-player-wrapper');
+    const thumbnailWrapper = previewContainer.querySelector('.video-thumbnail-wrapper');
+    const playPauseBtn = previewContainer.querySelector('.play-pause-btn');
+    
+     console.log(`Found elements:`, {
+        playerWrapper: !!playerWrapper,
+        thumbnailWrapper: !!thumbnailWrapper,
+        playPauseBtn: !!playPauseBtn
+      });
+     
+     if (!playerWrapper || !thumbnailWrapper || !playPauseBtn) {
+       console.log(`Missing required elements for video ${videoIndex}`);
+      return;
+    }
+    
+    const iframe = playerWrapper.querySelector('iframe');
+     console.log(`Found iframe:`, !!iframe);
+     if (!iframe) return;
+    
+    // Show player and hide thumbnail
+    playerWrapper.classList.remove('hidden');
+    thumbnailWrapper.classList.add('hidden');
+     console.log(`Switched from thumbnail to player for video ${videoIndex}`);
+    
+    // Update button state
+    const playIcon = playPauseBtn.querySelector('.play-icon');
+    const pauseIcon = playPauseBtn.querySelector('.pause-icon');
+    if (playIcon) playIcon.classList.add('hidden');
+    if (pauseIcon) pauseIcon.classList.remove('hidden');
+    
+    // Set video state
+    videoStates.set(videoIndex, true);
+    currentlyPlayingVideo = videoIndex;
+     console.log(`Video ${videoIndex} is now playing`);
+     
+     
+    
+           // Set the iframe source with autoplay=1 and mute=1 to start playing immediately
+    const youtubeId = playPauseBtn.getAttribute('data-youtube-id');
+    if (youtubeId) {
+        console.log(`Setting iframe src for video ${videoIndex} with autoplay=1 and mute=1`);
+      iframe.src = `https://www.youtube.com/embed/${youtubeId}?autoplay=1&mute=1&rel=0&modestbranding=0&enablejsapi=1&controls=1&showinfo=1&iv_load_policy=3&fs=1&color=white&theme=dark&cc_load_policy=1&playsinline=1`;
+        console.log(`New iframe src:`, iframe.src);
+    }
+    
+    // Initialize volume state for this video
+    if (!videoVolumeStates.has(videoIndex)) {
+      videoVolumeStates.set(videoIndex, false); // false = muted, true = unmuted
+    }
+  }
+  
+  function pauseVideo(videoIndex) {
+    console.log(`pauseVideo called for index ${videoIndex}`);
+    
+         const videoId = `${carouselId}-video-${videoIndex}`;
+     const previewContainer = carouselContainer.querySelector(`.video-preview-container[data-video-id="${videoId}"]`);
+     if (!previewContainer) return;
+    
+    const playerWrapper = previewContainer.querySelector('.video-player-wrapper');
+    const thumbnailWrapper = previewContainer.querySelector('.video-thumbnail-wrapper');
+    const playPauseBtn = previewContainer.querySelector('.play-pause-btn');
+    const iframe = playerWrapper?.querySelector('iframe');
+    
+    if (previewContainer && playerWrapper && thumbnailWrapper && playPauseBtn && iframe) {
+      // Hide player and show thumbnail
+      playerWrapper.classList.add('hidden');
+      thumbnailWrapper.classList.remove('hidden');
+      
+      // Update button state
+      const playIcon = playPauseBtn.querySelector('.play-icon');
+      const pauseIcon = playPauseBtn.querySelector('.pause-icon');
+      if (playIcon) playIcon.classList.remove('hidden');
+      if (pauseIcon) pauseIcon.classList.add('hidden');
+      
+      // Set video state
+      videoStates.set(videoIndex, false);
+      
+      if (currentlyPlayingVideo === videoIndex) {
+        currentlyPlayingVideo = null;
+      }
+      
+                     // Reset iframe to stop video playback
+      const youtubeId = playPauseBtn.getAttribute('data-youtube-id');
+      if (youtubeId) {
+          console.log(`Resetting iframe src for video ${videoIndex} to stop playback`);
+        iframe.src = `https://www.youtube.com/embed/${youtubeId}?autoplay=0&mute=1&rel=0&modestbranding=0&enablejsapi=1&controls=1&showinfo=1&iv_load_policy=3&fs=1&color=white&theme=dark&cc_load_policy=1&playsinline=1`;
+          console.log(`New iframe src:`, iframe.src);
+        }
+    }
+  }
+  
+  function stopAllVideos() {
+    if (currentlyPlayingVideo !== null) {
+      pauseVideo(currentlyPlayingVideo);
+    }
+    
+    // Mute all videos to prevent audio overlap
+    muteAllVideos();
+    
+    videoStates.clear();
+    currentlyPlayingVideo = null;
+  }
+  
+     function muteAllVideos() {
+     console.log('muteAllVideos called - all videos are already muted by default');
+     // All videos start muted, no need to modify iframe src
+   }
+   
+   // Test function to manually play a video
+   window.testPlayVideo = function(videoIndex) {
+     console.log(`Manually testing playVideo for index ${videoIndex}`);
+     playVideo(videoIndex);
+   };
+   
+   // Test function to check button selection
+   window.testButtonSelection = function() {
+     console.log('Testing button selection...');
+     const buttons = document.querySelectorAll('.play-pause-btn');
+     console.log('Found buttons:', buttons.length);
+     buttons.forEach((btn, i) => {
+       console.log(`Button ${i}:`, {
+         'data-video-index': btn.getAttribute('data-video-index'),
+         'data-youtube-id': btn.getAttribute('data-youtube-id'),
+         'classList': btn.classList.toString()
+       });
+     });
+   };
+   
+   // Test function to check all carousels
+   window.testAllCarousels = function() {
+     console.log('Testing all carousels...');
+     const allCarousels = document.querySelectorAll('[data-carousel-instance]');
+     console.log(`Found ${allCarousels.length} carousels`);
+     
+     allCarousels.forEach((carousel, i) => {
+       const carouselId = carousel.id;
+       const buttons = carousel.querySelectorAll('.play-pause-btn');
+       console.log(`Carousel ${i} (ID: ${carouselId}): ${buttons.length} buttons`);
+       
+                buttons.forEach((btn, j) => {
+           const videoIndex = btn.getAttribute('data-video-index');
+           const youtubeId = btn.getAttribute('data-youtube-id');
+           const videoId = btn.getAttribute('data-video-id');
+           console.log(`  Button ${j}: video ${videoIndex}, YouTube ${youtubeId}, ID ${videoId}`);
+         });
+     });
+   };
+  
+     // Initialize carousel
+   if (totalSlides > 1) {
+     // Carousel initialized without auto-advance
+   }
+   
+   // Auto-start first video after a short delay to ensure page is fully loaded
+   setTimeout(() => {
+     if (totalSlides > 0) {
+       console.log(`Auto-starting first video in carousel ${carouselId}`);
+       playVideo(0);
+     }
+   }, 1000);
+  
+     // Event listeners for this carousel
+   const playPauseButtons = carouselContainer.querySelectorAll('.play-pause-btn');
+   console.log(`Found ${playPauseButtons.length} play/pause buttons in carousel ${carouselId}`);
+    
+    playPauseButtons.forEach((button, index) => {
+     const videoIndex = button.getAttribute('data-video-index');
+     console.log(`Setting up event listener for button ${index}, video index: ${videoIndex} in carousel ${carouselId}`);
+      
+      button.addEventListener('click', function() {
+       console.log(`Play button clicked for video index: ${videoIndex} in carousel ${carouselId}`);
+        if (videoIndex !== null) {
+          toggleVideo(parseInt(videoIndex));
+        }
+      });
+    });
+    
+    // Volume control buttons
+    const volumeButtons = carouselContainer.querySelectorAll('.volume-control-btn');
+    console.log(`Found ${volumeButtons.length} volume control buttons in carousel ${carouselId}`);
+    
+    volumeButtons.forEach((button, index) => {
+      const videoIndex = button.getAttribute('data-video-index');
+      console.log(`Setting up event listener for volume button ${index}, video index: ${videoIndex} in carousel ${carouselId}`);
+      
+      button.addEventListener('click', function() {
+        console.log(`Volume button clicked for video index: ${videoIndex} in carousel ${carouselId}`);
+        if (videoIndex !== null) {
+          toggleVolume(parseInt(videoIndex));
+        }
+      });
+    });
+    
+    // Navigation buttons
+  const prevBtn = carouselContainer.querySelector('.prev-btn');
+  const nextBtn = carouselContainer.querySelector('.next-btn');
+    
+    if (prevBtn) {
+      prevBtn.addEventListener('click', function() {
+        stopAllVideos();
+        previousSlide();
+      });
+    }
+    
+    if (nextBtn) {
+      nextBtn.addEventListener('click', function() {
+        stopAllVideos();
+        nextSlide();
+      });
+    }
+    
+    // Dot navigation
+  const dots = carouselContainer.querySelectorAll('.carousel-dot');
+    dots.forEach((dot, index) => {
+      dot.addEventListener('click', function() {
+        stopAllVideos();
+        goToSlide(index);
+    });
+  });
+  
+  
+  
+  console.log(`VideoCarousel ${carouselId} initialized successfully`);
+  
+  // Test function to verify mute functionality
+  window.testMute = function() {
+    console.log('Testing mute functionality...');
+    console.log('Current slide:', currentSlide);
+    console.log('Total slides:', totalSlides);
+    
+    // Test muting current video
+    muteVideoAtIndex(currentSlide);
+    
+    // Test muting all videos
+    muteAllVideos();
+  };
+  
+  // Make test function available globally for debugging
+  window.testMuteFunction = window.testMute;
+</script>
+
+<style>
+  /* Volume control button responsive styles */
+  .volume-control-btn {
+    /* Base styles */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+    background-color: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.06);
+    transition: all 0.3s ease;
+  }
+  
+  .volume-control-btn:hover {
+    background-color: rgb(255, 255, 255);
+    transform: scale(1.1);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  }
+  
+  /* Dark mode */
+  .dark .volume-control-btn {
+    background-color: rgba(38, 38, 38, 0.9);
+  }
+  
+  .dark .volume-control-btn:hover {
+    background-color: rgb(38, 38, 38);
+  }
+  
+  /* Mobile-first responsive design */
+  /* @media (max-width: 768px) {
+    .volume-control-btn {
+      height: 2.5rem;
+      width: 2.5rem;
+    }
+    
+    .volume-control-btn svg {
+      height: 1.25rem;
+      width: 1.25rem;
+    }
+  } */
+  
+  /* @media (max-width: 480px) {
+    .volume-control-btn {
+      height: 3rem;
+      width: 3rem;
+    }
+    
+    .volume-control-btn svg {
+      height: 1.5rem;
+      width: 1.5rem;
+    }
+  }
+   */
+  /* Ensure volume button is always visible */
+  .volume-control-btn {
+    z-index: 20;
+    position: absolute;
+    bottom: 1rem;
+    left: 1rem;
+  }
+  
+  /* Active state */
+  .volume-control-btn:active {
+    transform: scale(0.95);
+  }
+</style> 

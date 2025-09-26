@@ -1,0 +1,187 @@
+---
+// Importing necessary components
+import MainLayout from "@/layouts/MainLayout.astro";
+import PrimaryCTA from "@components/ui/buttons/PrimaryCTA.astro";
+import CardSmall from "@components/ui/cards/CardSmall.astro";
+import CardWide from "@components/ui/cards/CardWide.astro";
+import FeaturesStatsAlt from "@components/sections/features/FeaturesStatsAlt.astro";
+import TestimonialsSectionAlt from "@components/sections/testimonials/TestimonialsSectionAlt.astro";
+
+// Importing necessary functions from Astro
+import { getCollection } from "astro:content";
+import type { CollectionEntry } from "astro:content";
+import { SITE } from "@data/constants";
+
+// Get the filter parameter from URL
+const { searchParams } = Astro.url;
+const filter = searchParams.get("filter") || "past";
+
+// Fetching all the product related content and sorting it by main.id
+const allProducts: CollectionEntry<"products">[] = (
+  await getCollection("products", ({ id }: { id: string }) => {
+    return id.startsWith("fr/");
+  })
+).sort(
+  (a: CollectionEntry<"products">, b: CollectionEntry<"products">) =>
+    a.data.main.id - b.data.main.id,
+);
+
+// Filter products based on the filter parameter
+const product =
+  filter === "future"
+    ? allProducts.filter((p) => p.data.main.id > 2) // Future projects have ID > 2
+    : allProducts.filter((p) => p.data.main.id <= 2); // Past projects have ID <= 2
+
+// Define variables for page content based on filter
+const title: string = filter === "future" ? "Projets Futurs" : "Projets Passés";
+const subTitle: string =
+  filter === "future"
+    ? "Découvrez les projets futurs du Club Sportif Calarasi Warriors. Plans ambitieux pour le développement de la communauté par le sport et l'éducation."
+    : "Explorez les projets réalisés par le Club Sportif Calarasi Warriors. Un voyage à travers nos réalisations dans le développement de la communauté par le sport et l'éducation.";
+
+// Testimonial data that will be rendered in the component
+const testimonials = [
+  {
+    content:
+      " \"I've been a professional carpenter for over 15 years, and I can sincerely say that ScrewFast's tap bolts and nuts are some of the best I've used. They grip like no other, and I have full confidence in every joint and fixture. Plus, the service is impeccable – they truly care about my project's success.\" ",
+    author: "Richard Kim",
+    role: "Master Carpenter | WoodWright",
+    avatarSrc:
+      "https://images.unsplash.com/photo-1474176857210-7287d38d27c6?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D8&auto=format&fit=facearea&facepad=2&w=320&h=320&q=80",
+    avatarAlt: "Image Description",
+  },
+  {
+    content:
+      ' "ScrewFast\'s commitment to quality is unmatched. Their tools have been instrumental in our construction projects, and their customer service team is always ready to help with any questions or concerns." ',
+    author: "Sarah Johnson",
+    role: "Project Manager | BuildRight",
+    avatarSrc:
+      "https://images.unsplash.com/photo-1494790108755-2616b612b786?q=80&w=1374&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D8&auto=format&fit=facearea&facepad=2&w=320&h=320&q=80",
+    avatarAlt: "Image Description",
+  },
+  {
+    content:
+      ' "The precision and durability of ScrewFast tools have made a significant difference in our workflow. We can rely on their products for even the most demanding projects." ',
+    author: "Michael Chen",
+    role: "Lead Engineer | TechBuild",
+    avatarSrc:
+      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1374&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D8&auto=format&fit=facearea&facepad=2&w=320&h=320&q=80",
+    avatarAlt: "Image Description",
+  },
+];
+
+const pageTitle: string = `${title} | ${SITE.title}`;
+const metaDescription = subTitle;
+const ogTitle = `${title} | ${SITE.title}`;
+---
+
+<MainLayout
+  title={pageTitle}
+  lang="fr"
+  customDescription={metaDescription}
+  customOgTitle={ogTitle}
+  structuredData={{
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "@id": `https://screwfast.uk/fr/products?filter=${filter}`,
+    url: `https://screwfast.uk/fr/products?filter=${filter}`,
+    name: `${title} | ${SITE.title}`,
+    description: metaDescription,
+    isPartOf: {
+      "@type": "WebSite",
+      url: "https://screwfast.uk",
+      name: "ScrewFast",
+      description:
+        "ScrewFast offers top-tier hardware tools and expert construction services to meet all your project needs.",
+    },
+    inLanguage: "fr",
+  }}
+>
+  <div
+    class="mx-auto max-w-[85rem] px-4 py-10 sm:px-6 lg:px-8 lg:py-14 2xl:max-w-full"
+  >
+    <div class="mb-4 flex items-center justify-between gap-8 sm:mb-8 md:mb-12">
+      <div class="flex items-center gap-12">
+        <h1
+          class="text-2xl font-bold tracking-tight text-balance text-neutral-800 md:text-4xl md:leading-tight dark:text-neutral-200"
+        >
+          {title}
+        </h1>
+        {
+          subTitle && (
+            <p class="hidden max-w-(--breakpoint-sm) text-pretty text-neutral-600 md:block dark:text-neutral-400">
+              {subTitle}
+            </p>
+          )
+        }
+      </div>
+      <PrimaryCTA
+        title="Histoires de clients"
+        url="#testimonials"
+        noArrow={true}
+      />
+    </div>
+
+    <!-- Filter Navigation -->
+    <div class="mb-8 flex justify-center">
+      <div
+        class="flex flex-col rounded-lg border border-gray-200 bg-white p-1 sm:flex-row dark:border-gray-700 dark:bg-gray-800"
+      >
+        <a
+          href="/fr/products?filter=past"
+          class={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+            filter === "past"
+              ? "bg-yellow-500 text-white shadow-sm"
+              : "text-gray-700 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
+          }`}
+        >
+          Projets Passés
+        </a>
+        <a
+          href="/fr/products?filter=future"
+          class={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+            filter === "future"
+              ? "bg-yellow-500 text-white shadow-sm"
+              : "text-gray-700 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
+          }`}
+        >
+          Projets Futurs
+        </a>
+      </div>
+    </div>
+
+    {
+      /* Displaying products in alternating styles. Alternative product gets different card styling. */
+    }
+    {
+      /* Maps through all product entries and displays them with either CardSmall or CardWide based on their position. */
+    }
+    <section class="grid grid-cols-1 gap-4 sm:grid-cols-3 md:gap-6 xl:gap-8">
+      {
+        product.map((product, index) => {
+          const position = index % 4;
+          if (position === 0 || position === 3) {
+            return <CardSmall product={product} productLocale="fr" />;
+          } else {
+            return <CardWide product={product} productLocale="fr" />;
+          }
+        })
+      }
+    </section>
+  </div>
+  {/* Features statistics section */}
+  <FeaturesStatsAlt
+    title="Why Choose ScrewFast?"
+    subTitle="Transform your ideas into tangible results with ScrewFast tools. Whether you're starting with a sketch on a napkin or diving into a comprehensive construction project, our tools are engineered to help you build with confidence."
+    benefits={[
+      "Robust and reliable tools for long-lasting performance.",
+      "Innovative solutions tailored to modern construction needs.",
+      "Customer support dedicated to your project's success.",
+    ]}
+  />
+  {/* Testimonials section */}
+  <TestimonialsSectionAlt
+    title="What Our Customers Say"
+    testimonials={testimonials}
+  />
+</MainLayout>

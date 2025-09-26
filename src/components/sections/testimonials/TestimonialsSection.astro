@@ -1,0 +1,145 @@
+---
+import TestimonialItem from "@/components/sections/testimonials/TestimonialItem.astro";
+import StatsGrid from "@/components/ui/blocks/StatsGrid.astro";
+
+const {
+  title,
+  subTitle,
+  testimonials,
+  statistics
+} = Astro.props;
+
+interface Props {
+  title: string;
+  subTitle?: string;
+  testimonials?: Testimonial[];
+  statistics?: StatProps[];
+}
+
+// TypeScript type for testimonials
+type Testimonial = {
+  content: string;
+  author: string;
+  role: string;
+  avatarSrc: string;
+};
+
+// TypeScript type for stats.
+type StatProps = {
+  count: string;
+  description: string;
+};
+---
+
+<section
+  class="mx-auto max-w-[85rem] px-4 py-10 sm:px-6 lg:px-8 lg:py-14 2xl:max-w-full"
+>
+  <!-- Container for the testimonials -->
+  <div
+    class="lg:grid lg:grid-cols-12 lg:items-center lg:justify-between lg:gap-16"
+  >
+    <div class="lg:col-span-5 lg:col-start-1 text-center lg:text-left">
+      <!-- Title and Subtitle -->
+      <div class="mb-8">
+        <h2
+          class="fade-in-element mb-2 text-2xl font-bold text-white dark:text-white lg:text-2xl"
+          data-delay="0"
+        >
+          {title}
+        </h2>
+        {subTitle &&
+        <p class="fade-in-element text-white dark:text-white" data-delay="200">
+          {subTitle}
+        </p>
+      }
+      </div>
+
+      <!-- Generate a blockquote for each testimonial in the testimonials array by mapping over the array. -->
+      { testimonials &&
+        testimonials.map((testimonial, index) => (
+        <div class="fade-in-element" data-delay={400 + (index * 200)}>
+          <TestimonialItem content={testimonial.content} author={testimonial.author} role={testimonial.role} avatarSrc={testimonial.avatarSrc} />
+        </div>
+        ))
+      }
+    </div>
+{ statistics &&
+    <div class="fade-in-element mt-10 flex justify-center lg:col-span-6 lg:col-end-13 lg:mt-0 lg:justify-start" data-delay="600">
+      <div class="space-y-6 sm:space-y-8">
+        <ul
+          class="grid grid-cols-2 divide-x-2 divide-y-2 divide-neutral-300 overflow-hidden dark:divide-neutral-700"
+        >
+          <!-- Generate a list item for each stat in the statistics array by mapping over the array. -->
+          {
+            statistics.map((stat, index) => (
+            <div class="fade-in-element" data-delay={800 + (index * 100)}>
+              <StatsGrid count={stat.count} description={stat.description} index={index}/>
+            </div>
+            ))
+          }
+        </ul>
+      </div>
+    </div>
+  }
+  </div>
+</section>
+
+<style>
+  .fade-in-element {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+  }
+
+  .fade-in-element.fade-in {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Staggered animation delays */
+  .fade-in-element[data-delay="0"] { transition-delay: 0ms; }
+  .fade-in-element[data-delay="200"] { transition-delay: 200ms; }
+  .fade-in-element[data-delay="400"] { transition-delay: 400ms; }
+  .fade-in-element[data-delay="600"] { transition-delay: 600ms; }
+  .fade-in-element[data-delay="800"] { transition-delay: 800ms; }
+  .fade-in-element[data-delay="900"] { transition-delay: 900ms; }
+  .fade-in-element[data-delay="1000"] { transition-delay: 1000ms; }
+  .fade-in-element[data-delay="1100"] { transition-delay: 1100ms; }
+  .fade-in-element[data-delay="1200"] { transition-delay: 1200ms; }
+  .fade-in-element[data-delay="1400"] { transition-delay: 1400ms; }
+  .fade-in-element[data-delay="1600"] { transition-delay: 1600ms; }
+  .fade-in-element[data-delay="1800"] { transition-delay: 1800ms; }
+  .fade-in-element[data-delay="2000"] { transition-delay: 2000ms; }
+</style>
+
+<script>
+  // Intersection Observer for fade-in animations
+  const observerOptions = {
+    threshold: 0.1,
+    rootMargin: '0px 0px -50px 0px'
+  };
+
+  const fadeInObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const element = entry.target as HTMLElement;
+        const delay = parseInt(element.dataset.delay || '0');
+        
+        setTimeout(() => {
+          element.classList.add('fade-in');
+        }, delay);
+        
+        // Unobserve after animation is triggered
+        fadeInObserver.unobserve(element);
+      }
+    });
+  }, observerOptions);
+
+  // Observe all fade-in elements
+  document.addEventListener('DOMContentLoaded', () => {
+    const fadeElements = document.querySelectorAll('.fade-in-element');
+    fadeElements.forEach(element => {
+      fadeInObserver.observe(element);
+    });
+  });
+</script>

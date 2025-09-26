@@ -1,0 +1,361 @@
+---
+export interface Props {
+    images: Array<{
+        url: string;
+        alt: string;
+        title?: string;
+    }>;
+    title?: string;
+    className?: string;
+}
+
+const { images, title, className = "" } = Astro.props;
+
+if (!images || images.length === 0) return null;
+---
+
+<div class={`image-carousel-container ${className}`}>
+    {
+        title && (
+            <h3 class="mb-4 text-xl font-semibold text-neutral-800 dark:text-neutral-200">
+                {title}
+            </h3>
+        )
+    }
+
+    <div class="relative overflow-hidden rounded-lg shadow-lg">
+        <div class="carousel-container relative h-64 w-full">
+            {
+                images.map((image, index) => (
+                    <div
+                        class={`carousel-item absolute inset-0 cursor-pointer transition-opacity duration-500 ${index === 0 ? "opacity-100" : "opacity-0"}`}
+                        data-photo-index={index}
+                    >
+                        <img
+                            src={image.url}
+                            alt={image.alt}
+                            title={image.title}
+                            class="h-full w-full object-cover transition-transform duration-300 hover:scale-105"
+                            loading="lazy"
+                        />
+                    </div>
+                ))
+            }
+
+            {/* Carousel Navigation Dots */}
+            <div
+                class="absolute bottom-4 left-1/2 flex -translate-x-1/2 space-x-2"
+            >
+                {
+                    images.map((_, index) => (
+                        <button
+                            class="carousel-dot h-2 w-2 rounded-full bg-white opacity-50 transition-opacity hover:opacity-100"
+                            data-carousel-index={index}
+                        />
+                    ))
+                }
+            </div>
+
+            {/* Previous/Next buttons */}
+            <button
+                class="carousel-prev bg-opacity-50 hover:bg-opacity-75 absolute top-1/2 left-2 -translate-y-1/2 rounded-full bg-black p-2 text-white transition-opacity"
+            >
+                <svg
+                    class="h-4 w-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M15 19l-7-7 7-7"></path>
+                </svg>
+            </button>
+            <button
+                class="carousel-next bg-opacity-50 hover:bg-opacity-75 absolute top-1/2 right-2 -translate-y-1/2 rounded-full bg-black p-2 text-white transition-opacity"
+            >
+                <svg
+                    class="h-4 w-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M9 5l7 7-7 7"></path>
+                </svg>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Photo Popup Modal -->
+<div class="photo-modal bg-opacity-90 fixed inset-0 z-50 hidden bg-black">
+    <div class="flex h-full w-full items-center justify-center p-4">
+        <div class="relative max-h-full max-w-4xl">
+            <!-- Close button -->
+            <button
+                class="close-modal absolute -top-12 right-0 z-10 rounded-full bg-white p-2 text-black hover:bg-gray-200"
+            >
+                <svg
+                    class="h-6 w-6"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+
+            <!-- Photo container -->
+            <div class="relative">
+                <img
+                    class="modal-photo max-h-[80vh] max-w-full object-contain"
+                    src=""
+                    alt=""
+                />
+
+                <!-- Navigation arrows -->
+                <button
+                    class="prev-photo bg-opacity-50 hover:bg-opacity-75 absolute top-1/2 left-4 -translate-y-1/2 rounded-full bg-black p-3 text-white"
+                >
+                    <svg
+                        class="h-6 w-6"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M15 19l-7-7 7-7"></path>
+                    </svg>
+                </button>
+                <button
+                    class="next-photo bg-opacity-50 hover:bg-opacity-75 absolute top-1/2 right-4 -translate-y-1/2 rounded-full bg-black p-3 text-white"
+                >
+                    <svg
+                        class="h-6 w-6"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M9 5l7 7-7 7"></path>
+                    </svg>
+                </button>
+
+                <!-- Photo counter -->
+                <div
+                    class="bg-opacity-50 absolute bottom-4 left-1/2 -translate-x-1/2 rounded-full bg-black px-4 py-2 text-white"
+                >
+                    <span class="photo-counter">1 / {images.length}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Modal styles */
+    .photo-modal {
+        backdrop-filter: blur(5px);
+    }
+
+    .modal-enter {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+
+    .modal-enter-active {
+        opacity: 1;
+        transform: scale(1);
+        transition:
+            opacity 300ms,
+            transform 300ms;
+    }
+
+    .modal-exit {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    .modal-exit-active {
+        opacity: 0;
+        transform: scale(0.9);
+        transition:
+            opacity 300ms,
+            transform 300ms;
+    }
+</style>
+
+<script>
+    // Carousel functionality with modal popup
+    document.addEventListener("DOMContentLoaded", function () {
+        const carouselContainer = document.querySelector(
+            ".image-carousel-container",
+        );
+        if (!carouselContainer) return;
+
+        const carousel = carouselContainer.querySelector(".carousel-container");
+        const items = carousel?.querySelectorAll(".carousel-item");
+        const dots = carousel?.querySelectorAll(".carousel-dot");
+        const prevBtn = carousel?.querySelector(".carousel-prev");
+        const nextBtn = carousel?.querySelector(".carousel-next");
+
+        const modal = document.querySelector(".photo-modal");
+        const modalPhoto = document.querySelector(".modal-photo");
+        const photoCounter = document.querySelector(".photo-counter");
+        const closeModal = document.querySelector(".close-modal");
+        const prevPhoto = document.querySelector(".prev-photo");
+        const nextPhoto = document.querySelector(".next-photo");
+
+        if (!carousel || !items || !modal || !modalPhoto || !photoCounter)
+            return;
+
+        let currentIndex = 0;
+        let currentPhotoIndex = 0;
+        const images = Array.from(items).map((item, index) => {
+            const img = item.querySelector("img");
+            return {
+                url: img?.src || "",
+                alt: img?.alt || "",
+                title: img?.title || "",
+            };
+        });
+
+        function showItem(index: number) {
+            items?.forEach((item, i) => {
+                const element = item as HTMLElement;
+                element.style.opacity = i === index ? "1" : "0";
+            });
+
+            if (dots) {
+                dots.forEach((dot, i) => {
+                    const element = dot as HTMLElement;
+                    element.style.opacity = i === index ? "1" : "0.5";
+                });
+            }
+        }
+
+        // Dot navigation
+        dots?.forEach((dot, index) => {
+            dot.addEventListener("click", () => {
+                currentIndex = index;
+                showItem(currentIndex);
+            });
+        });
+
+        // Previous button
+        prevBtn?.addEventListener("click", () => {
+            currentIndex = (currentIndex - 1 + items.length) % items.length;
+            showItem(currentIndex);
+        });
+
+        // Next button
+        nextBtn?.addEventListener("click", () => {
+            currentIndex = (currentIndex + 1) % items.length;
+            showItem(currentIndex);
+        });
+
+        // Photo click to open modal
+        items.forEach((item, photoIndex) => {
+            item.addEventListener("click", () => {
+                currentPhotoIndex = photoIndex;
+                openModal();
+            });
+        });
+
+        // Auto-advance carousel
+        setInterval(() => {
+            currentIndex = (currentIndex + 1) % items.length;
+            showItem(currentIndex);
+        }, 5000);
+
+        function openModal() {
+            if (modal && modalPhoto && photoCounter && images.length > 0) {
+                const photo = images[currentPhotoIndex];
+                if (photo) {
+                    (modalPhoto as HTMLImageElement).src = photo.url;
+                    (modalPhoto as HTMLImageElement).alt = photo.alt;
+                    photoCounter.textContent = `${currentPhotoIndex + 1} / ${images.length}`;
+                    modal.classList.remove("hidden");
+                    document.body.style.overflow = "hidden";
+                }
+            }
+        }
+
+        function closeModalFunc() {
+            if (modal) {
+                modal.classList.add("hidden");
+                document.body.style.overflow = "auto";
+            }
+        }
+
+        function showPhoto(index: number) {
+            if (
+                index >= 0 &&
+                index < images.length &&
+                modalPhoto &&
+                photoCounter
+            ) {
+                currentPhotoIndex = index;
+                const photo = images[currentPhotoIndex];
+                if (photo) {
+                    (modalPhoto as HTMLImageElement).src = photo.url;
+                    (modalPhoto as HTMLImageElement).alt = photo.alt;
+                    photoCounter.textContent = `${currentPhotoIndex + 1} / ${images.length}`;
+                }
+            }
+        }
+
+        // Modal event listeners
+        closeModal?.addEventListener("click", closeModalFunc);
+
+        prevPhoto?.addEventListener("click", () => {
+            const newIndex =
+                (currentPhotoIndex - 1 + images.length) % images.length;
+            showPhoto(newIndex);
+        });
+
+        nextPhoto?.addEventListener("click", () => {
+            const newIndex = (currentPhotoIndex + 1) % images.length;
+            showPhoto(newIndex);
+        });
+
+        // Close modal on background click
+        modal?.addEventListener("click", (e) => {
+            if (e.target === modal) {
+                closeModalFunc();
+            }
+        });
+
+        // Keyboard navigation
+        document.addEventListener("keydown", (e) => {
+            if (!modal?.classList.contains("hidden")) {
+                if (e.key === "Escape") {
+                    closeModalFunc();
+                } else if (e.key === "ArrowLeft") {
+                    const newIndex =
+                        (currentPhotoIndex - 1 + images.length) % images.length;
+                    showPhoto(newIndex);
+                } else if (e.key === "ArrowRight") {
+                    const newIndex = (currentPhotoIndex + 1) % images.length;
+                    showPhoto(newIndex);
+                }
+            }
+        });
+    });
+</script>

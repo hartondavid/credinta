@@ -1,0 +1,768 @@
+---
+// Import AvatarTestimonialSection component for use in this module
+import AvatarTestimonialSection from "@/components/ui/avatars/AvatarTestimonialSection.astro";
+import FormatQuoteIcon from '@mui/icons-material/FormatQuote';
+import OpenInNewIcon from '@mui/icons-material/OpenInNew';
+import TestimonialPopup from "@/components/ui/TestimonialPopup.astro";
+import FacebookRoundedIcon from '@mui/icons-material/FacebookRounded';
+import LightModeIcon from "@components/ui/icons/LightModeIcon.astro";
+import DarkModeIcon from "@components/ui/icons/DarkModeIcon.astro";
+// Define props from Astro
+const { title, photos } = Astro.props;
+
+// Define TypeScript interface for Testimonial
+interface Coache {
+  content: string;
+  secondContent?: string;
+  thirdContent?: string;  
+  fourthContent?: string;
+  fifthContent?: string;
+  author: string;
+  role: string;
+  avatarSrc: string;
+  avatarAlt: string;
+  imageSrc: string;
+  imageAlt: string;
+}
+
+// Define TypeScript interface for props
+interface Props {
+  title: string;
+  photos: Coache[];
+}
+---
+  <!-- Main div that wraps the coaches section -->
+  <section
+    class="mx-auto max-w-[85rem] px-4 py-10 sm:px-6 lg:px-8 lg:py-14 2xl:max-w-full"
+    id="coaches"
+  >
+    <!-- Title of the coaches section -->
+  <div class="mb-6 mx-auto w-3/4 max-w-2xl text-center sm:mb-10 md:mb-16 lg:mx-0 lg:w-1/2 lg:text-left">
+    <h2
+      class="text-balance text-2xl font-bold text-black dark:text-white text-center lg:text-4xl lg:text-left"
+    >
+      <Fragment set:html={title} />
+    </h2>
+  </div>
+
+  <!-- Coaches Carousel -->
+  <div class="relative">
+    <!-- Carousel Container -->
+    <div class="coaches-carousel overflow-hidden">
+      <div class="fade-in-element flex transition-transform duration-500 ease-out" id="coaches-track">
+        {
+          photos.map((photo, index) => (
+            <div 
+              class="coach-card fade-in-coach-element flex-shrink-0 w-full sm:w-1/2 lg:w-1/3 xl:w-1/4 px-4" 
+              id={`coach-${index}`}
+              
+            >
+              <div class="flex h-auto">
+                <div class="flex flex-col rounded-xl bg-yellow-50/60 dark:bg-neutral-700 h-full border-t-5 border-indigo-600 dark:border-yellow-400 relative">
+                  <!-- Testimonial Button -->
+                  {/* <div
+                    class="absolute top-2 right-2 z-20 flex h-10 w-10 items-center justify-center rounded-full bg-indigo-600 text-white hover:bg-indigo-700 dark:bg-yellow-500 dark:hover:bg-yellow-400 dark:text-black transition-all duration-200 shadow-lg hover:scale-110 touch-manipulation"
+                    onclick={`openTestimonialPopup('testimonial-${index}')`}
+                    aria-label="View testimonial"
+                    title="View testimonial"
+                   
+                  > */}
+                    <div class="absolute top-2 right-2 bg-indigo-600 hover:bg-indigo-700 text-white dark:bg-yellow-400 dark:hover:bg-yellow-500 dark:text-black rounded-full p-1.5 transition-colors duration-200">
+                          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                          </svg>
+                        </div>
+                  {/* </div> */}
+
+                  <div class="flex-auto p-4 md:p-6">
+                    <!-- Testimonial content -->
+                    <p class="text-pretty text-base italic text-black dark:text-white md:text-lg">
+                     <img src={photo.imageSrc} alt={photo.imageAlt} class="rounded-lg drop-shadow-[0_0_8px_rgba(55,83,255,0.8)] dark:drop-shadow-[0_0_8px_rgba(234,179,8,0.8)]"  />
+                    </p>
+                  </div>
+
+                  <div class="rounded-b-xl bg-neutral-300/30 p-4 dark:bg-neutral-900/30 md:px-7">
+                    <div class="flex items-center">
+                     {/* <img src={photo.avatarSrc} alt={photo.imageAlt} class="rounded-lg" /> */}
+                     <LightModeIcon size={40} class="dark:hidden">
+                   <FacebookRoundedIcon style={{ color: "#3753ff" }} />
+                   </LightModeIcon>
+                   <DarkModeIcon size={40} class="hidden dark:block">
+                   <FacebookRoundedIcon style={{ color: "white" }} />
+                   </DarkModeIcon>
+                      <div class="ms-3 grow">
+                        <p class="text-sm font-bold text-neutral-800 dark:text-neutral-200 sm:text-base">
+                          {photo.author}
+                        </p>
+                        <p class="text-xs text-indigo-600 font-bold dark:text-yellow-400">
+                          {photo.role}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+
+    <!-- Navigation Buttons -->
+    <button
+      class="absolute -left-2 top-1/2 -translate-y-1/2 rounded-full bg-white p-3 shadow-lg hover:bg-gray-50 dark:bg-neutral-800 dark:hover:bg-neutral-700 transition-all duration-200 z-50 cursor-pointer"
+      id="coaches-prev"
+      aria-label="Previous coaches"
+      type="button"
+    >
+      <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+      </svg>
+    </button>
+    <button
+      class="absolute -right-2 top-1/2 -translate-y-1/2 rounded-full bg-white p-3 shadow-lg hover:bg-gray-50 dark:bg-neutral-800 dark:hover:bg-neutral-700 transition-all duration-200 z-50 cursor-pointer"
+      id="coaches-next"
+      aria-label="Next coaches"
+      type="button"
+    >
+      <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+      </svg>
+    </button>
+ 
+    <!-- Dots Navigation -->
+    <div class="flex justify-center mt-8 space-x-2" id="coaches-dots">
+      {photos.map((_, index) => (
+        <button
+          class={`h-3 w-3 rounded-full transition-colors ${
+            index === 0 ? "bg-indigo-600 dark:bg-yellow-400" : "bg-gray-300 dark:bg-gray-600"
+          }`}
+          data-index={index}
+          aria-label={`Go to coach ${index + 1}`}
+        ></button>
+      ))}
+    </div>
+
+    <!-- Scroll Indicator -->
+    <!-- <div class="scroll-indicator">
+      <span class="text-xs text-gray-500 dark:text-gray-400">
+        ← Scroll left/right or use arrow keys →
+      </span>
+    </div> -->
+  </div>
+
+  <!-- Testimonial Popups -->
+  {photos.map((photo, index) => (
+    <TestimonialPopup
+      id={`testimonial-${index}`}
+      content={photo.content}
+      secondContent={photo.secondContent || ""}
+      thirdContent={photo.thirdContent || ""}
+      fourthContent={photo.fourthContent || ""}
+      fifthContent={photo.fifthContent || ""}
+      author={photo.author}
+      role={photo.role}
+      avatarSrc={photo.avatarSrc}
+      avatarAlt={photo.avatarAlt}
+      imageSrc={photo.imageSrc}
+      imageAlt={photo.imageAlt}
+    />
+  ))}
+</section>
+
+<style>
+  .coaches-carousel {
+    position: relative;
+  }
+
+  .coach-card {
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+    position: relative;
+  }
+
+  .coach-card:hover {
+    transform: translateY(-5px);
+  }
+
+  /* Testimonial button styles */
+  .coach-card button[onclick*="openTestimonialPopup"] {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 20;
+    transition: all 0.2s ease;
+    min-width: 40px;
+    min-height: 40px;
+    touch-action: manipulation;
+  }
+
+  .coach-card button[onclick*="openTestimonialPopup"]:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  /* Mobile-specific button styles */
+  @media (max-width: 640px) {
+    .coach-card button[onclick*="openTestimonialPopup"] {
+      top: 6px;
+      right: 6px;
+      min-width: 44px;
+      min-height: 44px;
+      z-index: 30;
+    }
+  }
+
+  /* Fade-in animation styles */
+  .fade-in-coach-element {
+    opacity: 0;
+    transform: translateY(30px);
+    transition:
+      opacity 0.8s ease-out,
+      transform 0.8s ease-out;
+  }
+
+  .fade-in-coach-element.fade-in {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Staggered animation delays */
+  .fade-in-coach-element[data-delay="0"] {
+    transition-delay: 0ms;
+  }
+  .fade-in-coach-element[data-delay="200"] {
+    transition-delay: 200ms;
+  }
+  .fade-in-coach-element[data-delay="400"] {
+    transition-delay: 400ms;
+  }
+  .fade-in-coach-element[data-delay="600"] {
+    transition-delay: 600ms;
+  }
+  .fade-in-coach-element[data-delay="800"] {
+    transition-delay: 800ms;
+  }
+  .fade-in-coach-element[data-delay="1000"] {
+    transition-delay: 1000ms;
+  }
+  .fade-in-coach-element[data-delay="1200"] {
+    transition-delay: 1200ms;
+  }
+  .fade-in-coach-element[data-delay="1400"] {
+    transition-delay: 1400ms;
+  }
+  .fade-in-coach-element[data-delay="1600"] {
+    transition-delay: 1600ms;
+  }
+  .fade-in-coach-element[data-delay="1800"] {
+    transition-delay: 1800ms;
+  }
+  .fade-in-coach-element[data-delay="2000"] {
+    transition-delay: 2000ms;
+  }
+
+  /* Scroll navigation styles */
+  #coaches-track {
+    cursor: grab;
+    user-select: none;
+    display: flex;
+    transition: transform 0.3s ease-out;
+  }
+
+  #coaches-track:active {
+    cursor: grabbing;
+  }
+
+  /* Navigation buttons styles */
+  #coaches-prev,
+  #coaches-next {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 50;
+    cursor: pointer;
+    pointer-events: auto;
+    background: white;
+    border: none;
+    border-radius: 50%;
+    padding: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    transition: all 0.2s ease;
+    min-width: 48px;
+    min-height: 48px;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+
+  #coaches-prev {
+    left: -8px;
+  }
+
+  #coaches-next {
+    right: -8px;
+  }
+
+  #coaches-prev:hover,
+  #coaches-next:hover {
+    transform: translateY(-50%) scale(1.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    background-color: #f9fafb;
+  }
+
+  #coaches-prev:active,
+  #coaches-next:active {
+    transform: translateY(-50%) scale(0.95);
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 640px) {
+    .coach-card {
+      width: 100%;
+      min-width: 100%;
+    }
+    
+    #coaches-prev,
+    #coaches-next {
+      padding: 6px;
+      min-width: 36px;
+      min-height: 36px;
+    }
+    
+    #coaches-prev svg,
+    #coaches-next svg {
+      width: 14px;
+      height: 14px;
+    }
+  }
+
+  @media (min-width: 641px) and (max-width: 1024px) {
+    .coach-card {
+      width: 50%;
+      min-width: 50%;
+    }
+    
+    #coaches-prev,
+    #coaches-next {
+      display: flex;
+      opacity: 1;
+      visibility: visible;
+    }
+  }
+
+  @media (min-width: 1025px) {
+    .coach-card {
+      width: 33.333333%;
+      min-width: 33.333333%;
+    }
+    
+    #coaches-prev,
+    #coaches-next {
+      display: flex;
+      opacity: 1;
+      visibility: visible;
+    }
+  }
+
+  @media (min-width: 1280px) {
+    .coach-card {
+      width: 25%;
+      min-width: 25%;
+    }
+    
+    #coaches-prev,
+    #coaches-next {
+      display: flex;
+      opacity: 1;
+      visibility: visible;
+    }
+  }
+
+  /* Scroll indicator styles */
+  .coaches-scroll-indicator {
+    position: absolute;
+    bottom: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+    opacity: 0.7;
+  }
+
+  .coaches-scroll-indicator span {
+    font-size: 12px;
+    color: #6b7280;
+  }
+</style>
+
+<script>
+  // Simple coaches carousel functionality
+  document.addEventListener("DOMContentLoaded", function() {
+    console.log("DOM Content Loaded - Initializing coaches carousel...");
+    
+    var track = document.getElementById("coaches-track");
+    var prevBtn = document.getElementById("coaches-prev");
+    var nextBtn = document.getElementById("coaches-next");
+    var dots = document.querySelectorAll("#coaches-dots button");
+    
+    console.log("Elements found:", {
+      track: !!track,
+      prevBtn: !!prevBtn,
+      nextBtn: !!nextBtn,
+      dotsCount: dots ? dots.length : 0,
+      windowWidth: window.innerWidth,
+      windowHeight: window.innerHeight
+    });
+    
+    if (!track || !prevBtn || !nextBtn) {
+      console.error("Coaches carousel elements not found", {
+        track: !!track,
+        prevBtn: !!prevBtn,
+        nextBtn: !!nextBtn,
+        dots: !!(dots && dots.length > 0)
+      });
+      return;
+    }
+
+    var currentIndex = 0;
+    var totalCoaches = dots ? dots.length : 0;
+    var cardsPerView = window.innerWidth >= 1280 ? 4 : window.innerWidth >= 1024 ? 3 : window.innerWidth >= 640 ? 2 : 1;
+    var autoAdvanceInterval: ReturnType<typeof setInterval> | null = null;
+
+    function updateCarousel() {
+      if (!track) return;
+      
+      var cardWidth = 100 / cardsPerView;
+      var translateX = -currentIndex * cardWidth;
+      if (track) track.style.transform = "translateX(" + translateX + "%)";
+      
+      console.log("Updating carousel:", { currentIndex: currentIndex, cardWidth: cardWidth, translateX: translateX, totalCoaches: totalCoaches });
+      
+      // Update dots
+      if (dots && dots.length > 0) {
+        dots.forEach(function(dot, index) {
+          if (index === currentIndex) {
+            dot.classList.remove("bg-gray-300", "dark:bg-gray-600");
+            dot.classList.add("bg-indigo-600", "dark:bg-yellow-400");
+          } else {
+            dot.classList.remove("bg-indigo-600", "dark:bg-yellow-400");
+            dot.classList.add("bg-gray-300", "dark:bg-gray-600");
+          }
+        });
+      }
+    }
+
+    function nextSlide() {
+      if (totalCoaches <= 0) return;
+      var maxIndex = Math.max(0, totalCoaches - cardsPerView);
+      currentIndex = currentIndex >= maxIndex ? 0 : currentIndex + 1;
+      console.log("Next slide:", { currentIndex: currentIndex, maxIndex: maxIndex, totalCoaches: totalCoaches });
+      updateCarousel();
+    }
+
+    function prevSlide() {
+      if (totalCoaches <= 0) return;
+      currentIndex = currentIndex === 0 ? Math.max(0, totalCoaches - cardsPerView) : currentIndex - 1;
+      console.log("Prev slide:", { currentIndex: currentIndex, totalCoaches: totalCoaches });
+      updateCarousel();
+    }
+
+    function goToSlide(index: number) {
+      if (totalCoaches <= 0) return;
+      var maxIndex = Math.max(0, totalCoaches - cardsPerView);
+      currentIndex = Math.max(0, Math.min(index, maxIndex));
+      console.log("Go to slide:", { index: index, currentIndex: currentIndex, maxIndex: maxIndex, totalCoaches: totalCoaches });
+      updateCarousel();
+    }
+
+    // Event listeners
+    console.log("Adding event listeners...", {
+      totalCoaches: totalCoaches,
+      cardsPerView: cardsPerView,
+      hasTrack: !!track,
+      hasPrevBtn: !!prevBtn,
+      hasNextBtn: !!nextBtn,
+      hasDots: !!(dots && dots.length > 0)
+    });
+    
+    if (prevBtn) {
+      prevBtn.addEventListener("click", function(e) {
+        console.log("Prev button clicked", { totalCoaches: totalCoaches });
+        e.preventDefault();
+        e.stopPropagation();
+        prevSlide();
+      });
+    }
+    
+    if (nextBtn) {
+      nextBtn.addEventListener("click", function(e) {
+        console.log("Next button clicked", { totalCoaches: totalCoaches });
+        e.preventDefault();
+        e.stopPropagation();
+        nextSlide();
+      });
+    }
+
+    if (dots && dots.length > 0) {
+      dots.forEach(function(dot, index) {
+        dot.addEventListener("click", function() {
+          console.log("Dot clicked", { index: index, totalCoaches: totalCoaches });
+          goToSlide(index);
+        });
+      });
+    }
+
+    // Add click event listeners to all coach cards
+    var coachCards = document.querySelectorAll('.coach-card');
+    if (coachCards && coachCards.length > 0) {
+      coachCards.forEach(function(card, index) {
+        card.addEventListener("click", function(e) {
+          // Don't trigger if clicking on the testimonial button
+          const target = e.target as HTMLElement;
+          if (target?.closest('button[onclick*="openTestimonialPopup"]')) {
+            return;
+          }
+          
+          console.log("Coach card clicked", { index: index, totalCoaches: totalCoaches });
+          
+          // Navigate to the clicked card's position
+          goToSlide(index);
+          
+          // Call the global function that's defined in the onclick attribute
+          (window as any).openTestimonialPopup(`testimonial-${index}`);
+        });
+      });
+    }
+
+    // Keyboard navigation
+    document.addEventListener("keydown", function(e) {
+      if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        console.log("Left arrow key pressed", { totalCoaches: totalCoaches });
+        prevSlide();
+      } else if (e.key === "ArrowRight") {
+        e.preventDefault();
+        console.log("Right arrow key pressed", { totalCoaches: totalCoaches });
+        nextSlide();
+      }
+    });
+
+    // Touch/swipe navigation
+    if (track) {
+      var startX = 0;
+      var endX = 0;
+      var isDragging = false;
+      var startTime = 0;
+
+      track.addEventListener("touchstart", function(e) {
+        startX = e.touches[0].clientX;
+        startTime = Date.now();
+        isDragging = true;
+      });
+
+      track.addEventListener("touchmove", function(e) {
+        if (!isDragging) return;
+        endX = e.touches[0].clientX;
+      });
+
+      track.addEventListener("touchend", function() {
+        if (!isDragging) return;
+        isDragging = false;
+        
+        var diffX = startX - endX;
+        var diffTime = Date.now() - startTime;
+        var minSwipeDistance = 50;
+        var maxSwipeTime = 300;
+        
+        if (Math.abs(diffX) > minSwipeDistance && diffTime < maxSwipeTime) {
+          if (diffX > 0) {
+            console.log("Swipe right detected", { diffX: diffX, totalCoaches: totalCoaches });
+            nextSlide();
+          } else {
+            console.log("Swipe left detected", { diffX: diffX, totalCoaches: totalCoaches });
+            prevSlide();
+          }
+        }
+      });
+    }
+
+    // Mouse wheel navigation for desktop
+    // if (track) {
+    //   track.addEventListener("wheel", function(e) {
+    //     e.preventDefault();
+        
+    //     if (e.deltaX > 0 || e.deltaY > 0) {
+    //       // Scroll right/down
+    //       console.log("Mouse wheel scroll right/down", { deltaX: e.deltaX, deltaY: e.deltaY, totalCoaches: totalCoaches });
+    //       nextSlide();
+    //     } else if (e.deltaX < 0 || e.deltaY < 0) {
+    //       // Scroll left/up
+    //       console.log("Mouse wheel scroll left/up", { deltaX: e.deltaX, deltaY: e.deltaY, totalCoaches: totalCoaches });
+    //       prevSlide();
+    //     }
+    //   });
+    // }
+
+    // Mouse drag navigation for desktop
+    if (track) {
+      var isMouseDragging = false;
+      var mouseStartX = 0;
+      var mouseStartY = 0;
+      var mouseCurrentX = 0;
+      var mouseCurrentY = 0;
+
+      track.addEventListener("mousedown", function(e) {
+        // Check if clicking on a card (not on navigation buttons)
+        const target = e.target as HTMLElement;
+        if (target?.closest('.coach-card')) {
+          // If clicking on a card, don't start dragging - let the click event handle it
+          return;
+        }
+        
+        isMouseDragging = true;
+        mouseStartX = e.clientX;
+        mouseStartY = e.clientY;
+        mouseCurrentX = e.clientX; // Initialize current position
+        mouseCurrentY = e.clientY; // Initialize current position
+        if (track) track.style.cursor = "grabbing";
+        e.preventDefault();
+      });
+
+      track.addEventListener("mousemove", function(e) {
+        if (!isMouseDragging) return;
+        
+        mouseCurrentX = e.clientX;
+        mouseCurrentY = e.clientY;
+      });
+
+      track.addEventListener("mouseup", function(e) {
+        if (!isMouseDragging) return;
+        
+        isMouseDragging = false;
+        if (track) track.style.cursor = "grab";
+        
+        var diffX = mouseStartX - mouseCurrentX;
+        var diffY = mouseStartY - mouseCurrentY;
+        var minDragDistance = 80;
+        
+        if (Math.abs(diffX) > minDragDistance || Math.abs(diffY) > minDragDistance) {
+          if (Math.abs(diffX) > Math.abs(diffY)) {
+            // Horizontal drag
+            if (diffX > 0) {
+              console.log("Mouse drag right", { diffX: diffX, totalCoaches: totalCoaches });
+              nextSlide();
+            } else {
+              console.log("Mouse drag left", { diffX: diffX, totalCoaches: totalCoaches });
+              prevSlide();
+            }
+          } else {
+            // Vertical drag
+            if (diffY > 0) {
+              console.log("Mouse drag down", { diffY: diffY, totalCoaches: totalCoaches });
+              nextSlide();
+            } else {
+              console.log("Mouse drag up", { diffY: diffY, totalCoaches: totalCoaches });
+              prevSlide();
+            }
+          }
+        }
+      });
+
+      track.addEventListener("mouseleave", function() {
+        if (isMouseDragging) {
+          isMouseDragging = false;
+          if (track) track.style.cursor = "grab";
+        }
+      });
+    }
+
+    // Auto-advance
+    if (totalCoaches > 1) {
+      console.log("Starting auto-advance", { totalCoaches: totalCoaches, interval: 5000 });
+      autoAdvanceInterval = setInterval(nextSlide, 5000);
+    } else {
+      console.log("No auto-advance - insufficient coaches", { totalCoaches: totalCoaches });
+    }
+
+    if (track) {
+      track.addEventListener("mouseenter", function() {
+        if (autoAdvanceInterval) {
+          console.log("Pausing auto-advance on mouse enter");
+          clearInterval(autoAdvanceInterval);
+          autoAdvanceInterval = null;
+        }
+      });
+
+      track.addEventListener("mouseleave", function() {
+        if (!autoAdvanceInterval) {
+          console.log("Resuming auto-advance on mouse leave");
+          autoAdvanceInterval = setInterval(nextSlide, 5000);
+        }
+      });
+    }
+
+    // Handle window resize
+    window.addEventListener("resize", function() {
+      var newCardsPerView = window.innerWidth >= 1280 ? 4 : window.innerWidth >= 1024 ? 3 : window.innerWidth >= 640 ? 2 : 1;
+      if (newCardsPerView !== cardsPerView) {
+        console.log("Window resized, updating cards per view", { 
+          old: cardsPerView, 
+          new: newCardsPerView, 
+          width: window.innerWidth,
+          totalCoaches: totalCoaches 
+        });
+        cardsPerView = newCardsPerView;
+        currentIndex = 0;
+        if (totalCoaches > 0) {
+          updateCarousel();
+        }
+      }
+    });
+
+    // Initialize
+    console.log("Carousel initialized successfully", { 
+      totalCoaches: totalCoaches, 
+      cardsPerView: cardsPerView,
+      hasTrack: !!track,
+      hasPrevBtn: !!prevBtn,
+      hasNextBtn: !!nextBtn,
+      hasDots: !!(dots && dots.length > 0)
+    });
+    if (totalCoaches > 0) {
+      updateCarousel();
+    } else {
+      console.log("No coaches to display");
+    }
+
+    // Fade-in animation
+    const observerOptions = {
+      threshold: 0.1,
+      rootMargin: "0px 0px -50px 0px",
+    };
+    
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const delay = entry.target.getAttribute('data-delay') || '0';
+          console.log("Element intersecting, adding fade-in with delay", { delay: delay });
+          setTimeout(() => {
+            entry.target.classList.add('fade-in');
+          }, parseInt(delay));
+        }
+      });
+    }, observerOptions);
+    
+    const fadeElements = document.querySelectorAll('.fade-in-coach-element');
+    if (fadeElements && fadeElements.length > 0) {
+      console.log("Setting up fade-in animation for", fadeElements.length, "elements");
+      fadeElements.forEach((element) => {
+        observer.observe(element);
+      });
+    } else {
+      console.log("No fade-in elements found");
+    }
+  });
+</script>

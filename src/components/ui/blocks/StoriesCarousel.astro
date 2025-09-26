@@ -1,0 +1,307 @@
+---
+// Stories Carousel Component - For 9:16 aspect ratio videos
+// Import necessary dependencies
+
+// Define props from Astro
+const { videos = [] } = Astro.props;
+
+// Define TypeScript interface for props
+interface Video {
+  id: string;
+  title: string;
+  description?: string;
+  thumbnail?: string;
+  youtubeId: string;
+}
+
+interface Props {
+  videos: Video[];
+}
+
+// Function to generate YouTube thumbnail URL
+function getYouTubeThumbnail(youtubeId: string): string {
+  const cleanId = youtubeId.trim();
+  return `https://img.youtube.com/vi/${cleanId}/hqdefault.jpg`;
+}
+
+// Function to generate YouTube video URL for Stories format
+function getYouTubeVideoUrl(youtubeId: string, autoplay = false): string {
+  const cleanId = youtubeId.trim();
+  const autoplayParam = autoplay ? '1' : '0';
+  
+  return `https://www.youtube.com/embed/${cleanId}?autoplay=0&mute=1&rel=0&modestbranding=0&enablejsapi=1&controls=1&showinfo=1&iv_load_policy=3&fs=1&color=white&theme=dark&cc_load_policy=1&playsinline=1`;
+}
+
+// Generate unique ID for this carousel instance
+const carouselId = `stories-carousel-${Math.random().toString(36).substr(2, 9)}`;
+
+// Generate unique IDs for each video
+const videoIds = videos.map((_, index) => `${carouselId}-video-${index}`);
+---
+
+{videos && videos.length > 0 ? (
+  <!-- Stories Carousel Container -->
+  <div class="relative w-full overflow-hidden" id={carouselId} data-carousel-instance>
+    <!-- Carousel Container -->
+    <div class="stories-carousel flex transition-transform duration-500 ease-in-out gap-4 pb-4">
+      {
+        videos.map((video, index) => (
+          <div class="flex-shrink-0 w-48 sm:w-52 md:w-56">
+            <!-- Story Card with 9:16 aspect ratio -->
+            <div class="relative bg-neutral-100 dark:bg-neutral-800 rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300" style="aspect-ratio: 9/16;">
+              <!-- Video Preview Container -->
+              <div class="video-preview-container h-full w-full relative group cursor-pointer" data-video-index={index} data-video-id={videoIds[index]}>
+                <!-- Thumbnail Image -->
+                <div class="thumbnail-wrapper h-full w-full relative">
+                  <img
+                    src={getYouTubeThumbnail(video.youtubeId)}
+                    alt={video.title}
+                    class="h-full w-full object-cover"
+                    loading="lazy"
+                  />
+                  
+                  <!-- Gradient Overlay -->
+                  <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20"></div>
+                  
+                  <!-- Play Button Overlay -->
+                  <div class="absolute inset-0 flex items-center justify-center">
+                    <div class="play-button bg-white/90 dark:bg-black/90 rounded-full p-4 shadow-lg transform group-hover:scale-110 transition-transform duration-300">
+                      <svg class="w-8 h-8 text-neutral-800 dark:text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M8 5v14l11-7z"/>
+                      </svg>
+                    </div>
+                  </div>
+                  
+                  <!-- Video Title Overlay -->
+                  <div class="absolute bottom-0 left-0 right-0 p-4">
+                    <h4 class="text-white font-semibold text-sm leading-tight line-clamp-2">
+                      {video.title}
+                    </h4>
+                    {video.description && (
+                      <p class="text-white/80 text-xs mt-1 line-clamp-1">
+                        {video.description}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Video Player (hidden by default, shown when playing) -->
+              <div class="video-player-wrapper h-full w-full hidden absolute inset-0" data-video-index={index}>
+                <iframe
+                  class="h-full w-full"
+                  src=""
+                  data-src={getYouTubeVideoUrl(video.youtubeId, true)}
+                  frameborder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  allowfullscreen
+                  title={video.title}
+                ></iframe>
+                
+                <!-- Close Button -->
+                <button class="close-video absolute top-4 right-4 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 transition-colors duration-200" data-video-index={index}>
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        ))
+      }
+    </div>
+    
+    <!-- Navigation Arrows -->
+    {videos.length > 3 && (
+      <>
+        <!-- Previous Button -->
+        <button 
+          class="prev-btn absolute left-2 top-1/2 transform -translate-y-1/2 bg-white/90 dark:bg-black/90 hover:bg-white dark:hover:bg-black rounded-full p-3 shadow-lg transition-all duration-200 z-10"
+          aria-label="Previous stories"
+        >
+          <svg class="w-5 h-5 text-neutral-800 dark:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+          </svg>
+        </button>
+        
+        <!-- Next Button -->
+        <button 
+          class="next-btn absolute right-2 top-1/2 transform -translate-y-1/2 bg-white/90 dark:bg-black/90 hover:bg-white dark:hover:bg-black rounded-full p-3 shadow-lg transition-all duration-200 z-10"
+          aria-label="Next stories"
+        >
+          <svg class="w-5 h-5 text-neutral-800 dark:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+          </svg>
+        </button>
+      </>
+    )}
+  </div>
+) : (
+  <!-- Fallback when no videos -->
+  <div class="relative w-48 bg-neutral-100 dark:bg-neutral-800 rounded-2xl overflow-hidden" style="aspect-ratio: 9/16;">
+    <div class="flex h-full w-full items-center justify-center">
+      <div class="text-center">
+        <svg class="mx-auto h-12 w-12 text-neutral-400" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M8 5v14l11-7z"/>
+        </svg>
+        <p class="mt-2 text-sm text-neutral-500 dark:text-neutral-400">No stories available</p>
+      </div>
+    </div>
+  </div>
+)}
+
+<script define:vars={{ totalSlides: videos.length, carouselId }}>
+  let currentSlide = 0;
+  let currentlyPlayingVideo = null;
+  
+  // Find this specific carousel instance
+  const carouselContainer = document.getElementById(carouselId);
+  if (!carouselContainer) return;
+  
+  const carouselElement = carouselContainer.querySelector('.stories-carousel');
+  if (!carouselElement) return;
+  
+  // Check if already initialized
+  if (carouselContainer.dataset.initialized) return;
+  carouselContainer.dataset.initialized = 'true';
+  
+  console.log(`Initializing StoriesCarousel ${carouselId} with ${totalSlides} slides`);
+  
+  // Navigation functions
+  function showSlide(index) {
+    if (index < 0) index = 0;
+    if (index >= totalSlides) index = totalSlides - 1;
+    
+    currentSlide = index;
+    const slideWidth = 224; // Width of each story card (w-56 = 224px)
+    const gap = 16; // gap-4 = 16px
+    const translateX = -(currentSlide * (slideWidth + gap));
+    
+    if (carouselElement) {
+      carouselElement.style.transform = `translateX(${translateX}px)`;
+    }
+  }
+  
+  function nextSlide() {
+    if (currentSlide < totalSlides - 3) {
+      showSlide(currentSlide + 1);
+    }
+  }
+  
+  function prevSlide() {
+    if (currentSlide > 0) {
+      showSlide(currentSlide - 1);
+    }
+  }
+  
+  // Play video function
+  function playVideo(videoIndex) {
+    console.log(`Playing video ${videoIndex}`);
+    
+    // Stop currently playing video
+    if (currentlyPlayingVideo !== null) {
+      stopVideo(currentlyPlayingVideo);
+    }
+    
+    // Find elements by video index
+    const videoPreview = carouselContainer.querySelector(`[data-video-index="${videoIndex}"].video-preview-container`);
+    const videoPlayer = carouselContainer.querySelector(`[data-video-index="${videoIndex}"].video-player-wrapper`);
+    const iframe = videoPlayer?.querySelector('iframe');
+    
+    console.log('Elements found:', { videoPreview, videoPlayer, iframe });
+    
+    if (videoPreview && videoPlayer && iframe) {
+      // Hide thumbnail and show video player
+      videoPreview.style.display = 'none';
+      videoPlayer.classList.remove('hidden');
+      
+      // Load video if not already loaded
+      if (!iframe.src) {
+        iframe.src = iframe.dataset.src;
+        console.log('Loading video URL:', iframe.dataset.src);
+      }
+      
+      currentlyPlayingVideo = videoIndex;
+    } else {
+      console.error('Could not find video elements for index:', videoIndex);
+    }
+  }
+  
+  function stopVideo(videoIndex) {
+    console.log(`Stopping video ${videoIndex}`);
+    
+    // Find elements by video index
+    const videoPreview = carouselContainer.querySelector(`[data-video-index="${videoIndex}"].video-preview-container`);
+    const videoPlayer = carouselContainer.querySelector(`[data-video-index="${videoIndex}"].video-player-wrapper`);
+    const iframe = videoPlayer?.querySelector('iframe');
+    
+    if (videoPreview && videoPlayer && iframe) {
+      // Show thumbnail and hide video player
+      videoPreview.style.display = 'block';
+      videoPlayer.classList.add('hidden');
+      
+      // Stop video by removing src
+      iframe.src = '';
+      
+      if (currentlyPlayingVideo === videoIndex) {
+        currentlyPlayingVideo = null;
+      }
+    }
+  }
+  
+  // Event listeners
+  // Navigation buttons
+  const prevBtn = carouselContainer.querySelector('.prev-btn');
+  const nextBtn = carouselContainer.querySelector('.next-btn');
+  
+  if (prevBtn) {
+    prevBtn.addEventListener('click', prevSlide);
+  }
+  
+  if (nextBtn) {
+    nextBtn.addEventListener('click', nextSlide);
+  }
+  
+  // Video play/stop events
+  carouselContainer.addEventListener('click', (e) => {
+    console.log('Click event:', e.target);
+    
+    const videoPreview = e.target.closest('.video-preview-container');
+    const closeBtn = e.target.closest('.close-video');
+    
+    console.log('Found elements:', { videoPreview, closeBtn });
+    
+    if (closeBtn) {
+      const videoIndex = parseInt(closeBtn.dataset.videoIndex);
+      console.log('Close button clicked for video:', videoIndex);
+      stopVideo(videoIndex);
+    } else if (videoPreview) {
+      const videoIndex = parseInt(videoPreview.dataset.videoIndex);
+      console.log('Video preview clicked for video:', videoIndex);
+      playVideo(videoIndex);
+    }
+  });
+  
+  // Initialize carousel position
+  showSlide(0);
+</script>
+
+<style>
+  .line-clamp-1 {
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  
+  .stories-carousel {
+    scroll-behavior: smooth;
+  }
+</style>

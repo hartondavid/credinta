@@ -1,0 +1,435 @@
+---
+// Import the necessary dependencies
+import FooterSocialLink from "@components/ui/links/FooterSocialLink.astro";
+import EmailFooterInput from "@components/ui/forms/input/EmailFooterInput.astro";
+import enStrings from "@utils/navigation";
+import frStrings from "@utils/fr/navigation";
+import Icon from "@components/ui/icons/Icon.astro";
+import BrandLogo from "@components/BrandLogo.astro";
+import { SITE } from "@data/constants";
+import logo from "@images/logo.png";
+import LocationOnIcon from "@mui/icons-material/LocationOn";
+import ContentCopyIcon from "@mui/icons-material/ContentCopy";
+import LocalPhoneIcon from "@mui/icons-material/LocalPhone";
+import EmailIcon from "@mui/icons-material/Email";
+import VolunteerActivismIcon from "@mui/icons-material/VolunteerActivism";
+import SecondOpenStreetMapEmbed from "@components/ui/SecondOpenStreetMapEmbed.astro";
+import LightModeIcon from "@components/ui/icons/LightModeIcon.astro";
+import DarkModeIcon from "@components/ui/icons/DarkModeIcon.astro";
+import ContactIconBlock from "@components/ui/blocks/ContactIconBlock.astro";
+import PersonIcon from "@mui/icons-material/Person";
+
+// Select the correct translation based on the page's lang prop:
+const strings = Astro.currentLocale === "fr" ? frStrings : enStrings;
+
+// Define the variables that will be used in this component
+const sectionThreeTitle: string =
+  Astro.currentLocale === "fr" ? "Rester à jour" : "Rămâi conectat cu noi";
+const sectionThreeContent: string =
+  Astro.currentLocale === "fr"
+    ? "Restez informé des derniers outils et des offres exclusives."
+    : "Abia asteptăm să îți oferim noutăți.";
+const crafted: string =
+  Astro.currentLocale === "fr" ? "Fabriqué par" : "Crafted by";
+---
+
+<footer class="w-full bg-neutral-300 dark:bg-neutral-900">
+  <div
+    class="mx-auto w-full max-w-[85rem] px-4 py-10 sm:px-6 lg:px-16 lg:pt-20 2xl:max-w-(--breakpoint-2xl)"
+  >
+    <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-5">
+      <div class="col-span-full lg:col-span-1 flex justify-center lg:justify-start">
+        <!-- Brand Logo -->
+        <!-- <BrandLogo class="h-auto w-32" /> -->
+        <img
+          src={logo.src}
+          alt="Brand Logo"
+          class="h-auto w-32 object-contain"
+        />
+      </div>
+
+      <!-- An array of links for Product and Company sections -->
+      {
+        strings.footerLinks.map((section) => (
+          <div class="col-span-1 text-center lg:text-left">
+            <h3 class="font-bold text-black dark:text-white">
+              <span class="text-yellow-500">
+              
+
+        {section.section === "Pastorul bisericii" && (
+                  <LightModeIcon size={40} class="dark:hidden">
+                    <PersonIcon sx={{ color: "currentColor", fontSize: 40 }} />
+                  </LightModeIcon>
+                  <DarkModeIcon size={40} class="hidden dark:block">
+                    <PersonIcon sx={{ color: "currentColor", fontSize: 40 }} />
+                  </DarkModeIcon>
+                )}
+
+                {section.section === "Sună-ne" && (
+                  <LightModeIcon size={40} class="dark:hidden">
+                    <LocalPhoneIcon sx={{ color: "currentColor", fontSize: 40 }} />
+                  </LightModeIcon>
+                  <DarkModeIcon size={40} class="hidden dark:block">
+                    <LocalPhoneIcon sx={{ color: "currentColor", fontSize: 40 }} />
+                  </DarkModeIcon>
+                )}
+                {section.section === "Vizitează-ne" && (
+                  <LightModeIcon size={40} class="dark:hidden">
+                    <LocationOnIcon sx={{ color: "currentColor", fontSize: 40 }} />
+                  </LightModeIcon>
+                  <DarkModeIcon size={40} class="hidden dark:block">
+                    <LocationOnIcon sx={{ color: "currentColor", fontSize: 40 }} />
+                  </DarkModeIcon>
+                )}
+              </span>
+              {section.section}
+            </h3>
+            <ul class="mt-3 flex flex-col space-y-3">
+              {section.links.map((link, index) => (
+                <li>
+                  <a
+                    href={link.url}
+                    class="inline-flex gap-x-2 rounded-lg text-black ring-zinc-500 outline-hidden transition duration-300 hover:text-neutral-500 focus-visible:ring-3 dark:text-white dark:ring-zinc-200 dark:hover:text-neutral-300 dark:focus:outline-hidden"
+                  >
+                    {link.name}
+                  </a>
+                </li>
+              ))}
+            </ul>
+
+            {(section as any).secondSection && (
+              <>
+                <h3 class="mt-6 font-bold text-black dark:text-white">
+                  <span class="text-yellow-500">
+                    {(section as any).secondSection === "Lasă un mesaj" && (
+                      <LightModeIcon size={40} class="dark:hidden">
+                        <EmailIcon sx={{ color: "currentColor", fontSize: 40 }} />
+                      </LightModeIcon>
+                      <DarkModeIcon size={40} class="hidden dark:block">
+                        <EmailIcon sx={{ color: "currentColor", fontSize: 40 }} />
+                      </DarkModeIcon>
+                    )}
+                    {(section as any).secondSection === "Donează" && (
+                      <LightModeIcon size={40} class="dark:hidden">
+                        <VolunteerActivismIcon
+                          sx={{ color: "currentColor", fontSize: 40 }}
+                        />
+                      </LightModeIcon>
+                      <DarkModeIcon size={40} class="hidden dark:block">
+                        <VolunteerActivismIcon
+                          sx={{ color: "currentColor", fontSize: 40 }}
+                        />
+                      </DarkModeIcon>
+                    )}
+                  </span>
+                  {(section as any).secondSection}
+                </h3>
+                <ul class="mt-3 flex flex-col space-y-3">
+                  {(section as any).secondLink?.map((link: any) => (
+                    <li>
+                      {link.name.includes("IBAN:") ? (
+                        <div class="flex items-center justify-center gap-2 lg:justify-start">
+                          <span class="text-sm text-black dark:text-white">
+                            {link.name}
+                          </span>
+                        </div>
+                      ) : (
+                        <a
+                          href={link.url}
+                          class="inline-flex gap-x-2 rounded-lg text-black ring-zinc-500 outline-hidden transition duration-300 hover:text-neutral-500 focus-visible:ring-3 dark:text-white dark:ring-zinc-200 dark:hover:text-neutral-300 dark:focus:outline-hidden"
+                        >
+                          {link.name}
+                        </a>
+                      )}
+                    </li>
+                  ))}
+                  {(section as any).secondSection === "Donează" && (
+                    <div class="flex justify-center lg:justify-start">
+                      <button
+                        onclick="copyIBAN('RO58CECB31336RON2030888', event)"
+                        class="mt-5 inline-flex items-center gap-1 rounded-md bg- px-2 py-1 text-xs font-medium text-white transition-colors hover:bg-[#305c76] bg-[#305c76]  focus:ring-2 focus:ring-[#305c76] focus:ring-offset-2 focus:outline-none dark:focus:ring-offset-gray-900 dark:bg-[#74becc] dark:hover:bg-[#74becc] dark:text-black"
+                        title="Copiază IBAN-ul"
+                      >
+                        <ContentCopyIcon sx={{ fontSize: 14 }} />
+                        Copiază
+                      </button>
+                    </div>
+                  )}
+                </ul>
+              </>
+            )}
+
+            {(section as any).thirdSection && (
+              <>
+                <h3 class="mt-6 font-bold text-black dark:text-white">
+                  <span class="text-yellow-500">
+                    {(section as any).thirdSection === "Donează" && (
+                      <LightModeIcon size={40} class="dark:hidden">
+                        <VolunteerActivismIcon
+                          sx={{ color: "currentColor", fontSize: 40 }}
+                        />
+                      </LightModeIcon>
+                      <DarkModeIcon size={40} class="hidden dark:block">
+                        <VolunteerActivismIcon
+                          sx={{ color: "currentColor", fontSize: 40 }}
+                        />
+                      </DarkModeIcon>
+                    )}
+                  </span>
+                  {(section as any).thirdSection}
+                </h3>
+                <ul class="mt-3 flex flex-col space-y-3">
+                  {(section as any).thirdLink?.map((link: any) => (
+                    <li>
+                      {link.name.includes("IBAN:") ? (
+                        <div class="flex items-center justify-center gap-2 lg:justify-start">
+                          <span class="text-sm text-black dark:text-white">
+                            {link.name}
+                          </span>
+                        </div>
+                      ) : (
+                        <a
+                          href={link.url}
+                          class="inline-flex gap-x-2 rounded-lg text-black ring-zinc-500 outline-hidden transition duration-300 hover:text-neutral-500 focus-visible:ring-3 dark:text-white dark:ring-zinc-200 dark:hover:text-neutral-300 dark:focus:outline-hidden"
+                        >
+                          {link.name}
+                        </a>
+                      )}
+                    </li>
+                  ))}
+                  <div class="flex justify-center lg:justify-start">
+                    <button
+                      onclick="copyIBAN('RO58CECB31336RON2030888', event)"
+                      class="mt-5 inline-flex items-center gap-1 rounded-md bg- px-2 py-1 text-xs font-medium text-white transition-colors hover:bg-[#305c76] bg-[#305c76] focus:ring-2 focus:ring-[#305c76] focus:ring-offset-2 focus:outline-none dark:focus:ring-offset-gray-900 dark:bg-[#74becc] dark:hover:bg-[#74becc] dark:text-black"
+                      title="Copiază IBAN-ul"
+                    >
+                      <ContentCopyIcon sx={{ fontSize: 14 }} />
+                      Copiază
+                    </button>
+                  </div>
+                </ul>
+              </>
+            )}
+
+            {(section as any).map && (
+              <div class="mt-6">
+                <div class="mb-2 flex items-center justify-center gap-2 lg:justify-start">
+                  <a
+                    href="https://maps.google.com/?q=Bulevardul+Voluntari+nr.+61A,+Voluntari,+Ilfov"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="block cursor-pointer"
+                  >
+                    <span class="text-sm text-black dark:text-white">
+                      <LocationOnIcon sx={{ color: "red", fontSize: 20 }} />
+                      {(section as any).map.address}
+                    </span>
+                  </a>
+                </div>
+
+                <SecondOpenStreetMapEmbed
+                  address="Bulevardul Voluntari nr. 61A, Voluntari, Ilfov"
+                  latitude={44.4885903}
+                  longitude={26.181061}
+                  height="200px"
+                  zoom={16}
+                  className="mt-3"
+                />
+              </div>
+            )}
+            
+          </div>
+        ))
+        
+      }
+
+        <!-- Church meeting time announcements -->
+        <div class="col-span-full flex flex-col gap-4 md:flex-row md:gap-6 md:ml-40">
+          <!-- First card -->
+          <div
+            class="flex min-w-[280px] items-center rounded-[10px] border-t-5 border-[#08BABE] bg-gradient-to-r from-[#e0e3e3] to-[#ffffff] px-6 py-3 backdrop-blur-sm dark:border-[#08BABE]/30 dark:from-[#74becc]/30 dark:to-[#000000]/30"
+          >
+            <div class="flex items-center space-x-2">
+              <!-- Church bell icon -->
+              <svg
+                class="h-10 w-10 text-[#08BABE] dark:text-[#08BABE]"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M15 17h5l-5 5v-5zM9 12l2 2 4-4M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                ></path>
+              </svg>
+              <div class="text-sm">
+                <span class="ml-1 font-bold text-black dark:text-white"
+                  >In fiecare Duminică între orele 10:00-12:00</span
+                >
+              </div>
+            </div>
+          </div>
+
+          <!-- Second card -->
+          <div
+            class="flex min-w-[370px] items-center rounded-[10px] border-t-5 border-[#08BABE] bg-gradient-to-r from-[#e0e3e3] to-[#ffffff] px-6 py-3 backdrop-blur-sm dark:border-[#08BABE]/30 dark:from-[#74becc]/30 dark:to-[#000000]/30"
+          >
+            <div class="flex items-center space-x-2">
+              <div class="text-sm">
+                <span class="ml-1 font-bold text-black dark:text-white"
+                  >În timpul programului, copiii au activități separate specifice
+                  vârstei lor într-o sală la subsol.</span
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+
+      <!-- <div class="col-span-full md:col-span-2 lg:col-span-2">
+        <div class="flex flex-col items-center lg:items-end">
+          <h3
+            class="text-center font-bold text-neutral-800 lg:text-left dark:text-neutral-200"
+          >
+            {sectionThreeTitle}
+          </h3>
+          <form class="mt-3 flex flex-col items-center lg:items-end">
+            <EmailFooterInput />
+          </form>
+          <p
+            class="mt-3 text-center text-sm text-black lg:text-left dark:text-white"
+          >
+            {sectionThreeContent}
+          </p>
+        </div>
+      </div> -->
+    </div>
+
+    <div
+      class="mt-9 flex flex-col items-center space-y-4 sm:mt-12 sm:flex-row sm:items-center sm:justify-between sm:space-y-0"
+    >
+      <div class="text-center sm:text-left">
+        <p class="text-white-600 text-sm dark:text-white">
+          © <span id="current-year"></span> Biserica Credința
+        </p>
+      </div>
+
+      <!-- Social Brands -->
+      <div class="flex space-x-4">
+        <FooterSocialLink url={strings.socialLinks.facebook}
+          ><Icon name="facebookFooter" />
+        </FooterSocialLink>
+        <FooterSocialLink url={strings.socialLinks.instagram}
+          ><Icon name="instagramFooter" />
+        </FooterSocialLink>
+        <FooterSocialLink url={strings.socialLinks.tiktok}
+          ><Icon name="tiktokFooter" />
+        </FooterSocialLink>
+      </div>
+    </div>
+
+    <script>
+      const year = new Date().getFullYear();
+      const element = document.getElementById("current-year");
+      element!.innerText = year.toString();
+
+      // Function to copy IBAN to clipboard
+      (window as any).copyIBAN = function (iban: string, event: Event) {
+        const button = event.target as HTMLButtonElement;
+        if (!button) return;
+
+        navigator.clipboard
+          .writeText(iban)
+          .then(function () {
+            // Show success feedback
+            const originalText = button.innerHTML;
+            button.innerHTML = "✅ Copiat!";
+            // button.classList.remove("bg-yellow-500", "hover:bg-yellow-400");
+            button.classList.add("bg-green-500");
+
+            // Show toast message
+            // showToast("IBAN copiat!", "success");
+
+            // Reset button after 2 seconds
+            setTimeout(() => {
+              button.innerHTML = originalText;
+              button.classList.remove("bg-green-500");
+              // Don't add yellow classes - let the original button styling remain
+            }, 2000);
+          })
+          .catch(function (err) {
+            console.error("Could not copy text: ", err);
+            // Fallback for older browsers
+            const textArea = document.createElement("textarea");
+            textArea.value = iban;
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            try {
+              document.execCommand("copy");
+              const originalText = button.innerHTML;
+              button.innerHTML = "✅ Copiat!";
+              button.classList.remove("bg-yellow-500", "hover:bg-yellow-400");
+              button.classList.add("bg-green-500", "text-white");
+
+              // Show toast message
+              showToast("IBAN copiat cu succes în clipboard!", "success");
+
+              setTimeout(() => {
+                button.innerHTML = originalText;
+                button.classList.remove("bg-green-500");
+                button.classList.add("bg-yellow-500", "hover:bg-yellow-400");
+              }, 2000);
+            } catch (err) {
+              console.error("Fallback: Oops, unable to copy", err);
+              showToast("Eroare la copierea IBAN-ului", "error");
+            }
+            document.body.removeChild(textArea);
+          });
+      };
+
+      // Function to show toast messages
+      function showToast(message: string, type: "success" | "error") {
+        // Remove existing toast if any
+        const existingToast = document.querySelector(".toast-message");
+        if (existingToast) {
+          existingToast.remove();
+        }
+
+        // Create toast element
+        const toast = document.createElement("div");
+        toast.className = `toast-message fixed top-4 right-4 z-50 px-4 py-3 rounded-lg shadow-lg transition-all duration-300 transform translate-x-full ${
+          type === "success"
+            ? "bg-green-500 text-white"
+            : "bg-red-500 text-white"
+        }`;
+        toast.textContent = message;
+
+        // Add icon
+        const icon = document.createElement("span");
+        icon.className = "mr-2";
+        icon.innerHTML = type === "success" ? "✅" : "❌";
+        toast.insertBefore(icon, toast.firstChild);
+
+        // Add to page
+        document.body.appendChild(toast);
+
+        // Animate in
+        setTimeout(() => {
+          toast.classList.remove("translate-x-full");
+        }, 100);
+
+        // Auto remove after 3 seconds
+        setTimeout(() => {
+          toast.classList.add("translate-x-full");
+          setTimeout(() => {
+            if (toast.parentNode) {
+              toast.parentNode.removeChild(toast);
+            }
+          }, 300);
+        }, 3000);
+      }
+    </script>
+  </div>
+</footer>

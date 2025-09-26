@@ -1,0 +1,364 @@
+---
+import MainLayout from "@/layouts/MainLayout.astro";
+import { SITE } from "@data/constants";
+import {
+    getAutoCategorizedPosts,
+    getAutoCategorizedPostsByType,
+    getMappedCurrentProjects,
+    getMappedFutureProjects,
+    getMappedPastProjects,
+} from "../components/pages/projects/projectPosts";
+
+// Obținem toate postările categorizate automat
+const allPosts = getAutoCategorizedPosts();
+const pastPosts = getAutoCategorizedPostsByType("past");
+const currentPosts = getAutoCategorizedPostsByType("current");
+const futurePosts = getAutoCategorizedPostsByType("future");
+
+// Obținem datele mapeate pentru fiecare tip
+const mappedPastProjects = getMappedPastProjects();
+const mappedCurrentProjects = getMappedCurrentProjects();
+const mappedFutureProjects = getMappedFutureProjects();
+
+const pageTitle = `Demo Categorizare Automată | ${SITE.title}`;
+const metaDescription =
+    "Testează funcționalitatea de categorizare automată a postărilor. Vezi cum se mută automat postările între pagini bazat pe data de creare.";
+---
+
+<MainLayout
+    title={pageTitle}
+    customDescription={metaDescription}
+    customOgTitle={pageTitle}
+>
+    <div class="mx-auto max-w-[85rem] px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
+        <!-- Page Header -->
+        <div class="mb-8 text-center">
+            <h1
+                class="text-4xl font-bold tracking-tight text-balance text-neutral-800 md:text-5xl md:leading-tight dark:text-neutral-200"
+            >
+                🚀 Demo Categorizare Automată
+            </h1>
+            <p
+                class="mx-auto mt-4 max-w-3xl text-lg text-neutral-600 dark:text-neutral-400"
+            >
+                Testează funcționalitatea de mutare automată a postărilor între
+                pagini. Postările se categorizează automat bazat pe data de
+                creare.
+            </p>
+        </div>
+
+        <!-- Statistics -->
+        <div class="mb-12 grid grid-cols-1 gap-6 md:grid-cols-3">
+            <div
+                class="rounded-lg border border-blue-200 bg-blue-50 p-6 dark:border-blue-800 dark:bg-blue-900/20"
+            >
+                <div
+                    class="text-2xl font-bold text-blue-600 dark:text-blue-400"
+                >
+                    {pastPosts.length}
+                </div>
+                <div class="text-sm text-blue-600 dark:text-blue-400">
+                    Proiecte Trecute
+                </div>
+                <div class="mt-1 text-xs text-blue-500 dark:text-blue-500">
+                    ≥ 90 zile
+                </div>
+            </div>
+            <div
+                class="rounded-lg border border-yellow-200 bg-yellow-50 p-6 dark:border-yellow-800 dark:bg-yellow-900/20"
+            >
+                <div
+                    class="text-2xl font-bold text-yellow-600 dark:text-yellow-400"
+                >
+                    {currentPosts.length}
+                </div>
+                <div class="text-sm text-yellow-600 dark:text-yellow-400">
+                    Proiecte în Curs
+                </div>
+                <div class="mt-1 text-xs text-yellow-500 dark:text-yellow-500">
+                    30-89 zile
+                </div>
+            </div>
+            <div
+                class="rounded-lg border border-green-200 bg-green-50 p-6 dark:border-green-800 dark:bg-green-900/20"
+            >
+                <div
+                    class="text-2xl font-bold text-green-600 dark:text-green-400"
+                >
+                    {futurePosts.length}
+                </div>
+                <div class="text-sm text-green-600 dark:text-green-400">
+                    Proiecte Viitoare
+                </div>
+                <div class="mt-1 text-xs text-green-500 dark:text-green-500">
+                    &lt; 30 zile
+                </div>
+            </div>
+        </div>
+
+        <!-- Rules -->
+        <div class="mb-12 rounded-lg bg-gray-50 p-6 dark:bg-gray-800">
+            <h2
+                class="mb-4 text-xl font-semibold text-neutral-800 dark:text-neutral-200"
+            >
+                📋 Reguli de Categorizare Automată
+            </h2>
+            <div class="grid grid-cols-1 gap-4 text-sm md:grid-cols-3">
+                <div class="flex items-center gap-2">
+                    <span class="h-3 w-3 rounded-full bg-green-500"></span>
+                    <span><strong>&lt; 30 zile:</strong> Proiecte Viitoare</span
+                    >
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="h-3 w-3 rounded-full bg-yellow-500"></span>
+                    <span><strong>30-89 zile:</strong> Proiecte în Curs</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="h-3 w-3 rounded-full bg-blue-500"></span>
+                    <span><strong>≥ 90 zile:</strong> Proiecte Trecute</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="mb-12 flex justify-center">
+            <div
+                class="flex rounded-lg border border-gray-200 bg-white p-1 dark:border-gray-700 dark:bg-gray-800"
+            >
+                <a
+                    href="/past-projects"
+                    class="rounded-md px-6 py-3 text-sm font-medium text-gray-700 transition-colors hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
+                >
+                    Proiecte Trecute
+                </a>
+                <a
+                    href="/current-projects"
+                    class="rounded-md px-6 py-3 text-sm font-medium text-gray-700 transition-colors hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
+                >
+                    Proiecte în Curs
+                </a>
+                <a
+                    href="/future-projects"
+                    class="rounded-md px-6 py-3 text-sm font-medium text-gray-700 transition-colors hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
+                >
+                    Proiecte Viitoare
+                </a>
+            </div>
+        </div>
+
+        <!-- All Posts Table -->
+        <div class="mb-12">
+            <h2
+                class="mb-6 text-2xl font-bold text-neutral-800 dark:text-neutral-200"
+            >
+                📊 Toate Postările (Categorizate Automat)
+            </h2>
+            <div class="overflow-x-auto">
+                <table
+                    class="min-w-full rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800"
+                >
+                    <thead class="bg-gray-50 dark:bg-gray-700">
+                        <tr>
+                            <th
+                                class="px-4 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-300"
+                                >Titlu</th
+                            >
+                            <th
+                                class="px-4 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-300"
+                                >Data Creare</th
+                            >
+                            <th
+                                class="px-4 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-300"
+                                >Tip Automat</th
+                            >
+                            <th
+                                class="px-4 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-300"
+                                >Zile În Urmă</th
+                            >
+                        </tr>
+                    </thead>
+                    <tbody
+                        class="divide-y divide-gray-200 dark:divide-gray-700"
+                    >
+                        {
+                            allPosts.map((post) => {
+                                const postDate = new Date(post.createdAt);
+                                const now = new Date();
+                                const daysDifference = Math.floor(
+                                    (now.getTime() - postDate.getTime()) /
+                                        (1000 * 60 * 60 * 24),
+                                );
+
+                                return (
+                                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+                                        <td class="px-4 py-3 text-sm text-neutral-800 dark:text-neutral-200">
+                                            {post.title}
+                                        </td>
+                                        <td class="px-4 py-3 text-sm text-neutral-600 dark:text-neutral-400">
+                                            {postDate.toLocaleDateString(
+                                                "ro-RO",
+                                            )}
+                                        </td>
+                                        <td class="px-4 py-3">
+                                            <span
+                                                class={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                                                    post.projectType === "past"
+                                                        ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+                                                        : post.projectType ===
+                                                            "current"
+                                                          ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
+                                                          : "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+                                                }`}
+                                            >
+                                                {post.projectType === "past"
+                                                    ? "Trecut"
+                                                    : post.projectType ===
+                                                        "current"
+                                                      ? "În Curs"
+                                                      : "Viitor"}
+                                            </span>
+                                        </td>
+                                        <td class="px-4 py-3 text-sm text-neutral-600 dark:text-neutral-400">
+                                            {daysDifference} zile
+                                        </td>
+                                    </tr>
+                                );
+                            })
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- How It Works -->
+        <div
+            class="mb-12 rounded-lg border border-blue-200 bg-blue-50 p-6 dark:border-blue-800 dark:bg-blue-900/20"
+        >
+            <h2
+                class="mb-4 text-xl font-semibold text-neutral-800 dark:text-neutral-200"
+            >
+                🔧 Cum Funcționează
+            </h2>
+            <div
+                class="space-y-3 text-sm text-neutral-700 dark:text-neutral-300"
+            >
+                <p>
+                    <strong>1.</strong> Postările sunt create cu o dată specifică
+                    în <code>createdAt</code>
+                </p>
+                <p>
+                    <strong>2.</strong> Funcția <code
+                        >getProjectTypeByDate()</code
+                    > calculează automat tipul bazat pe diferența de zile
+                </p>
+                <p>
+                    <strong>3.</strong> Postările apar automat pe pagina corectă
+                    fără intervenție manuală
+                </p>
+                <p>
+                    <strong>4.</strong> Când trece timpul, postările se mută automat
+                    între pagini
+                </p>
+            </div>
+        </div>
+
+        <!-- Testing Instructions -->
+        <div
+            class="mb-12 rounded-lg border border-green-200 bg-green-50 p-6 dark:border-green-800 dark:bg-green-900/20"
+        >
+            <h2
+                class="mb-4 text-xl font-semibold text-neutral-800 dark:text-neutral-200"
+            >
+                🧪 Cum Să Testezi
+            </h2>
+            <div
+                class="space-y-3 text-sm text-neutral-700 dark:text-neutral-300"
+            >
+                <p>
+                    <strong>1.</strong> Editează <code
+                        >src/data/projectPosts.ts</code
+                    >
+                </p>
+                <p>
+                    <strong>2.</strong> Modifică <code>createdAt</code> pentru o
+                    postare existentă
+                </p>
+                <p><strong>3.</strong> Salvează fișierul și verifică pagina</p>
+                <p>
+                    <strong>4.</strong> Postarea va apărea automat pe pagina corectă!
+                </p>
+            </div>
+        </div>
+
+        <!-- Benefits -->
+        <div class="mb-12">
+            <h2
+                class="mb-6 text-2xl font-bold text-neutral-800 dark:text-neutral-200"
+            >
+                ✨ Beneficii
+            </h2>
+            <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+                <div
+                    class="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800"
+                >
+                    <h3
+                        class="mb-3 text-lg font-semibold text-neutral-800 dark:text-neutral-200"
+                    >
+                        🔄 Mutare Automată
+                    </h3>
+                    <p class="text-sm text-neutral-600 dark:text-neutral-400">
+                        Postările se mută automat între pagini bazat pe timp,
+                        fără intervenție manuală.
+                    </p>
+                </div>
+                <div
+                    class="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800"
+                >
+                    <h3
+                        class="mb-3 text-lg font-semibold text-neutral-800 dark:text-neutral-200"
+                    >
+                        ⚡ Ușor de Întreținut
+                    </h3>
+                    <p class="text-sm text-neutral-600 dark:text-neutral-400">
+                        Nu este nevoie să actualizezi manual categoria fiecărei
+                        postări.
+                    </p>
+                </div>
+                <div
+                    class="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800"
+                >
+                    <h3
+                        class="mb-3 text-lg font-semibold text-neutral-800 dark:text-neutral-200"
+                    >
+                        🎯 Categorizare Corectă
+                    </h3>
+                    <p class="text-sm text-neutral-600 dark:text-neutral-400">
+                        Postările apar întotdeauna pe pagina corectă bazat pe
+                        data reală.
+                    </p>
+                </div>
+                <div
+                    class="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800"
+                >
+                    <h3
+                        class="mb-3 text-lg font-semibold text-neutral-800 dark:text-neutral-200"
+                    >
+                        📱 Responsive
+                    </h3>
+                    <p class="text-sm text-neutral-600 dark:text-neutral-400">
+                        Funcționează perfect pe toate dispozitivele și paginile.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="text-center text-sm text-neutral-500 dark:text-neutral-400">
+            <p>
+                <strong>Tip:</strong> Modifică datele în <code
+                    >projectPosts.ts</code
+                > pentru a testa mutarea automată!
+            </p>
+        </div>
+    </div>
+</MainLayout>

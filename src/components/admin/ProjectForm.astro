@@ -1,0 +1,290 @@
+---
+// ProjectForm.astro - Component for project form
+---
+
+<div
+    id="projectsForm"
+    class="hidden rounded-lg bg-yellow-50/60 shadow dark:bg-neutral-700/80"
+>
+    <div class="border-b border-gray-200 px-6 py-4">
+        <h3
+            class="text-center text-lg font-medium text-black sm:text-left dark:text-white"
+        >
+            Adaugă postare
+        </h3>
+    </div>
+    <form id="projectForm" class="space-y-6 p-6">
+        <!-- Hidden field for post ID (for editing) -->
+        <input type="hidden" id="projectId" name="id" />
+
+        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+            <div>
+                <label
+                    for="projectTitle"
+                    class="block text-sm font-medium text-black dark:text-white"
+                >
+                    Titlu *
+                </label>
+                <input
+                    type="text"
+                    id="projectTitle"
+                    name="title"
+                    required
+                    class="mt-1 block w-full rounded-md border-gray-300 bg-yellow-50/60 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-neutral-700/80 dark:text-white dark:placeholder:text-neutral-400 dark:focus:ring-1"
+                    placeholder="Introduceți titlul proiectului"
+                />
+            </div>
+            <div>
+                <label
+                    for="projectEventType"
+                    class="block text-sm font-medium text-black dark:text-white"
+                >
+                    Durata proiect
+                </label>
+                <select
+                    id="projectEventType"
+                    name="eventType"
+                    class="mt-1 block w-full rounded-md border-gray-300 bg-yellow-50/60 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-neutral-700/80 dark:text-white dark:placeholder:text-neutral-400 dark:focus:ring-1"
+                >
+                    <option value="single-day">O singură zi</option>
+                    <option value="multi-day">Mai multe zile</option>
+                </select>
+            </div>
+
+            <!-- Single day date field -->
+            <div id="singleDateField">
+                <label
+                    for="projectDate"
+                    class="block text-sm font-medium text-black dark:text-white"
+                >
+                    Data *
+                </label>
+                <input
+                    type="date"
+                    id="projectDate"
+                    name="createdAt"
+                    class="mt-1 block w-full rounded-md border-gray-300 bg-yellow-50/60 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-neutral-700/80 dark:text-white dark:placeholder:text-neutral-400 dark:focus:ring-1"
+                />
+            </div>
+
+            <!-- Multi-day date fields -->
+            <div id="multiDateFields" class="hidden">
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div>
+                        <label
+                            for="projectStartDate"
+                            class="block text-sm font-medium text-black dark:text-white"
+                        >
+                            Data de început *
+                        </label>
+                        <input
+                            type="date"
+                            id="projectStartDate"
+                            name="startDate"
+                            class="mt-1 block w-full rounded-md border-gray-300 bg-yellow-50/60 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-neutral-700/80 dark:text-white dark:placeholder:text-neutral-400 dark:focus:ring-1"
+                        />
+                    </div>
+                    <div>
+                        <label
+                            for="projectEndDate"
+                            class="block text-sm font-medium text-black dark:text-white"
+                        >
+                            Data de sfârșit *
+                        </label>
+                        <input
+                            type="date"
+                            id="projectEndDate"
+                            name="endDate"
+                            class="mt-1 block w-full rounded-md border-gray-300 bg-yellow-50/60 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-neutral-700/80 dark:text-white dark:placeholder:text-neutral-400 dark:focus:ring-1"
+                        />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div>
+            <label
+                for="projectContent"
+                class="block text-sm font-medium text-black dark:text-white"
+            >
+                Conținut
+            </label>
+            <textarea
+                id="projectContent"
+                name="content"
+                rows="6"
+                required
+                class="mt-1 block w-full rounded-md border-gray-300 bg-yellow-50/60 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-neutral-700/80 dark:text-white dark:placeholder:text-neutral-400 dark:focus:ring-1"
+                placeholder="Introduceți conținutul proiectului"></textarea>
+
+            <!-- Preview div for highlighted content -->
+            <div
+                id="projectContentPreview"
+                class="mt-2 hidden rounded-md border bg-gray-50 p-3 dark:bg-gray-800"
+            >
+                <h4
+                    class="mb-2 text-sm font-medium text-gray-700 dark:text-gray-300"
+                >
+                    Preview cu cuvinte cheie evidențiate:
+                </h4>
+                <div class="text-sm text-black dark:text-white"></div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+            <div>
+                <label
+                    for="projectKeywords"
+                    class="block text-sm font-medium text-black dark:text-white"
+                >
+                    Cuvinte cheie (separate prin virgulă)
+                </label>
+                <input
+                    type="text"
+                    id="projectKeywords"
+                    name="keywords"
+                    class="mt-1 block w-full rounded-md border-gray-300 bg-yellow-50/60 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-neutral-700/80 dark:text-white dark:placeholder:text-neutral-400 dark:focus:ring-1"
+                    placeholder="cuvant1, cuvant2, cuvant3"
+                />
+                <p class="mt-1 text-sm text-black dark:text-white">
+                    Cuvintele cheie vor fi evidențiate în conținut cu o culoare
+                    specifică pentru light/dark mode.
+                </p>
+            </div>
+        </div>
+
+        <!-- Media Section -->
+        <div class="space-y-4">
+            <h4 class="text-md font-medium text-black dark:text-white">
+                Media
+            </h4>
+
+            <!-- Butoane pentru alegerea tipului de media -->
+            <div class="flex gap-4">
+                <button type="button" id="addVideoBtn">
+                    <svg
+                        class="h-10 w-10 text-red-500"
+                        fill="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path d="M8 5v14l11-7z"></path>
+                    </svg>
+                </button>
+                <button type="button" id="addImageBtn">
+                    <svg
+                        class="h-10 w-10 text-indigo-600"
+                        fill="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path
+                            d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"
+                        ></path>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Container pentru video-uri -->
+            <div id="youtubeVideosContainer" class="hidden space-y-2">
+                <h5 class="text-sm font-medium text-black dark:text-white">
+                    Video-uri YouTube:
+                </h5>
+                <div class="flex items-center gap-2">
+                    <input
+                        type="url"
+                        name="youtubeVideos[]"
+                        placeholder="https://www.youtube.com/watch?v=..."
+                        class="flex-1 rounded-md border-gray-300 bg-yellow-50/60 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-neutral-700/80 dark:text-white dark:placeholder:text-neutral-400 dark:focus:ring-1"
+                    />
+                    <button
+                        type="button"
+                        id="addVideoFieldBtn"
+                        class="rounded-md bg-green-500 px-3 py-2 text-white hover:bg-green-600"
+                    >
+                        <span class="text-lg font-bold text-white">+</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Container pentru imagini -->
+            <div id="cloudinaryImagesContainer" class="hidden space-y-2">
+                <h5 class="text-sm font-medium text-black dark:text-white">
+                    Imagini Cloudinary (ID-uri):
+                </h5>
+                <div class="flex items-center gap-2">
+                    <input
+                        type="text"
+                        name="cloudinaryIds[]"
+                        placeholder="cloudinary_public_id"
+                        class="flex-1 rounded-md border-gray-300 bg-yellow-50/60 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-neutral-700/80 dark:text-white dark:placeholder:text-neutral-400 dark:focus:ring-1"
+                    />
+                    <button
+                        type="button"
+                        id="addImageFieldBtn"
+                        class="rounded-md bg-green-500 px-3 py-2 text-white hover:bg-green-600"
+                    >
+                        <span class="text-lg font-bold text-white">+</span>
+                    </button>
+                </div>
+            </div>
+            <div class="flex items-center">
+                <!-- <input
+                    type="checkbox"
+                    id="projectIsActive"
+                    name="isActive"
+                    class="h-4 w-4 rounded border-gray-700 text-indigo-600 focus:ring-indigo-500"
+                />
+                <label
+                    for="projectIsActive"
+                    class="ml-2 block text-sm text-gray-900"
+                >
+                    Formular de participare
+                </label> -->
+
+                <input
+                    type="checkbox"
+                    id="projectShowGallery"
+                    name="showGallery"
+                    class="ml-2 h-4 w-4 rounded border-gray-700 text-indigo-600 focus:ring-indigo-500 dark:border-gray-700 dark:text-yellow-400 dark:focus:ring-yellow-400"
+                />
+                <label
+                    for="projectShowGallery"
+                    class="ml-2 block text-sm text-black dark:text-white"
+                >
+                    Galerie
+                </label>
+            </div>
+
+            <!-- Container pentru galerie -->
+            <div id="galleryContainer" class="hidden space-y-2">
+                <h5 class="text-sm font-medium text-black dark:text-white">
+                    Galerie (ID-uri imagini):
+                </h5>
+                <div class="flex items-center gap-2">
+                    <input
+                        type="text"
+                        name="galleryIds[]"
+                        placeholder="gallery_image_id"
+                        class="flex-1 rounded-md border-gray-300 bg-yellow-50/60 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-neutral-700/80 dark:text-white dark:placeholder:text-neutral-400 dark:focus:ring-1"
+                    />
+                    <button
+                        type="button"
+                        id="addGalleryFieldBtn"
+                        class="rounded-md bg-green-500 px-3 py-2 text-white hover:bg-green-600"
+                    >
+                        <span class="text-lg font-bold text-white">+</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex justify-center sm:justify-end">
+            <button
+                type="submit"
+                id="projectSubmitButton"
+                class="rounded-md bg-[#305c76] px-6 py-2 font-medium text-white hover:shadow-[0_0_20px_rgba(55,83,255,1)] dark:bg-[#74becc] dark:text-neutral-800 dark:hover:shadow-[0_0_20px_rgba(255,204,0,1)]"
+            >
+                <span id="projectSubmitText">Adaugă proiect</span>
+            </button>
+        </div>
+    </form>
+</div>

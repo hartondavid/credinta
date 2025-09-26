@@ -1,0 +1,128 @@
+---
+import MainLayout from "@/layouts/MainLayout.astro";
+import VideoCarousel from "@components/ui/blocks/VideoCarousel.astro";
+
+// Test video data
+const testVideos = [
+    {
+        id: "test-video-1",
+        title: "Test Video 1 - Construction Progress",
+        description: "This is a test video showing construction progress",
+        youtubeId: "dQw4w9WgXcQ",
+    },
+    {
+        id: "test-video-2",
+        title: "Test Video 2 - Project Overview",
+        description: "Overview of the construction project",
+        youtubeId: "9bZkp7q19f0",
+    },
+    {
+        id: "test-video-3",
+        title: "Test Video 3 - Final Results",
+        description: "Final results and completion",
+        youtubeId: "jNQXAC9IVRw",
+    },
+];
+
+const pageTitle = "Test Video Carousel Auto-Advance";
+---
+
+<MainLayout title={pageTitle}>
+    <div class="mx-auto max-w-4xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
+        <div class="mb-8 text-center">
+            <h1
+                class="text-4xl font-bold tracking-tight text-balance text-neutral-800 md:text-5xl md:leading-tight dark:text-neutral-200"
+            >
+                Test Video Carousel
+            </h1>
+            <p class="mt-4 text-lg text-neutral-600 dark:text-neutral-400">
+                Testing the auto-advance functionality of the VideoCarousel
+                component
+            </p>
+        </div>
+
+        <div class="space-y-8">
+            <div>
+                <h2
+                    class="mb-4 text-2xl font-semibold text-neutral-800 dark:text-neutral-200"
+                >
+                    Auto-Advance Carousel (5 second intervals)
+                </h2>
+                <p class="mb-4 text-sm text-neutral-500 dark:text-neutral-400">
+                    The carousel should automatically advance every 5 seconds.
+                    Hover to pause, click to play videos.
+                </p>
+                <VideoCarousel videos={testVideos} />
+            </div>
+
+            <div class="rounded-lg bg-neutral-100 p-6 dark:bg-neutral-800">
+                <h3
+                    class="mb-3 text-lg font-semibold text-neutral-800 dark:text-neutral-200"
+                >
+                    Features to Test:
+                </h3>
+                <ul
+                    class="space-y-2 text-sm text-neutral-600 dark:text-neutral-400"
+                >
+                    <li>✅ Auto-advance every 5 seconds</li>
+                    <li>✅ Pause on hover</li>
+                    <li>✅ Resume on mouse leave</li>
+                    <li>✅ Pause when video is playing</li>
+                    <li>✅ Resume when video stops</li>
+                    <li>✅ Manual navigation with arrows and dots</li>
+                    <li>✅ Toggle auto-advance on/off</li>
+                    <li>✅ Visual indicator for auto-advance status</li>
+                </ul>
+            </div>
+
+            <div
+                class="rounded-lg border border-blue-200 bg-blue-50 p-6 dark:border-blue-800 dark:bg-blue-900/20"
+            >
+                <h3
+                    class="mb-3 text-lg font-semibold text-blue-800 dark:text-blue-200"
+                >
+                    Instructions:
+                </h3>
+                <ol
+                    class="list-inside list-decimal space-y-2 text-sm text-blue-700 dark:text-blue-300"
+                >
+                    <li>Watch the carousel auto-advance automatically</li>
+                    <li>Hover over the carousel to pause auto-advance</li>
+                    <li>
+                        Click the play button on any video to pause auto-advance
+                    </li>
+                    <li>
+                        Use the navigation arrows or dots to manually navigate
+                    </li>
+                    <li>
+                        Click the auto-advance toggle button (bottom right) to
+                        turn it on/off
+                    </li>
+                    <li>
+                        Notice the green pulsing dot indicator when auto-advance
+                        is active
+                    </li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</MainLayout>
+
+<style>
+    /* Custom styles for the test page */
+    .bg-blue-50 {
+        background-color: #eff6ff;
+    }
+
+    .dark .bg-blue-900\/20 {
+        background-color: rgba(30, 58, 138, 0.2);
+    }
+
+    .border-blue-200 {
+        border-color: #bfdbfe;
+    }
+
+    .dark .border-blue-800 {
+        border-color: #1e40af;
+    }
+</style>

@@ -1,0 +1,295 @@
+---
+import MainLayout from "../layouts/MainLayout.astro";
+
+// Get eventId from URL params
+const eventId = Astro.url.searchParams.get("eventId");
+const eventTitle = Astro.url.searchParams.get("eventTitle");
+---
+
+<MainLayout title="Participă la eveniment - Calarași Warriors">
+    <div class="min-h-screen bg-gray-50 py-12 dark:bg-neutral-800">
+        <div class="mx-auto max-w-2xl px-4 sm:px-6 lg:px-8">
+            <div class="rounded-lg bg-white p-8 shadow-lg dark:bg-neutral-700">
+                <div class="mb-8 text-center">
+                    <h1
+                        class="mb-4 text-3xl font-bold text-gray-900 dark:text-white"
+                    >
+                        🚀 Participă la eveniment!
+                    </h1>
+                    <p class="text-lg text-gray-600 dark:text-gray-300">
+                        Completează formularul de mai jos pentru a te înscrie la
+                        eveniment
+                    </p>
+                </div>
+
+                <form id="participationForm" class="space-y-6">
+                    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                        <div>
+                            <label
+                                for="firstName"
+                                class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                            >
+                                Prenume *
+                            </label>
+                            <input
+                                type="text"
+                                id="firstName"
+                                name="firstName"
+                                required
+                                class="w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 focus:outline-none dark:border-gray-600 dark:bg-neutral-600 dark:text-white"
+                                placeholder="Introduceți prenumele"
+                            />
+                        </div>
+                        <div>
+                            <label
+                                for="lastName"
+                                class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                            >
+                                Nume *
+                            </label>
+                            <input
+                                type="text"
+                                id="lastName"
+                                name="lastName"
+                                required
+                                class="w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 focus:outline-none dark:border-gray-600 dark:bg-neutral-600 dark:text-white"
+                                placeholder="Introduceți numele"
+                            />
+                        </div>
+                    </div>
+
+                    <div>
+                        <label
+                            for="email"
+                            class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                        >
+                            Email *
+                        </label>
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            required
+                            class="w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 focus:outline-none dark:border-gray-600 dark:bg-neutral-600 dark:text-white"
+                            placeholder="Introduceți adresa de email"
+                        />
+                    </div>
+
+                    <div
+                        class="rounded-md border border-blue-200 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-900/20"
+                    >
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <svg
+                                    class="h-5 w-5 text-blue-400"
+                                    fill="currentColor"
+                                    viewBox="0 0 20 20"
+                                >
+                                    <path
+                                        fill-rule="evenodd"
+                                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                                        clip-rule="evenodd"></path>
+                                </svg>
+                            </div>
+                            <div class="ml-3">
+                                <p
+                                    class="text-sm text-blue-700 dark:text-blue-300"
+                                >
+                                    După înscriere, vei primi un email de
+                                    confirmare. Trebuie să confirmi participarea
+                                    prin link-ul din email.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-center">
+                        <button
+                            type="submit"
+                            id="submitButton"
+                            class="w-full rounded-lg bg-indigo-600 px-8 py-3 font-bold text-white transition duration-200 hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none sm:w-auto"
+                        >
+                            <span id="buttonText">Participă la eveniment</span>
+                            <span id="loadingSpinner" class="hidden">
+                                <svg
+                                    class="mr-3 -ml-1 inline h-5 w-5 animate-spin text-white"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <circle
+                                        class="opacity-25"
+                                        cx="12"
+                                        cy="12"
+                                        r="10"
+                                        stroke="currentColor"
+                                        stroke-width="4"></circle>
+                                    <path
+                                        class="opacity-75"
+                                        fill="currentColor"
+                                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                    ></path>
+                                </svg>
+                                Se procesează...
+                            </span>
+                        </button>
+                    </div>
+                </form>
+
+                <div
+                    id="successMessage"
+                    class="mt-6 hidden rounded-md border border-green-200 bg-green-50 p-4 dark:border-green-800 dark:bg-green-900/20"
+                >
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <svg
+                                class="h-5 w-5 text-green-400"
+                                fill="currentColor"
+                                viewBox="0 0 20 20"
+                            >
+                                <path
+                                    fill-rule="evenodd"
+                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                    clip-rule="evenodd"></path>
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <p
+                                class="text-sm font-medium text-green-800 dark:text-green-300"
+                            >
+                                Participarea a fost înregistrată cu succes!
+                                Verifică email-ul pentru confirmare.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div
+                    id="errorMessage"
+                    class="mt-6 hidden rounded-md border border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-900/20"
+                >
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <svg
+                                class="h-5 w-5 text-red-400"
+                                fill="currentColor"
+                                viewBox="0 0 20 20"
+                            >
+                                <path
+                                    fill-rule="evenodd"
+                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                                    clip-rule="evenodd"></path>
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <p
+                                class="text-sm font-medium text-red-800 dark:text-red-300"
+                                id="errorText"
+                            >
+                                A apărut o eroare la înregistrarea participării.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-8 text-center">
+                    <a
+                        href="/future-projects"
+                        class="font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
+                    >
+                        ← Înapoi la evenimente
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</MainLayout>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const form = document.getElementById(
+            "participationForm",
+        ) as HTMLFormElement;
+        const submitButton = document.getElementById(
+            "submitButton",
+        ) as HTMLButtonElement;
+        const buttonText = document.getElementById(
+            "buttonText",
+        ) as HTMLSpanElement;
+        const loadingSpinner = document.getElementById(
+            "loadingSpinner",
+        ) as HTMLSpanElement;
+        const successMessage = document.getElementById(
+            "successMessage",
+        ) as HTMLDivElement;
+        const errorMessage = document.getElementById(
+            "errorMessage",
+        ) as HTMLDivElement;
+        const errorText = document.getElementById(
+            "errorText",
+        ) as HTMLParagraphElement;
+
+        // Get eventId from URL params
+        const urlParams = new URLSearchParams(window.location.search);
+        const eventId = urlParams.get("eventId");
+        const eventTitle = urlParams.get("eventTitle");
+
+        if (!eventId) {
+            errorText.textContent = "ID-ul evenimentului lipsește din URL.";
+            errorMessage.classList.remove("hidden");
+            form.style.display = "none";
+            return;
+        }
+
+        form.addEventListener("submit", async function (e) {
+            e.preventDefault();
+
+            // Show loading state
+            submitButton.disabled = true;
+            buttonText.classList.add("hidden");
+            loadingSpinner.classList.remove("hidden");
+            successMessage.classList.add("hidden");
+            errorMessage.classList.add("hidden");
+
+            try {
+                const formData = new FormData(form);
+                const data = {
+                    eventId: eventId,
+                    firstName: formData.get("firstName"),
+                    lastName: formData.get("lastName"),
+                    email: formData.get("email"),
+                };
+
+                const response = await fetch("/api/event-participation", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(data),
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    successMessage.classList.remove("hidden");
+                    form.style.display = "none";
+                } else {
+                    errorText.textContent =
+                        result.error ||
+                        "A apărut o eroare la înregistrarea participării.";
+                    errorMessage.classList.remove("hidden");
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                errorText.textContent =
+                    "A apărut o eroare de conexiune. Încearcă din nou.";
+                errorMessage.classList.remove("hidden");
+            } finally {
+                // Reset button state
+                submitButton.disabled = false;
+                buttonText.classList.remove("hidden");
+                loadingSpinner.classList.add("hidden");
+            }
+        });
+    });
+</script>

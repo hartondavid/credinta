@@ -1,0 +1,935 @@
+---
+// Import the necessary dependencies
+import { Image } from "astro:assets";
+import PrimaryCTA from "@components/ui/buttons/PrimaryCTA.astro";
+import SecondaryCTA from "@components/ui/buttons/SecondaryCTA.astro";
+import ReviewComponent from "@components/ui/blocks/ReviewComponent.astro";
+import VideoCarousel from "@components/ui/blocks/VideoCarousel.astro";
+import FormatQuoteIcon from "@mui/icons-material/FormatQuote";
+import AvatarTestimonialSection from "../../ui/avatars/AvatarTestimonialSection.astro";
+
+// Define props from Astro
+const {
+  title,
+  subTitle,
+  primaryBtn,
+  primaryBtnURL,
+  secondaryBtn,
+  secondaryBtnURL,
+  withReview,
+  avatars,
+  starCount,
+  rating,
+  reviews,
+  src,
+  alt,
+  secondSubTitle,
+  thirdSubTitle,
+  fourthSubTitle,
+  videos,
+} = Astro.props;
+
+// Define TypeScript interface for props
+interface Video {
+  id: string;
+  title: string;
+  description?: string;
+  thumbnail?: string;
+  youtubeId: string;
+}
+
+interface Props {
+  title: string;
+  subTitle?: string;
+  primaryBtn?: string;
+  primaryBtnURL?: string;
+  secondaryBtn?: string;
+  secondaryBtnURL?: string;
+  withReview?: boolean;
+  avatars?: Array<string>;
+  starCount?: number;
+  rating?: string;
+  reviews?: string;
+  src?: any;
+  alt?: string;
+  secondSubTitle?: string;
+  thirdSubTitle?: string;
+  fourthSubTitle?: string;
+  videos?: Video[];
+}
+---
+
+<!-- Defining a grid container that holds all the content -->
+<section
+  class="mx-auto grid max-w-[85rem] gap-4 px-4 py-14 sm:px-6 md:grid-cols-2 md:items-center md:gap-8 lg:px-8 2xl:max-w-full"
+>
+  <!-- Title and description -->
+  <div class="w-full">
+    <!-- Each h1 and p tag renders a portion of the title and subTitle defined above -->
+    <h1
+      class="fade-in-element block text-center text-4xl font-bold tracking-tight text-balance text-black sm:text-left sm:text-4xl lg:text-6xl lg:leading-tight dark:text-white"
+    >
+      <!-- About Fragment: https://docs.astro.build/en/basics/astro-syntax/#fragments -->
+      <Fragment set:html={title} />
+    </h1>
+
+    {
+      subTitle && (
+        <p
+          class="fade-in-element mt-5 text-lg leading-relaxed font-bold text-pretty text-indigo-600 italic lg:w-full dark:text-yellow-400"
+          data-delay="100"
+        >
+          <FormatQuoteIcon style={{ transform: "rotate(180deg)" }} />
+          <Fragment set:html={subTitle} />
+          <FormatQuoteIcon />
+        </p>
+      )
+    }
+
+    <!-- Artistic VIP Display -->
+    <div class="mt-8 text-center">
+      <div
+        class="fade-in-element inline-flex items-center gap-2 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent"
+      >
+        <span class="text-6xl font-black tracking-tight">
+          <span
+            class="bg-gradient-to-r from-indigo-600 to-indigo-200 bg-clip-text text-transparent"
+            >V</span
+          >
+          <span
+            class="bg-gradient-to-r from-yellow-400 to-yellow-200 bg-clip-text text-transparent"
+            >I</span
+          >
+          <span
+            class="bg-gradient-to-r from-red-600 to-red-200 bg-clip-text text-transparent"
+            >P</span
+          >
+        </span>
+      </div>
+
+      <div class="mt-4 grid grid-cols-1 gap-3 md:grid-cols-3">
+        <!-- VIZIUNE -->
+        <div
+          class="fade-in-element group relative overflow-hidden rounded-xl bg-gradient-to-br from-blue-50 to-indigo-100 p-4 shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl dark:from-blue-900/30 dark:to-indigo-900/30"
+        >
+          <div class="text-center">
+            <span
+              class="block text-4xl font-black text-indigo-600 dark:text-indigo-400"
+              >V</span
+            >
+            <span class="text-lg font-semibold text-gray-700 dark:text-white"
+              >VIZIUNE</span
+            >
+          </div>
+          <div
+            class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+          >
+          </div>
+        </div>
+
+        <!-- INIȚIATIVĂ -->
+        <div
+          class="fade-in-element group from-yellow-40/30 relative overflow-hidden rounded-xl bg-gradient-to-br to-yellow-100 p-4 shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl dark:from-yellow-900/30 dark:to-yellow-900/30"
+        >
+          <div class="text-center">
+            <span
+              class="block text-4xl font-black text-yellow-400 dark:text-yellow-400"
+              >I</span
+            >
+            <span class="text-lg font-semibold text-gray-700 dark:text-white"
+              >INIȚIATIVĂ</span
+            >
+          </div>
+          <div
+            class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+          >
+          </div>
+        </div>
+
+        <!-- PERSEVERENȚĂ -->
+        <div
+          class="fade-in-element group relative overflow-hidden rounded-xl bg-gradient-to-br from-pink-50 to-red-100 p-4 shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl dark:from-pink-900/30 dark:to-red-900/30"
+        >
+          <div class="text-center">
+            <span
+              class="block text-4xl font-black text-red-600 dark:text-red-600"
+              >P</span
+            >
+            <span class="text-lg font-semibold text-gray-700 dark:text-white"
+              >PERSEVERENȚĂ</span
+            >
+          </div>
+          <div
+            class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+          >
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="fade-in-element">
+      <p class="mt-10 text-lg text-black dark:text-white">
+        <Fragment set:html={secondSubTitle} />
+      </p>
+    </div>
+
+    <div class="fade-in-element mt-10 flex h-auto">
+      <div
+        class="flex h-full flex-col rounded-xl border-t-5 border-indigo-600 bg-yellow-50/60 dark:border-yellow-400 dark:bg-neutral-700"
+      >
+        <div class="flex-auto p-4 md:p-6">
+          <!-- Testimonial content -->
+
+          <p
+            class="text-base text-pretty text-black italic md:text-lg dark:text-white"
+          >
+            <FormatQuoteIcon style={{ transform: "rotate(180deg)" }} />
+            <Fragment set:html={thirdSubTitle} />
+            <FormatQuoteIcon />
+          </p>
+        </div>
+
+        <div
+          class="rounded-b-xl bg-neutral-300/30 p-4 md:px-7 dark:bg-neutral-900/30"
+        >
+          <div class="flex items-center">
+            <AvatarTestimonialSection
+              src={"https://res.cloudinary.com/drtkpapql/image/upload/w_50,h_50,c_fill,q_auto/Iulian_Vasile_u6hoee"}
+              alt={alt || ""}
+            />
+
+            <div class="ms-3 grow">
+              <p
+                class="text-sm font-bold text-black sm:text-base dark:text-white"
+              >
+                {"Iulian Vasile"}
+              </p>
+              <p class="text-sm font-bold text-indigo-600 dark:text-yellow-400">
+                {"Președinte al Clubului Sportiv Călărași Warriors"}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    {
+      fourthSubTitle && (
+        <p
+          class="fade-in-element mt-3 w-full text-lg leading-relaxed text-pretty text-black dark:text-white"
+          data-delay="100"
+        >
+          <Fragment set:html={fourthSubTitle} />
+        </p>
+      )
+    }
+    <!-- {
+      thirdSubTitle && (
+        <p
+          class="fade-in-element mt-3 text-lg leading-relaxed text-pretty text-black lg:w-4/5 dark:text-white"
+          data-delay="600"
+        >
+          {thirdSubTitle}
+        </p>
+      )
+    } -->
+    <!-- Action Button Section: This section includes two CTAs with their own styles and URL -->
+    <div
+      class="fade-in-element mt-7 grid w-full gap-3 sm:inline-flex"
+      data-delay="800"
+    >
+      {primaryBtn && <PrimaryCTA title={primaryBtn} url={primaryBtnURL} />}
+      {
+        secondaryBtn && (
+          <SecondaryCTA title={secondaryBtn} url={secondaryBtnURL} />
+        )
+      }
+    </div>
+
+    <!-- Review Section: This section presents avatars, review ratings and the number of reviews -->
+    {
+      withReview ? (
+        <div class="fade-in-element" data-delay="1000">
+          <ReviewComponent
+            avatars={avatars}
+            starCount={starCount}
+            rating={rating}
+            reviews={reviews}
+          />
+        </div>
+      ) : (
+        ""
+      )
+    }
+  </div>
+
+  <!-- RIGHT SIDE - Tree Image and Controls -->
+  <div
+    class="fade-in-element flex flex-col items-center justify-center space-y-6"
+  >
+    <!-- Image Selection Buttons -->
+    <div class="flex gap-4">
+      <button
+        id="btn-problemei"
+        class="rounded-lg bg-indigo-600 px-6 py-3 font-medium text-white transition-colors duration-200 hover:bg-indigo-700 hover:text-white dark:bg-yellow-400 dark:text-black dark:hover:bg-yellow-400"
+        data-image-type="problemei"
+      >
+        Arborele problemei
+      </button>
+      <button
+        id="btn-obiectivelor"
+        class="rounded-lg bg-yellow-50/60 px-6 py-3 font-medium text-black transition-colors duration-200 hover:bg-indigo-600 hover:text-white dark:bg-yellow-400 dark:text-black dark:hover:bg-yellow-400"
+        data-image-type="obiectivelor"
+      >
+        Arborele obiectivelor
+      </button>
+    </div>
+
+    <!-- Tree Image with zoom functionality -->
+    <div class="group relative inline-block">
+      <img
+        src={"https://res.cloudinary.com/drtkpapql/image/upload/w_800,h_1000,c_fill,q_auto,f_auto/arborele_problemei_light_kdjw8n"}
+        alt={"Arborele problemei"}
+        class="cursor-pointer rounded-lg transition-transform duration-200 hover:scale-105"
+        id="zoomable-image"
+      />
+      <div
+        class="absolute top-2 right-2 rounded-full bg-white/80 p-2 opacity-0 transition-opacity duration-200 group-hover:opacity-100 dark:bg-gray-800/80"
+      >
+        <svg
+          class="h-5 w-5 text-gray-600 dark:text-gray-300"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"
+          ></path>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Video Carousel (if available) -->
+    {
+      videos && videos.length > 0 && (
+        <div class="w-full">
+          <h3 class="mb-4 text-center text-xl font-semibold text-neutral-800 dark:text-neutral-200">
+            Videoclipuri
+          </h3>
+          <VideoCarousel videos={videos} />
+        </div>
+      )
+    }
+  </div>
+
+  <!-- Modal for zoomed image -->
+  <div
+    id="image-modal"
+    class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80"
+  >
+    <div class="relative max-h-[90vh] max-w-4xl p-4">
+      <button
+        id="close-modal"
+        class="absolute top-4 right-4 z-10 text-2xl font-bold text-white hover:text-gray-300"
+      >
+        ×
+      </button>
+
+      <!-- Zoom Controls -->
+      <div
+        class="absolute top-4 left-4 z-10 flex items-center gap-3 rounded-lg bg-black/50 p-3"
+      >
+        <button id="zoom-out" class="p-1 text-white hover:text-gray-300">
+          <svg
+            class="h-5 w-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 10h.01"></path>
+          </svg>
+        </button>
+        <input
+          type="range"
+          id="zoom-slider"
+          min="1"
+          max="400"
+          value="100"
+          class="slider h-2 w-20 cursor-pointer appearance-none rounded-lg bg-gray-700"
+        />
+        <button id="zoom-in" class="p-1 text-white hover:text-gray-300">
+          <svg
+            class="h-5 w-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"
+            ></path>
+          </svg>
+        </button>
+        <span
+          id="zoom-level"
+          class="min-w-[3rem] text-center text-sm text-white">100%</span
+        >
+        <button
+          id="reset-zoom"
+          class="rounded bg-gray-700 px-2 py-1 text-xs text-white hover:text-gray-300"
+        >
+          Reset
+        </button>
+      </div>
+
+      <!-- Image Container with Pan Support -->
+      <div id="image-container" class="cursor-move overflow-hidden rounded-lg">
+        <img
+          id="zoomed-image"
+          src={"https://res.cloudinary.com/drtkpapql/image/upload/w_2000,h_2800,c_fill,q_auto,f_auto,fl_progressive/aarborele_problemei_tvt7xb"}
+          alt={"Arborele problemei - Vizualizare mărită"}
+          class="max-h-full max-w-full rounded-lg object-contain transition-transform duration-200"
+          draggable="false"
+        />
+      </div>
+    </div>
+  </div>
+
+  <style>
+    .fade-in-element {
+      opacity: 0;
+      transform: translateY(30px);
+      transition:
+        opacity 0.8s ease-out,
+        transform 0.8s ease-out;
+    }
+
+    .fade-in-element.fade-in {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Staggered animation delays */
+    .fade-in-element[data-delay="0"] {
+      transition-delay: 0ms;
+    }
+    .fade-in-element[data-delay="200"] {
+      transition-delay: 200ms;
+    }
+    .fade-in-element[data-delay="400"] {
+      transition-delay: 400ms;
+    }
+    .fade-in-element[data-delay="600"] {
+      transition-delay: 600ms;
+    }
+    .fade-in-element[data-delay="800"] {
+      transition-delay: 800ms;
+    }
+    .fade-in-element[data-delay="1000"] {
+      transition-delay: 1000ms;
+    }
+
+    /* Timeline Styles */
+    .timeline-point {
+      opacity: 0;
+      transform: scale(0);
+      transition: all 0.6s ease-out;
+    }
+
+    .timeline-point.animate {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .timeline-point.pulse {
+      animation: timelinePulse 2s ease-in-out infinite;
+    }
+
+    @keyframes timelinePulse {
+      0% {
+        box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.7);
+      }
+      70% {
+        box-shadow: 0 0 0 10px rgba(99, 102, 241, 0);
+      }
+      100% {
+        box-shadow: 0 0 0 0 rgba(99, 102, 241, 0);
+      }
+    }
+
+    /* Timeline line animation */
+    .timeline-line {
+      transform: scaleY(0);
+      transform-origin: top;
+      transition: transform 1.5s ease-out;
+    }
+
+    .timeline-line.animate {
+      transform: scaleY(1);
+    }
+
+    /* Timeline items fade-in */
+    .timeline-item {
+      opacity: 0;
+      transform: translateX(-20px);
+      transition: all 0.8s ease-out;
+    }
+
+    .timeline-item:nth-child(even) {
+      transform: translateX(20px);
+    }
+
+    .timeline-item.animate {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    .slider::-webkit-slider-thumb {
+      appearance: none;
+      height: 16px;
+      width: 16px;
+      border-radius: 50%;
+      background: #3b82f6;
+      cursor: pointer;
+    }
+
+    .slider::-moz-range-thumb {
+      height: 16px;
+      width: 16px;
+      border-radius: 50%;
+      background: #3b82f6;
+      cursor: pointer;
+      border: none;
+    }
+  </style>
+
+  <script>
+    // Intersection Observer for fade-in animations
+    const observerOptions = {
+      threshold: 0.1,
+      rootMargin: "0px 0px -50px 0px",
+    };
+
+    const fadeInObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const element = entry.target as HTMLElement;
+          const delay = parseInt(element.dataset.delay || "0");
+
+          setTimeout(() => {
+            element.classList.add("fade-in");
+          }, delay);
+
+          // Unobserve after animation is triggered
+          fadeInObserver.unobserve(element);
+        }
+      });
+    }, observerOptions);
+
+    // Timeline Animation Observer
+    const timelineObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            animateTimeline();
+            timelineObserver.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.3 },
+    );
+
+    // Timeline animation function
+    function animateTimeline() {
+      // Animate timeline line
+      const timelineLine = document.querySelector(".timeline-line");
+      if (timelineLine) {
+        setTimeout(() => {
+          timelineLine.classList.add("animate");
+        }, 100);
+      }
+
+      // Animate timeline points and items with staggered delays
+      const timelinePoints = document.querySelectorAll(".timeline-point");
+      const timelineItems = document.querySelectorAll(".timeline-item");
+
+      timelinePoints.forEach((point, index) => {
+        setTimeout(
+          () => {
+            point.classList.add("animate");
+          },
+          100 + index * 200,
+        );
+      });
+
+      timelineItems.forEach((item, index) => {
+        setTimeout(
+          () => {
+            item.classList.add("animate");
+          },
+          100 + index * 200,
+        );
+      });
+    }
+
+    // Observe all fade-in elements
+    document.addEventListener("DOMContentLoaded", () => {
+      const fadeElements = document.querySelectorAll(".fade-in-element");
+      fadeElements.forEach((element) => {
+        fadeInObserver.observe(element);
+      });
+
+      // Observe timeline for animation
+      const timeline = document.querySelector(".timeline-items");
+      if (timeline) {
+        timelineObserver.observe(timeline);
+      }
+    });
+  </script>
+
+  <script>
+    // Theme-aware image switching with image type selection
+    let currentImageType: "problemei" | "obiectivelor" = "problemei"; // Default image type
+
+    const imageUrls: Record<
+      "problemei" | "obiectivelor",
+      {
+        light: string;
+        dark: string;
+        modalLight: string;
+        modalDark: string;
+      }
+    > = {
+      problemei: {
+        light:
+          "https://res.cloudinary.com/drtkpapql/image/upload/w_800,h_1000,c_fill,q_auto,f_auto/arborele_problemei_light_kdjw8n",
+        dark: "https://res.cloudinary.com/drtkpapql/image/upload/w_800,h_1000,c_fill,q_auto,f_auto/arborele_problemei_dark_rkuzth",
+        modalLight:
+          "https://res.cloudinary.com/drtkpapql/image/upload/w_2000,h_2800,c_fill,q_auto,f_auto,fl_progressive/arborele_problemei_light_kdjw8n",
+        modalDark:
+          "https://res.cloudinary.com/drtkpapql/image/upload/w_2000,h_2800,c_fill,q_auto,f_auto,fl_progressive/arborele_problemei_dark_rkuzth",
+      },
+      obiectivelor: {
+        light:
+          "https://res.cloudinary.com/drtkpapql/image/upload/w_800,h_1000,c_fill,q_auto,f_auto/arborele_obiectivelor_light_mkmdvl",
+        dark: "https://res.cloudinary.com/drtkpapql/image/upload/w_800,h_1000,c_fill,q_auto,f_auto/arborele_obiectivelor_dark_r2mnx9",
+        modalLight:
+          "https://res.cloudinary.com/drtkpapql/image/upload/w_2000,h_2800,c_fill,q_auto,f_auto,fl_progressive/arborele_obiectivelor_light_mkmdvl",
+        modalDark:
+          "https://res.cloudinary.com/drtkpapql/image/upload/w_2000,h_2800,c_fill,q_auto,f_auto,fl_progressive/arborele_obiectivelor_dark_r2mnx9",
+      },
+    };
+
+    function updateImageForTheme() {
+      const image = document.getElementById(
+        "zoomable-image",
+      ) as HTMLImageElement;
+      const modalImage = document.getElementById(
+        "zoomed-image",
+      ) as HTMLImageElement;
+
+      if (!image || !modalImage) return;
+
+      const isDarkMode = document.documentElement.classList.contains("dark");
+      const currentUrls = imageUrls[currentImageType as keyof typeof imageUrls];
+
+      if (isDarkMode) {
+        // Dark theme
+        image.src = currentUrls.dark;
+        modalImage.src = currentUrls.modalDark;
+        image.alt =
+          currentImageType === "problemei"
+            ? "Arborele problemei"
+            : "Arborele obiectivelor";
+      } else {
+        // Light theme
+        image.src = currentUrls.light;
+        modalImage.src = currentUrls.modalLight;
+        image.alt =
+          currentImageType === "problemei"
+            ? "Arborele problemei"
+            : "Arborele obiectivelor";
+      }
+    }
+
+    function updateButtonStates() {
+      const btnProblemei = document.getElementById(
+        "btn-problemei",
+      ) as HTMLButtonElement;
+      const btnObiectivelor = document.getElementById(
+        "btn-obiectivelor",
+      ) as HTMLButtonElement;
+
+      if (!btnProblemei || !btnObiectivelor) return;
+
+      if (currentImageType === "problemei") {
+        // Butonul "problemei" este activ
+        btnProblemei.classList.remove("bg-yellow-50/60", "text-black");
+        btnProblemei.classList.add("bg-indigo-600", "text-white");
+        btnProblemei.classList.remove("hover:bg-indigo-700");
+        btnProblemei.classList.add("hover:bg-indigo-700");
+
+        // Butonul "obiectivelor" este inactiv
+        btnObiectivelor.classList.remove("bg-indigo-600", "text-white");
+        btnObiectivelor.classList.add("bg-yellow-50/60", "text-black");
+        btnObiectivelor.classList.remove("hover:bg-indigo-700");
+        btnObiectivelor.classList.add("hover:bg-indigo-600");
+      } else {
+        // Butonul "obiectivelor" este activ
+        btnObiectivelor.classList.remove("bg-yellow-50/60", "text-black");
+        btnObiectivelor.classList.add("bg-indigo-600", "text-white");
+        btnObiectivelor.classList.remove("hover:bg-indigo-600");
+        btnObiectivelor.classList.add("hover:bg-indigo-700");
+
+        // Butonul "problemei" este inactiv
+        btnProblemei.classList.remove("bg-indigo-600", "text-white");
+        btnProblemei.classList.add("bg-yellow-50/60", "text-black");
+        btnProblemei.classList.remove("hover:bg-indigo-700");
+        btnProblemei.classList.add("hover:bg-indigo-600");
+      }
+    }
+
+    function switchImageType(imageType: "problemei" | "obiectivelor") {
+      currentImageType = imageType;
+      updateImageForTheme();
+      updateButtonStates();
+    }
+
+    // Watch for theme changes
+    function watchThemeChanges() {
+      // Initial theme check
+      updateImageForTheme();
+      updateButtonStates();
+
+      // Watch for theme toggle events
+      const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+          if (
+            mutation.type === "attributes" &&
+            mutation.attributeName === "class"
+          ) {
+            updateImageForTheme();
+          }
+        });
+      });
+
+      // Observe the html element for class changes
+      observer.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ["class"],
+      });
+
+      // Also listen for custom theme change events
+      document.addEventListener("themeChanged", updateImageForTheme);
+    }
+
+    // Initialize theme watching and button functionality when DOM is loaded
+    document.addEventListener("DOMContentLoaded", function () {
+      watchThemeChanges();
+
+      // Add button event listeners
+      const btnProblemei = document.getElementById("btn-problemei");
+      const btnObiectivelor = document.getElementById("btn-obiectivelor");
+
+      if (btnProblemei) {
+        btnProblemei.addEventListener("click", () =>
+          switchImageType("problemei"),
+        );
+      }
+
+      if (btnObiectivelor) {
+        btnObiectivelor.addEventListener("click", () =>
+          switchImageType("obiectivelor"),
+        );
+      }
+    });
+  </script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const image = document.getElementById(
+        "zoomable-image",
+      ) as HTMLImageElement;
+      const modal = document.getElementById("image-modal") as HTMLDivElement;
+      const closeBtn = document.getElementById(
+        "close-modal",
+      ) as HTMLButtonElement;
+      const zoomedImage = document.getElementById(
+        "zoomed-image",
+      ) as HTMLImageElement;
+      const imageContainer = document.getElementById(
+        "image-container",
+      ) as HTMLDivElement;
+      const zoomSlider = document.getElementById(
+        "zoom-slider",
+      ) as HTMLInputElement;
+      const zoomLevel = document.getElementById(
+        "zoom-level",
+      ) as HTMLSpanElement;
+      const zoomInBtn = document.getElementById("zoom-in") as HTMLButtonElement;
+      const zoomOutBtn = document.getElementById(
+        "zoom-out",
+      ) as HTMLButtonElement;
+      const resetZoomBtn = document.getElementById(
+        "reset-zoom",
+      ) as HTMLButtonElement;
+
+      // Check if all elements exist
+      if (
+        !image ||
+        !modal ||
+        !closeBtn ||
+        !zoomedImage ||
+        !imageContainer ||
+        !zoomSlider ||
+        !zoomLevel ||
+        !zoomInBtn ||
+        !zoomOutBtn ||
+        !resetZoomBtn
+      ) {
+        console.error("Some required elements not found");
+        return;
+      }
+
+      let currentZoom = 100;
+      let isDragging = false;
+      let startX: number = 0;
+      let startY: number = 0;
+      let translateX: number = 0;
+      let translateY: number = 0;
+
+      // Open modal on image click
+      image.addEventListener("click", function () {
+        modal.classList.remove("hidden");
+        modal.classList.add("flex");
+        document.body.style.overflow = "hidden";
+        resetZoomAndPosition();
+      });
+
+      // Close modal on close button click
+      closeBtn.addEventListener("click", function () {
+        modal.classList.add("hidden");
+        modal.classList.remove("flex");
+        document.body.style.overflow = "auto";
+      });
+
+      // Close modal on background click
+      modal.addEventListener("click", function (e) {
+        if (e.target === modal) {
+          modal.classList.add("hidden");
+          modal.classList.remove("flex");
+          document.body.style.overflow = "auto";
+        }
+      });
+
+      // Close modal on Escape key
+      document.addEventListener("keydown", function (e) {
+        if (e.key === "Escape" && !modal.classList.contains("hidden")) {
+          modal.classList.add("hidden");
+          modal.classList.remove("flex");
+          document.body.style.overflow = "auto";
+        }
+      });
+
+      // Zoom functionality
+      function updateZoom() {
+        const scale = currentZoom / 100;
+        zoomedImage.style.transform = `scale(${scale}) translate(${translateX}px, ${translateY}px)`;
+        zoomLevel.textContent = `${currentZoom}%`;
+      }
+
+      function resetZoomAndPosition() {
+        currentZoom = 100;
+        translateX = 0;
+        translateY = 0;
+        zoomSlider.value = "100";
+        updateZoom();
+      }
+
+      // Zoom slider
+      zoomSlider.addEventListener("input", function () {
+        currentZoom = parseInt(this.value);
+        updateZoom();
+      });
+
+      // Zoom buttons
+      zoomInBtn.addEventListener("click", function () {
+        currentZoom = Math.min(400, currentZoom + 25);
+        zoomSlider.value = currentZoom.toString();
+        updateZoom();
+      });
+
+      zoomOutBtn.addEventListener("click", function () {
+        currentZoom = Math.max(1, currentZoom - 25);
+        zoomSlider.value = currentZoom.toString();
+        updateZoom();
+      });
+
+      // Reset zoom
+      resetZoomBtn.addEventListener("click", resetZoomAndPosition);
+
+      // Mouse wheel zoom
+      imageContainer.addEventListener("wheel", function (e) {
+        e.preventDefault();
+        const delta = e.deltaY > 0 ? -25 : 25;
+        currentZoom = Math.max(1, Math.min(400, currentZoom + delta));
+        zoomSlider.value = currentZoom.toString();
+        updateZoom();
+      });
+
+      // Pan functionality
+      imageContainer.addEventListener("mousedown", function (e) {
+        if (currentZoom > 100) {
+          isDragging = true;
+          startX = e.clientX - translateX;
+          startY = e.clientY - translateY;
+          imageContainer.style.cursor = "grabbing";
+        }
+      });
+
+      document.addEventListener("mousemove", function (e) {
+        if (isDragging && currentZoom > 100) {
+          translateX = e.clientX - startX;
+          translateY = e.clientY - startY;
+          updateZoom();
+        }
+      });
+
+      document.addEventListener("mouseup", function () {
+        if (isDragging) {
+          isDragging = false;
+          imageContainer.style.cursor = "grab";
+        }
+      });
+
+      // Touch support for mobile
+      let touchStartX: number = 0;
+      let touchStartY: number = 0;
+
+      imageContainer.addEventListener("touchstart", function (e) {
+        if (currentZoom > 100) {
+          const touch = e.touches[0];
+          touchStartX = touch.clientX - translateX;
+          touchStartY = touch.clientY - translateY;
+        }
+      });
+
+      imageContainer.addEventListener("touchmove", function (e) {
+        if (currentZoom > 100) {
+          e.preventDefault();
+          const touch = e.touches[0];
+          translateX = touch.clientX - touchStartX;
+          translateY = touch.clientY - touchStartY;
+          updateZoom();
+        }
+      });
+    });
+  </script>
+</section>

@@ -1,0 +1,219 @@
+---
+import FormatQuoteIcon from "@mui/icons-material/FormatQuote";
+import AvatarTestimonialSection from "@components/ui/avatars/AvatarTestimonialSection.astro";
+
+interface Props {
+    id: string;
+    content: string;
+    author: string;
+    role: string;
+    avatarSrc: string;
+    avatarAlt: string;
+    secondContent: string;
+    thirdContent: string;
+    fourthContent: string;
+    fifthContent: string;
+}
+
+const {
+    id,
+    content,
+    author,
+    role,
+    avatarSrc,
+    avatarAlt,
+    secondContent,
+    thirdContent,
+    fourthContent,
+    fifthContent,
+} = Astro.props;
+---
+
+<div
+    id={id}
+    class="testimonial-carousel-popup fixed inset-0 z-50 hidden items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
+    data-testimonial-id={id}
+>
+    <div
+        class="relative mx-4 max-h-[90vh] max-w-2xl rounded-xl bg-white shadow-2xl dark:bg-neutral-800"
+    >
+        <!-- Close Button -->
+        <button
+            class="absolute top-4 right-4 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-neutral-200 text-neutral-600 hover:bg-neutral-300 dark:bg-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-600"
+            onclick={`closeTestimonialCarouselPopup('${id}')`}
+            aria-label="Close testimonial"
+        >
+            <svg
+                class="h-5 w-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+            >
+                <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+        </button>
+
+        <!-- Testimonial Content -->
+        <div class="flex h-full max-h-[90vh] flex-col">
+            <div
+                class="flex h-full flex-col rounded-xl border-l-5 border-indigo-600 bg-yellow-50/60 dark:border-yellow-400 dark:bg-neutral-700"
+            >
+                <!-- Scrollable content area -->
+                <div
+                    class="flex-1 overflow-y-auto p-4 md:p-6"
+                    style="max-height: calc(90vh - 120px);"
+                >
+                    <!-- Testimonial content -->
+                    <p
+                        class="text-base leading-relaxed text-pretty text-black italic md:text-lg dark:text-white"
+                    >
+                        <FormatQuoteIcon
+                            style={{ transform: "rotate(180deg)" }}
+                        />
+                        <Fragment set:html={content} />
+                        <br />
+                        &nbsp;&nbsp;&nbsp;
+                        <Fragment set:html={secondContent} />
+                        <br />
+                        &nbsp;&nbsp;&nbsp;
+                        <Fragment set:html={thirdContent} />
+                        <br />
+                        &nbsp;&nbsp;&nbsp;
+                        <Fragment set:html={fourthContent} />
+                        <br />
+                        <Fragment set:html={fifthContent} />
+                        <FormatQuoteIcon />
+                    </p>
+                </div>
+
+                <!-- Fixed footer with avatar -->
+                <div
+                    class="flex-shrink-0 rounded-b-xl bg-neutral-300/30 p-4 md:px-7 dark:bg-neutral-900/30"
+                >
+                    <div class="flex items-center">
+                        <AvatarTestimonialSection
+                            src={avatarSrc}
+                            alt={avatarAlt || ""}
+                        />
+
+                        <div class="ms-3 grow">
+                            <p
+                                class="text-sm font-bold text-neutral-800 sm:text-base dark:text-neutral-200"
+                            >
+                                {author}
+                            </p>
+                            <p
+                                class="text-xs font-bold text-indigo-600 dark:text-yellow-400"
+                            >
+                                {role}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openTestimonialCarouselPopup(id: string) {
+        const popup = document.getElementById(id);
+        if (popup) {
+            popup.classList.remove("hidden");
+            popup.classList.add("flex");
+            document.body.style.overflow = "hidden";
+        }
+    }
+
+    function closeTestimonialCarouselPopup(id: string) {
+        const popup = document.getElementById(id);
+        if (popup) {
+            popup.classList.add("hidden");
+            popup.classList.remove("flex");
+            document.body.style.overflow = "auto";
+        }
+    }
+
+    // Close popup when clicking outside
+    document.addEventListener("click", (e) => {
+        const target = e.target as HTMLElement;
+        if (target.classList.contains("testimonial-carousel-popup")) {
+            const popupId = target.getAttribute("data-testimonial-id");
+            if (popupId) {
+                closeTestimonialCarouselPopup(popupId);
+            }
+        }
+    });
+
+    // Close popup with Escape key
+    document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+            const openPopup = document.querySelector(
+                ".testimonial-carousel-popup:not(.hidden)",
+            );
+            if (openPopup) {
+                const popupId = openPopup.getAttribute("data-testimonial-id");
+                if (popupId) {
+                    closeTestimonialCarouselPopup(popupId);
+                }
+            }
+        }
+    });
+
+    // Make functions globally available
+    (window as any).openTestimonialCarouselPopup = openTestimonialCarouselPopup;
+    (window as any).closeTestimonialCarouselPopup =
+        closeTestimonialCarouselPopup;
+</script>
+
+<style>
+    .testimonial-carousel-popup {
+        animation: fadeIn 0.3s ease-out;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+
+    /* Hide scrollbar but keep scroll functionality */
+    .testimonial-carousel-popup .overflow-y-auto {
+        scrollbar-width: none; /* Firefox */
+        -ms-overflow-style: none; /* Internet Explorer 10+ */
+    }
+
+    /* Hide scrollbar for Webkit browsers */
+    .testimonial-carousel-popup .overflow-y-auto::-webkit-scrollbar {
+        display: none;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 640px) {
+        .testimonial-carousel-popup {
+            padding: 1rem;
+        }
+
+        .testimonial-carousel-popup > div {
+            max-height: 95vh;
+            margin: 0;
+        }
+
+        .testimonial-carousel-popup .overflow-y-auto {
+            max-height: calc(95vh - 100px) !important;
+        }
+    }
+
+    /* Force scroll to work */
+    .testimonial-carousel-popup .overflow-y-auto {
+        overflow-y: scroll !important;
+        -webkit-overflow-scrolling: touch;
+    }
+</style>

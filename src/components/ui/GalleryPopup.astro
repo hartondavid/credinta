@@ -1,0 +1,273 @@
+---
+interface Props {
+    id: string;
+    photos: Array<{
+        url: string;
+        alt: string;
+        title?: string;
+    }>;
+}
+
+const { id, photos } = Astro.props;
+---
+
+<div
+    id={`gallery-popup-${id}`}
+    class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-sm"
+>
+    <div class="flex h-full w-full items-center justify-center p-4">
+        <div class="relative max-h-full w-full max-w-4xl">
+            <!-- Close Button -->
+            <button
+                class="absolute -top-12 right-0 z-10 rounded-full bg-white/20 p-2 text-white backdrop-blur-sm transition-all duration-300 hover:scale-110 hover:bg-white/30"
+                onclick={`closeGalleryPopup('${id}')`}
+            >
+                <svg
+                    class="h-6 w-6"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+
+            <!-- Gallery Container -->
+            <div
+                class="relative overflow-hidden rounded-xl bg-white dark:bg-neutral-900"
+            >
+                <!-- Photo Carousel -->
+                <div
+                    class="gallery-carousel flex transition-transform duration-500 ease-in-out"
+                    data-gallery-id={id}
+                >
+                    {
+                        photos.map((photo, photoIndex) => (
+                            <div class="w-full flex-shrink-0">
+                                <div class="relative aspect-video w-full overflow-hidden">
+                                    <img
+                                        src={photo.url}
+                                        alt={photo.alt}
+                                        title={photo.title}
+                                        class="h-full w-full object-contain"
+                                        loading="lazy"
+                                    />
+                                    {photo.title && (
+                                        <div class="absolute right-0 bottom-0 left-0 bg-gradient-to-t from-black/70 to-transparent p-4 text-white">
+                                            <h4 class="text-lg font-semibold">
+                                                {photo.title}
+                                            </h4>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        ))
+                    }
+                </div>
+
+                <!-- Navigation Arrows -->
+                {
+                    photos.length > 1 && (
+                        <>
+                            <button
+                                class="gallery-prev absolute top-1/2 left-4 -translate-y-1/2 rounded-full bg-white/90 p-2 shadow-lg transition-all duration-300 hover:scale-110 hover:bg-white dark:bg-neutral-800/90 dark:hover:bg-neutral-800"
+                                data-gallery-id={id}
+                            >
+                                <svg
+                                    class="h-6 w-6 text-neutral-800 dark:text-neutral-200"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M15 19l-7-7 7-7"
+                                    />
+                                </svg>
+                            </button>
+
+                            <button
+                                class="gallery-next absolute top-1/2 right-4 -translate-y-1/2 rounded-full bg-white/90 p-2 shadow-lg transition-all duration-300 hover:scale-110 hover:bg-white dark:bg-neutral-800/90 dark:hover:bg-neutral-800"
+                                data-gallery-id={id}
+                            >
+                                <svg
+                                    class="h-6 w-6 text-neutral-800 dark:text-neutral-200"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M9 5l7 7-7 7"
+                                    />
+                                </svg>
+                            </button>
+                        </>
+                    )
+                }
+
+                <!-- Dots Indicator -->
+                {
+                    photos.length > 1 && (
+                        <div
+                            class="gallery-dots absolute bottom-4 left-1/2 flex -translate-x-1/2 space-x-2"
+                            data-gallery-id={id}
+                        >
+                            {photos.map((_, photoIndex) => (
+                                <button
+                                    class={`gallery-dot h-2 w-2 rounded-full transition-all duration-300 ${
+                                        photoIndex === 0
+                                            ? "bg-white"
+                                            : "bg-white/50"
+                                    }`}
+                                    data-slide={photoIndex}
+                                    data-gallery-id={id}
+                                />
+                            ))}
+                        </div>
+                    )
+                }
+
+                <!-- Photo Counter -->
+                <div
+                    class="absolute top-4 left-4 rounded-full bg-black/50 px-3 py-1 text-sm text-white backdrop-blur-sm"
+                >
+                    <span class="gallery-counter" data-gallery-id={id}>1</span> /
+                    {photos.length}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Gallery popup functionality
+    function openGalleryPopup(galleryId: string) {
+        const popup = document.getElementById(`gallery-popup-${galleryId}`);
+        if (popup) {
+            popup.classList.remove("hidden");
+            document.body.style.overflow = "hidden";
+            initializeGalleryCarousel(galleryId);
+        }
+    }
+
+    function closeGalleryPopup(galleryId: string) {
+        const popup = document.getElementById(`gallery-popup-${galleryId}`);
+        if (popup) {
+            popup.classList.add("hidden");
+            document.body.style.overflow = "auto";
+        }
+    }
+
+    function initializeGalleryCarousel(galleryId: string) {
+        const carousel = document.querySelector(
+            `[data-gallery-id="${galleryId}"].gallery-carousel`,
+        );
+        const dots = document.querySelectorAll(
+            `[data-gallery-id="${galleryId}"].gallery-dot`,
+        );
+        const prevBtn = document.querySelector(
+            `[data-gallery-id="${galleryId}"].gallery-prev`,
+        );
+        const nextBtn = document.querySelector(
+            `[data-gallery-id="${galleryId}"].gallery-next`,
+        );
+        const counter = document.querySelector(
+            `[data-gallery-id="${galleryId}"].gallery-counter`,
+        );
+
+        if (!carousel) return;
+
+        const items = carousel.querySelectorAll("div");
+        let currentIndex = 0;
+
+        function showItem(index: number) {
+            const carouselElement = carousel as HTMLElement;
+            if (carouselElement) {
+                carouselElement.style.transform = `translateX(-${index * 100}%)`;
+            }
+
+            // Update dots
+            dots.forEach((dot, i) => {
+                if (dot) {
+                    dot.classList.toggle("bg-white", i === index);
+                    dot.classList.toggle("bg-white/50", i !== index);
+                }
+            });
+
+            // Update counter
+            if (counter) {
+                counter.textContent = `${index + 1}`;
+            }
+        }
+
+        // Dot navigation
+        dots.forEach((dot, dotIndex) => {
+            dot.addEventListener("click", () => {
+                currentIndex = dotIndex;
+                showItem(currentIndex);
+            });
+        });
+
+        // Previous button
+        if (prevBtn) {
+            prevBtn.addEventListener("click", () => {
+                currentIndex = (currentIndex - 1 + items.length) % items.length;
+                showItem(currentIndex);
+            });
+        }
+
+        // Next button
+        if (nextBtn) {
+            nextBtn.addEventListener("click", () => {
+                currentIndex = (currentIndex + 1) % items.length;
+                showItem(currentIndex);
+            });
+        }
+
+        // Keyboard navigation
+        const handleKeydown = function (e: KeyboardEvent) {
+            const popup = document.getElementById(`gallery-popup-${galleryId}`);
+            if (popup && !popup.classList.contains("hidden")) {
+                if (e.key === "Escape") {
+                    closeGalleryPopup(galleryId);
+                    document.removeEventListener("keydown", handleKeydown);
+                } else if (e.key === "ArrowLeft") {
+                    e.preventDefault();
+                    currentIndex =
+                        (currentIndex - 1 + items.length) % items.length;
+                    showItem(currentIndex);
+                } else if (e.key === "ArrowRight") {
+                    e.preventDefault();
+                    currentIndex = (currentIndex + 1) % items.length;
+                    showItem(currentIndex);
+                }
+            }
+        };
+
+        document.addEventListener("keydown", handleKeydown);
+    }
+
+    // Close popup when clicking outside
+    document.addEventListener("click", function (e) {
+        const popups = document.querySelectorAll('[id^="gallery-popup-"]');
+        popups.forEach((popup) => {
+            if (e.target === popup) {
+                const galleryId = popup.id.replace("gallery-popup-", "");
+                closeGalleryPopup(galleryId);
+            }
+        });
+    });
+
+    // Make functions globally available
+    (window as any).openGalleryPopup = openGalleryPopup;
+    (window as any).closeGalleryPopup = closeGalleryPopup;
+</script>

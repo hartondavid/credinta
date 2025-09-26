@@ -1,0 +1,36 @@
+---
+// Import the necessary components
+import MainLayout from "@/layouts/MainLayout.astro";
+import ContactSection from "@components/sections/misc/ContactSection.astro";
+import { SITE } from "@data/constants";
+
+const pageTitle: string = `Contact | ${SITE.title}`;
+const metaDescription =
+  "Have questions or want to discuss a project? Reach out, and let's craft the perfect solution with our tools and services.";
+const ogTitle = "Contactează-ne | Club Sportiv Călărași Warriors";
+---
+
+<MainLayout
+  title={pageTitle}
+  customDescription={metaDescription}
+  customOgTitle={ogTitle}
+  structuredData={{
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "@id": "https://credinta.live/contact",
+    url: "https://credinta.live/contact",
+    name: "Contactează-ne | Biserica Credința",
+    description:
+      "Ai întrebări sau doresti sa contribui cu ceva? Contactează-ne, și hai să facem o diferență împreună!",
+    isPartOf: {
+      "@type": "WebSite",
+      url: "https://credinta.live",
+      name: "Biserica Credința",
+      description:
+        "Biserica Credința - Suntem o comunitate vie de creștini care Îl urmează pe Hristos și caută să trăiască credința în mod autentic, prin dragoste față de Dumnezeu și față de semeni.",
+    },
+    inLanguage: "en-US",
+  }}
+>
+  <ContactSection />
+</MainLayout>

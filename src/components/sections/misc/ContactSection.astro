@@ -1,0 +1,302 @@
+---
+// Import the necessary dependencies.
+import AuthBtn from "@components/ui/buttons/AuthBtn.astro";
+import ContactIconBlock from "@components/ui/blocks/ContactIconBlock.astro";
+import OpenStreetMapEmbed from "@components/ui/OpenStreetMapEmbed.astro";
+import TextInput from "@components/ui/forms/input/TextInput.astro";
+import EmailContactInput from "@components/ui/forms/input/EmailContactInput.astro";
+import PhoneInput from "@components/ui/forms/input/PhoneInput.astro";
+import TextAreaInput from "@components/ui/forms/input/TextAreaInput.astro";
+import Icon from "@components/ui/icons/Icon.astro";
+import LocalPhoneIcon from "@mui/icons-material/LocalPhone";
+import VolunteerActivismIcon from "@mui/icons-material/VolunteerActivism";
+import LocationOnIcon from "@mui/icons-material/LocationOn";
+import EmailIcon from "@mui/icons-material/Email";
+import ToastContainer from "@components/ui/ToastContainer";
+import LightModeIcon from "@components/ui/icons/LightModeIcon.astro";
+import DarkModeIcon from "@components/ui/icons/DarkModeIcon.astro";
+import { highlightKeywords } from "@components/utils/KeywordHighlighting";
+import PersonIcon from "@mui/icons-material/Person";
+
+// Define the variables that will be used in this component
+const title: string = "Contactează-ne";
+const subTitle: string = "Ai întrebări sau dorești să contribui cu ceva?";
+const formTitle: string = "Hai să facem o diferență împreună!";
+const formSubTitle: string =
+  "Vom trimite un email de confirmare. Accesează link-ul din email pentru a finaliza trimiterea mesajului.";
+
+// Define keywords for highlighting
+const formKeywords = [
+  "email de confirmare",
+  "link-ul din email",
+  "Ai întrebări",
+  "să contribui",
+  "o diferență",
+];
+
+// Highlight keywords in all texts
+const highlightedSubTitle = highlightKeywords(subTitle, formKeywords);
+const highlightedFormTitle = highlightKeywords(formTitle, formKeywords);
+const highlightedFormSubTitle = highlightKeywords(formSubTitle, formKeywords);
+---
+
+<!-- Contact Us -->
+<section
+  class="mx-auto max-w-[85rem] px-4 pt-5 pb-10 sm:px-6 lg:px-8 lg:pt-4 lg:pb-14"
+>
+  <div class="mx-auto mt-5 max-w-2xl lg:max-w-5xl">
+    <div class="text-center">
+      <h1
+        class="text-2xl font-bold tracking-tight text-balance text-black md:text-4xl md:leading-tight dark:text-white"
+      >
+        {title}
+      </h1>
+      <p
+        class="mt-1 text-center text-pretty text-black lg:text-lg dark:text-white"
+        set:html={highlightedSubTitle}
+      />
+    </div>
+
+    <div class="mt-0 grid items-start gap-6 lg:grid-cols-2 lg:gap-16">
+      <div class="flex flex-col rounded-xl p-4 sm:p-6 lg:p-8">
+        <h2
+          class="mb-8 text-2xl font-bold text-black dark:text-white"
+          set:html={highlightedFormTitle}
+        />
+        <!-- Form for user input with various input fields.-->
+        <!-- Each field utilizes a different input component for the specific type of input (text, email, phone, and textarea)-->
+        <form id="contact-form" method="post">
+          <div class="grid gap-4">
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <TextInput
+                id="hs-firstname-contacts"
+                label="Nume"
+                name="hs-firstname-contacts"
+              />
+              <TextInput
+                id="hs-lastname-contacts"
+                label="Prenume"
+                name="hs-lastname-contacts"
+              />
+            </div>
+            <EmailContactInput id="hs-email-contacts" />
+            <PhoneInput id="hs-phone-number" />
+            <TextAreaInput
+              id="hs-about-contacts"
+              label="Mesaj"
+              name="hs-about-contacts"
+            />
+          </div>
+
+          <div class="mt-4 grid">
+            <AuthBtn title="Trimite mesaj" />
+            <p id="contact-status" class="mt-2 text-sm" aria-live="polite"></p>
+          </div>
+
+          <div class="mt-3 text-center">
+            <p
+              class="text-sm text-black dark:text-white"
+              set:html={highlightedFormSubTitle}
+            />
+          </div>
+        </form>
+      </div>
+
+      <!--ContactIconBlocks are used to display different methods of contacting, including visiting office, email, browsing knowledgebase, and FAQ.-->
+      <div class="divide-y divide-neutral-300 dark:divide-neutral-700">
+        <ContactIconBlock heading="Pastorul bisericii" content="Popa Timotei">
+          <LightModeIcon size={40} class="dark:hidden">
+            <PersonIcon sx={{ color: "currentColor", fontSize: 40 }} />
+          </LightModeIcon>
+          <DarkModeIcon size={40} class="hidden dark:block">
+            <PersonIcon sx={{ color: "currentColor", fontSize: 40 }} />
+          </DarkModeIcon>
+        </ContactIconBlock>
+
+        <ContactIconBlock heading="Sună-ne" content="+40788 980 747">
+          <LightModeIcon size={40} class="dark:hidden">
+            <LocalPhoneIcon sx={{ color: "currentColor", fontSize: 40 }} />
+          </LightModeIcon>
+          <DarkModeIcon size={40} class="hidden dark:block">
+            <LocalPhoneIcon sx={{ color: "currentColor", fontSize: 40 }} />
+          </DarkModeIcon>
+        </ContactIconBlock>
+
+        <ContactIconBlock
+          heading="Lasă un mesaj"
+          content="bisericacredintavoluntari@gmail.com"
+        >
+          <LightModeIcon size={40} class="dark:hidden">
+            <EmailIcon sx={{ color: "currentColor", fontSize: 40 }} />
+          </LightModeIcon>
+          <DarkModeIcon size={40} class="hidden dark:block">
+            <EmailIcon sx={{ color: "currentColor", fontSize: 40 }} />
+          </DarkModeIcon>
+        </ContactIconBlock>
+
+        <ContactIconBlock
+          heading="Donează"
+          content={[
+            "Biserica Credința",
+            "RO58CECB31336RON2030888",
+            "CEC BANK",
+            "CECEROBUXXX",
+            "RON",
+          ]}
+          copyButton={{
+            text: "Copiază",
+            iban: "RO58CECB31336RON2030888",
+          }}
+        >
+          <LightModeIcon size={40} class="dark:hidden">
+            <VolunteerActivismIcon
+              sx={{ color: "currentColor", fontSize: 40 }}
+            />
+          </LightModeIcon>
+          <DarkModeIcon size={40} class="hidden dark:block">
+            <VolunteerActivismIcon
+              sx={{ color: "currentColor", fontSize: 40 }}
+            />
+          </DarkModeIcon>
+        </ContactIconBlock>
+
+        <ContactIconBlock
+          heading="Vizitează-ne"
+          content="Vă așteptăm la biserica din Voluntari, în județul Ilfov"
+          isAddressVisible={false}
+          addressContent="Bulevardul Voluntari nr. 61A, Voluntari, Ilfov"
+        >
+          <LightModeIcon size={40} class="dark:hidden">
+            <LocationOnIcon sx={{ color: "currentColor", fontSize: 40 }} />
+          </LightModeIcon>
+          <DarkModeIcon size={40} class="hidden dark:block">
+            <LocationOnIcon sx={{ color: "currentColor", fontSize: 40 }} />
+          </DarkModeIcon>
+        </ContactIconBlock>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- OpenStreetMap Section - Full Width -->
+<section class="w-full">
+  <div class="w-full py-6">
+    <OpenStreetMapEmbed
+      address="Bulevardul Voluntari nr. 61A, Voluntari, Ilfov"
+      latitude={44.4885903}
+      longitude={26.181061}
+      height="300px"
+      zoom={16}
+      className="w-full"
+    />
+  </div>
+</section>
+
+<!-- Toast Container for React toast notifications -->
+<ToastContainer client:load />
+
+<script type="module">
+  // Form handling
+  const form = document.querySelector("#contact-form");
+  const statusEl = document.querySelector("#contact-status");
+  const submitBtn = form?.querySelector('button[type="submit"]');
+
+  if (form) {
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      statusEl.textContent = "";
+      const originalText = submitBtn?.textContent;
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Se trimite...";
+      }
+      try {
+        const formData = new FormData(form);
+        const formDataObj = {
+          firstName: formData.get("hs-firstname-contacts"),
+          lastName: formData.get("hs-lastname-contacts"),
+          email: formData.get("hs-email-contacts"),
+          phone: formData.get("hs-phone-number"),
+          details: formData.get("hs-about-contacts"),
+        };
+
+        // Send confirmation email and store in database
+        const emailRes = await fetch("/api/confirm-email", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: formDataObj.email,
+            firstName: formDataObj.firstName,
+            lastName: formDataObj.lastName,
+            phone: formDataObj.phone,
+            details: formDataObj.details,
+          }),
+        });
+
+        const emailData = await emailRes.json().catch(() => ({ ok: false }));
+
+        if (emailRes.ok && emailData?.ok) {
+          statusEl.className = "mt-2 text-sm text-green-600";
+          // statusEl.textContent =
+          //   "Mesajul a fost trimis cu succes! Vom reveni în curând cu un răspuns.";
+
+          // Use global toast functions from React component
+          if (window.showSuccessToast) {
+            window.showSuccessToast("Mesajul a fost trimis cu succes!");
+          }
+          form.reset();
+        } else {
+          statusEl.className = "mt-2 text-sm text-red-600";
+          const errorMessage = `Eroare email: ${emailData?.error || "Eroare necunoscută"}`;
+          statusEl.textContent = errorMessage;
+
+          if (window.showErrorToast) {
+            window.showErrorToast(errorMessage);
+          }
+        }
+      } catch (err) {
+        statusEl.className = "mt-2 text-sm text-red-600";
+        statusEl.textContent = "A apărut o eroare de rețea. Încearcă din nou.";
+        if (window.showErrorToast) {
+          window.showErrorToast(
+            "A apărut o eroare de rețea. Încearcă din nou.",
+          );
+        }
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = originalText || "Trimite mesaj";
+        }
+      }
+    });
+  }
+
+  // IBAN copy functionality
+  window.copyIBAN = function (iban, event) {
+    event.preventDefault();
+    navigator.clipboard
+      .writeText(iban)
+      .then(() => {
+        const button = event.target;
+        const originalText = button.innerHTML;
+
+        // Change to success state (green) temporarily
+        button.innerHTML =
+          '<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Copiat!';
+        button.classList.remove("bg-indigo-600", "hover:bg-indigo-600");
+        button.classList.add("bg-green-500", "hover:bg-green-600");
+
+        // Reset back to indigo after 2 seconds
+        setTimeout(() => {
+          button.innerHTML = originalText;
+          button.classList.remove("bg-green-500", "hover:bg-green-600");
+          button.classList.add("bg-indigo-600", "hover:bg-indigo-600");
+        }, 2000);
+      })
+      .catch((err) => {
+        console.error("Failed to copy: ", err);
+      });
+  };
+</script>

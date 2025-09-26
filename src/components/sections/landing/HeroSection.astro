@@ -1,0 +1,339 @@
+---
+// Import the necessary dependencies
+import { Image } from "astro:assets";
+import PrimaryCTA from "@components/ui/buttons/PrimaryCTA.astro";
+import SecondaryCTA from "@components/ui/buttons/SecondaryCTA.astro";
+import ReviewComponent from "@components/ui/blocks/ReviewComponent.astro";
+import StoriesCarousel from "@components/ui/blocks/StoriesCarousel.astro";
+import FormatQuoteIcon from "@mui/icons-material/FormatQuote";
+import AvatarTestimonialSection from "@components/ui/avatars/AvatarTestimonialSection.astro";
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import DirectionsRunIcon from '@mui/icons-material/DirectionsRun';
+import ThirdCTA from "@components/ui/buttons/ThirdCTA.astro";
+import DownloadIcon from '@mui/icons-material/Download';
+
+// Define props from Astro
+const {
+  title,
+  subTitle,
+  primaryBtn,
+  primaryBtnURL,
+  secondaryBtn,
+  secondaryBtnURL,
+  thirdBtn,
+  thirdBtnURL,
+  withReview,
+  avatars,
+  starCount,
+  rating,
+  reviews,
+  src,
+  alt,
+  secondSubTitle,
+  thirdSubTitle,
+  videos,
+  cloudinaryIds,
+} = Astro.props;
+
+// Define TypeScript interface for props
+interface Video {
+  id: string;
+  title: string;
+  description?: string;
+  thumbnail?: string;
+  youtubeId: string;
+}
+
+interface Props {
+  title: string;
+  subTitle?: string;
+  primaryBtn?: string;
+  primaryBtnURL?: string;
+  secondaryBtn?: string;
+  secondaryBtnURL?: string;
+  thirdBtn?: string;
+  thirdBtnURL?: string;
+  withReview?: boolean;
+  avatars?: Array<string>;
+  starCount?: number;
+  rating?: string;
+  reviews?: string;
+  src?: any;
+  alt?: string;
+  secondSubTitle?: string;
+  thirdSubTitle?: string;
+  videos?: Video[];
+  cloudinaryIds?: string[];
+}
+---
+
+<!-- Defining a grid container that holds all the content -->
+<section
+  class="mx-auto grid max-w-[85rem] gap-4 px-4 py-14 sm:px-6 md:grid-cols-2 md:items-center md:gap-8 lg:px-8 2xl:max-w-full"
+>
+  <!-- Title and description -->
+  <div class="mb-70">
+    <!-- Each h1 and p tag renders a portion of the title and subTitle defined above -->
+    <h1
+      class="fade-in-element block text-4xl font-bold tracking-tight text-balance text-black sm:text-4xl lg:text-6xl lg:leading-tight dark:text-white"
+     
+    >
+      <!-- About Fragment: https://docs.astro.build/en/basics/astro-syntax/#fragments -->
+      <Fragment set:html={title} />
+    </h1>
+    {
+      subTitle && (
+        <p
+          class="fade-in-element mt-3 text-lg leading-relaxed font-bold text-pretty text-[#305c76] italic lg:w-4/5 dark:text-[#74becc]"
+          
+        >
+          <FormatQuoteIcon style={{ transform: "rotate(180deg)" }} />
+          {subTitle}
+
+          <FormatQuoteIcon />
+        </p>
+      )
+    }
+   {
+    secondSubTitle && (
+    <div class="mt-10 flex h-auto">
+  <div
+    class="fade-in-element flex h-full flex-col rounded-xl border-l-5 border-[#305c76] bg-yellow-50/60 dark:border-[#74becc] dark:bg-neutral-700"
+  >
+    <div class="flex-auto p-4 md:p-6">
+      <!-- Testimonial content -->
+      <p
+        class="text-base text-pretty text-black italic md:text-lg dark:text-white"
+      >
+        <FormatQuoteIcon style={{ transform: "rotate(180deg)" }} />
+        <Fragment set:html={secondSubTitle} />
+        <br />
+        <Fragment set:html={thirdSubTitle} />      
+        <FormatQuoteIcon />
+  
+      </p>
+   
+    </div>
+
+    <div
+      class="rounded-b-xl bg-neutral-300/30 p-4 md:px-7 dark:bg-neutral-900/30"
+    >
+      <div class="flex items-center">
+        <AvatarTestimonialSection src={'https://res.cloudinary.com/drtkpapql/image/upload/w_50,h_50,c_fill,q_auto/credinta_logo_tps1xb'} alt={alt || ""} />
+
+        <div class="ms-3 grow">
+          <p
+            class="text-sm font-bold text-neutral-800 sm:text-base dark:text-neutral-200"
+          >
+            {"Biserica Credința"}
+          </p>
+          <p class="text-sm font-bold text-[#305c76] dark:text-[#74becc]">
+            {"Comunitate vie de creștini care Îl urmează pe Hristos"}
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    )
+  }
+    <!-- {
+      thirdSubTitle && (
+        <p
+          class="fade-in-element mt-3 text-lg leading-relaxed text-pretty text-black lg:w-4/5 dark:text-white"
+          data-delay="600"
+        >
+          {thirdSubTitle}
+        </p>
+      )
+    } -->
+    <!-- Action Button Section: This section includes two CTAs with their own styles and URL -->
+    <div
+      class="fade-in-element mt-7 grid w-full gap-3 sm:inline-flex"
+    
+    >
+      {primaryBtn && <PrimaryCTA title={primaryBtn} url={primaryBtnURL} />}
+      {
+        secondaryBtn && (
+          <SecondaryCTA title={secondaryBtn} url={secondaryBtnURL} />
+        )
+      }
+      {
+        thirdBtn && (
+          <ThirdCTA title={thirdBtn} url={thirdBtnURL} />
+        )
+      }
+    </div>
+
+    <!-- Review Section: This section presents avatars, review ratings and the number of reviews -->
+    {
+      withReview ? (
+        <div class="fade-in-element" data-delay="1000">
+          <ReviewComponent
+            avatars={avatars}
+            starCount={starCount}
+            rating={rating}
+            reviews={reviews}
+          />
+        </div>
+      ) : (
+        ""
+      )
+    }
+  </div>
+
+    <!-- Media Section -->
+    <div class="space-y-4">
+                  
+      {/* Video Carousel */}
+      {cloudinaryIds && Array.isArray(cloudinaryIds) && cloudinaryIds.length > 0 && <div
+        class="fade-in-element w-full"
+        // data-delay={0 * 200 + 100}
+      >
+        <div class="relative overflow-hidden rounded-lg shadow-lg md:ml-20">
+          <div class="carousel-container relative w-full">
+            {cloudinaryIds.map((cloudinaryId: string, photoIndex: number) => (
+              <div
+                class={`carousel-item ${photoIndex === 0 ? "opacity-100" : "opacity-0"} cursor-pointer transition-opacity duration-500`}
+                data-event-index={0}
+                data-photo-index={photoIndex}
+              >
+                <div class="flex h-auto">
+                <video
+                  src={`https://res.cloudinary.com/drtkpapql/video/upload/h_848,w_480,c_fill,q_auto/${cloudinaryId}`}
+                  title={`${title} - Videoclip ${photoIndex + 1}`}
+                  class="h-auto w-auto object-contain transition-transform duration-300 hover:scale-105"
+                  controls
+                  autoplay
+                  muted
+                  playsinline
+                  preload="metadata"
+                  loop
+                />
+                   
+                </div>
+              </div>
+            ))}
+
+            {/* Carousel Navigation */}
+            <div class="absolute bottom-2 left-1/2 flex -translate-x-1/2 space-x-1">
+              {cloudinaryIds.map((_: string, photoIndex: number) => (
+                <button
+                  class="carousel-dot h-1.5 w-1.5 rounded-full bg-white opacity-50 transition-opacity hover:opacity-100"
+                  data-carousel-index={photoIndex}
+                  data-event-index={0}
+                />
+              ))}
+            </div>
+
+            {/* Previous/Next buttons */}
+            {cloudinaryIds.length > 1 && (
+              
+              <button
+              class="carousel-prev bg-opacity-50 hover:bg-opacity-75 absolute top-1/2 left-1 -translate-y-1/2 rounded-full bg-black p-1.5 text-white transition-opacity"
+              data-event-index={0}
+            >
+              <svg
+                class="h-3 w-3"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M15 19l-7-7 7-7"
+                />
+              </svg>
+            </button>
+            <button
+              class="carousel-next bg-opacity-50 hover:bg-opacity-75 absolute top-1/2 right-1 -translate-y-1/2 rounded-full bg-black p-1.5 text-white transition-opacity"
+              data-event-index={0}
+            >
+              <svg
+                class="h-4 w-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 5l7 7-7 7"
+                />
+              </svg>
+            </button>
+            )}
+          </div>
+        </div>
+      </div>}
+</section>
+
+<style>
+  .fade-in-element {
+    opacity: 0;
+    transform: translateY(30px);
+    transition:
+      opacity 0.8s ease-out,
+      transform 0.8s ease-out;
+  }
+
+  .fade-in-element.fade-in {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Staggered animation delays */
+  .fade-in-element[data-delay="0"] {
+    transition-delay: 0ms;
+  }
+  .fade-in-element[data-delay="200"] {
+    transition-delay: 200ms;
+  }
+  .fade-in-element[data-delay="400"] {
+    transition-delay: 400ms;
+  }
+  .fade-in-element[data-delay="600"] {
+    transition-delay: 600ms;
+  }
+  .fade-in-element[data-delay="800"] {
+    transition-delay: 800ms;
+  }
+  .fade-in-element[data-delay="1000"] {
+    transition-delay: 1000ms;
+  }
+</style>
+
+<script>
+  // Intersection Observer for fade-in animations
+  const observerOptions = {
+    threshold: 0.1,
+    rootMargin: "0px 0px -50px 0px",
+  };
+
+  const fadeInObserver = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        const element = entry.target as HTMLElement;
+        const delay = parseInt(element.dataset.delay || "0");
+
+        setTimeout(() => {
+          element.classList.add("fade-in");
+        }, delay);
+
+        // Unobserve after animation is triggered
+        fadeInObserver.unobserve(element);
+      }
+    });
+  }, observerOptions);
+
+  // Observe all fade-in elements
+  document.addEventListener("DOMContentLoaded", () => {
+    const fadeElements = document.querySelectorAll(".fade-in-element");
+    fadeElements.forEach((element) => {
+      fadeInObserver.observe(element);
+    });
+  });
+</script>

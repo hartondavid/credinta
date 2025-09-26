@@ -1,0 +1,339 @@
+---
+import MainLayout from "../../layouts/MainLayout.astro";
+import databaseManager from "../../../database.mjs";
+
+const { eventId } = Astro.params;
+
+// Check if eventId exists
+if (!eventId) {
+    return Astro.redirect("/404");
+}
+
+let project: any = null;
+let error: string | null = null;
+
+try {
+    const knex = await databaseManager.getKnex();
+    
+    if (knex) {
+        // Get project data from database
+        const projectData = await knex('posts')
+            .where({ 
+                id: eventId,
+                category: 'project',
+                is_published: true 
+            })
+            .first();
+
+        if (projectData) {
+            project = {
+                id: projectData.id,
+                title: projectData.title,
+                content: projectData.content,
+                author: projectData.author,
+                createdAt: projectData.created_at,
+                projectType: projectData.project_type,
+                postType: projectData.post_type,
+                eventType: projectData.event_type,
+                isActive: projectData.is_active,
+                plannedDate: projectData.start_date ? new Date(projectData.start_date).toLocaleDateString('ro-RO') : new Date(projectData.created_at).toLocaleDateString('ro-RO'),
+                status: projectData.is_active ? 'active' : 'inactive'
+            };
+        } else {
+            error = 'Evenimentul nu a fost găsit';
+        }
+    }
+} catch (err) {
+    console.error('Error fetching project:', err);
+    error = 'A apărut o eroare la încărcarea datelor';
+}
+
+if (!project && !error) {
+    return Astro.redirect("/404");
+}
+---
+
+<MainLayout title={project ? `Participanți - ${project.title} - Calarași Warriors` : 'Participanți - Calarași Warriors'}>
+    <div class="min-h-screen py-8 dark:bg-neutral-800">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            {error ? (
+                <div class="rounded-lg bg-red-50 p-8 text-center dark:bg-red-900/20">
+                    <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-red-100 dark:bg-red-800">
+                        <svg class="h-8 w-8 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                    <h1 class="mt-4 text-2xl font-bold text-red-900 dark:text-red-100">Eroare</h1>
+                    <p class="mt-2 text-red-700 dark:text-red-300">{error}</p>
+                    <div class="mt-6">
+                        <a href="/future-projects" class="inline-flex items-center rounded-lg bg-red-600 px-6 py-3 font-semibold text-white transition duration-200 hover:bg-red-700">
+                            <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                            </svg>
+                            Înapoi la evenimente
+                        </a>
+                    </div>
+                </div>
+            ) : project ? (
+                <>
+                    <!-- Header -->
+                    <div class="mb-8">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h1 class="text-3xl font-bold text-black dark:text-white">
+                                    Participanți la eveniment
+                                </h1>
+                                <p class="mt-2 text-gray-600 dark:text-white">
+                                    Gestionare participanți pentru: {project.title}
+                                </p>
+                            </div>
+                            <a
+                                href="/future-projects"
+                                class="rounded-lg bg-indigo-600 px-4 py-2 font-semibold text-white transition duration-200 hover:shadow-[0_0_20px_rgba(55,83,255,1)] dark:bg-yellow-400 dark:text-neutral-800 dark:hover:shadow-[0_0_20px_rgba(255,204,0,1)]"
+                            >
+                                ← Înapoi la evenimente
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Event Info -->
+                    <div class="mb-8 rounded-lg border border-gray-200 bg-white p-6 shadow dark:border-gray-700 dark:bg-neutral-700">
+                        <h2 class="mb-4 text-xl font-semibold text-black dark:text-white">
+                            Informații eveniment
+                        </h2>
+                        <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
+                            <div>
+                                <span class="text-sm font-medium text-black dark:text-white">Titlu</span>
+                                <p class="text-gray-900 dark:text-white">
+                                    {project.title}
+                                </p>
+                            </div>
+                            <div>
+                                <span class="text-sm font-medium text-black dark:text-white">Data</span>
+                                <p class="text-gray-900 dark:text-white">
+                                    {project.plannedDate}
+                                </p>
+                            </div>
+                            <div>
+                                <span class="text-sm font-medium text-black dark:text-white">Status</span>
+                                <p class="text-gray-900 dark:text-white">
+                                    {project.status}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Loading State -->
+                    <div id="loading-state" class="mb-8 rounded-lg bg-white p-6 shadow dark:bg-neutral-700">
+                        <div class="flex items-center justify-center">
+                            <div class="h-8 w-8 animate-spin rounded-full border-b-2 border-blue-600"></div>
+                            <span class="ml-3 text-gray-600 dark:text-white">Se încarcă participanții...</span>
+                        </div>
+                    </div>
+
+                    <!-- Statistics -->
+                    <div id="statistics" class="mb-8 grid grid-cols-1 gap-6 md:grid-cols-3" style="display: none;">
+                        <div class="rounded-lg bg-white p-6 shadow dark:bg-neutral-700">
+                            <div class="flex items-center">
+                                <div class="rounded-full bg-blue-100 p-3 text-blue-600 dark:bg-blue-900 dark:text-blue-400">
+                                    <svg class="h-6 w-6" fill="none" stroke="white" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                                    </svg>
+                                </div>
+                                <div class="ml-4">
+                                    <p class="text-sm font-medium text-black dark:text-white">
+                                        Total participanți
+                                    </p>
+                                    <p class="text-2xl font-semibold text-gray-900 dark:text-white" id="total-participants">
+                                        0
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="rounded-lg bg-white p-6 shadow dark:bg-neutral-700">
+                            <div class="flex items-center">
+                                <div class="rounded-full bg-green-100 p-3 text-green-600 dark:bg-green-900 dark:text-green-400">
+                                    <svg class="h-6 w-6" fill="none" stroke="white" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                </div>
+                                <div class="ml-4">
+                                    <p class="text-sm font-medium text-black dark:text-white">
+                                        Confirmați
+                                    </p>
+                                    <p class="text-2xl font-semibold text-gray-900 dark:text-white" id="confirmed-participants">
+                                        0
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="rounded-lg bg-white p-6 shadow dark:bg-neutral-700">
+                            <div class="flex items-center">
+                                <div class="rounded-full bg-yellow-100 p-3 text-yellow-600 dark:bg-yellow-900 dark:text-yellow-400">
+                                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                </div>
+                                <div class="ml-4">
+                                    <p class="text-sm font-medium text-black dark:text-white">
+                                        În așteptare
+                                    </p>
+                                    <p class="text-2xl font-semibold text-gray-900 dark:text-white" id="pending-participants">
+                                        0
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Participants List -->
+                    <div id="participants-container" class="rounded-lg bg-white shadow dark:bg-neutral-700" style="display: none;">
+                        <div class="border-b border-gray-200 px-6 py-4 dark:border-gray-500">
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-white">
+                                Lista participanților
+                            </h3>
+                        </div>
+
+                        <div id="participants-list">
+                            <!-- Participants will be loaded here -->
+                        </div>
+                    </div>
+                </>
+            ) : null}
+        </div>
+    </div>
+
+    <script>
+        // Load participants data when the page loads
+        document.addEventListener("DOMContentLoaded", async () => {
+            const eventId = "{eventId}";
+
+            try {
+                // Fetch participants and stats
+                const [participantsResponse, statsResponse] = await Promise.all([
+                    fetch(`/api/event-participants/${eventId}`),
+                    fetch(`/api/event-stats/${eventId}`),
+                ]);
+
+                if (participantsResponse.ok && statsResponse.ok) {
+                    const participants = await participantsResponse.json();
+                    const stats = await statsResponse.json();
+
+                    // Update statistics
+                    const totalElement = document.getElementById("total-participants");
+                    const confirmedElement = document.getElementById("confirmed-participants");
+                    const pendingElement = document.getElementById("pending-participants");
+
+                    if (totalElement) totalElement.textContent = stats.total || 0;
+                    if (confirmedElement) confirmedElement.textContent = stats.confirmed || 0;
+                    if (pendingElement) pendingElement.textContent = stats.pending || 0;
+
+                    // Show statistics and participants
+                    const loadingState = document.getElementById("loading-state");
+                    const statistics = document.getElementById("statistics");
+                    const participantsContainer = document.getElementById("participants-container");
+
+                    if (loadingState) loadingState.style.display = "none";
+                    if (statistics) statistics.style.display = "grid";
+                    if (participantsContainer) participantsContainer.style.display = "block";
+
+                    // Render participants list
+                    renderParticipants(participants);
+                } else {
+                    throw new Error("Failed to fetch data");
+                }
+            } catch (error) {
+                console.error("Error loading participants:", error);
+                const loadingState = document.getElementById("loading-state");
+                if (loadingState) {
+                    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+                    loadingState.innerHTML = `
+                        <div class="text-center text-red-600 dark:text-red-400">
+                            <p>Eroare la încărcarea participanților</p>
+                            <p class="text-sm">${errorMessage}</p>
+                        </div>
+                    `;
+                }
+            }
+        });
+
+        function renderParticipants(participants: any[]) {
+            const container = document.getElementById("participants-list");
+            if (!container) return;
+
+            if (participants.length === 0) {
+                container.innerHTML = `
+                    <div class="px-6 py-12 text-center">
+                        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="white" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                        <h3 class="mt-2 text-sm font-medium text-black dark:text-white">Nu există participanți</h3>
+                        <p class="mt-1 text-sm text-black dark:text-white">Încă nu s-a înscris nimeni la acest eveniment.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const tableHTML = `
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                        <thead class="bg-gray-50 dark:bg-neutral-700">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium tracking-wider text-black uppercase dark:text-white">Participant</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium tracking-wider text-black uppercase dark:text-white">Status</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium tracking-wider text-black uppercase dark:text-white">Data înscrierii</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium tracking-wider text-black uppercase dark:text-white">Data confirmării</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200 bg-white dark:divide-gray-700 dark:bg-neutral-600">
+                            ${participants
+                                .map(
+                                    (participant: any) => `
+                                <tr class="hover:bg-gray-50 dark:hover:bg-neutral-500">
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="h-10 w-10 flex-shrink-0">
+                                                <div class="flex h-10 w-10 items-center justify-center rounded-full bg-gray-300 dark:bg-gray-600">
+                                                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                                        ${participant.first_name.charAt(0)}${participant.last_name.charAt(0)}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div class="ml-4">
+                                                <div class="text-sm font-medium text-gray-900 dark:text-white">
+                                                    ${participant.first_name} ${participant.last_name}
+                                                </div>
+                                                <div class="text-sm text-gray-500 dark:text-gray-400">
+                                                    ${participant.email}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        ${
+                                            participant.email_confirmed
+                                                ? '<span class="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900 dark:text-green-200"><svg class="mr-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>Confirmat</span>'
+                                                : '<span class="inline-flex items-center rounded-full bg-yellow-100 px-2.5 py-0.5 text-xs font-medium text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"><svg class="mr-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>În așteptare</span>'
+                                        }
+                                    </td>
+                                    <td class="px-6 py-4 text-sm whitespace-nowrap text-gray-900 dark:text-white">
+                                        ${new Date(participant.created_at).toLocaleDateString("ro-RO")}
+                                    </td>
+                                    <td class="px-6 py-4 text-sm whitespace-nowrap text-gray-900 dark:text-white">
+                                        ${participant.confirmed_at ? new Date(participant.confirmed_at).toLocaleDateString("ro-RO") : "-"}
+                                    </td>
+                                </tr>
+                            `,
+                                )
+                                .join("")}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+
+            container.innerHTML = tableHTML;
+        }
+    </script>
+</MainLayout>

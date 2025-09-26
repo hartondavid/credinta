@@ -1,0 +1,33 @@
+---
+// Destructure the properties from Astro.props
+const { title, url } = Astro.props;
+import DownloadIcon from "@mui/icons-material/Download";
+
+// Define TypeScript interface for the properties
+interface Props {
+  title?: string;
+  url?: string;
+}
+// Define CSS classes for the hyperlink button
+const baseClasses =
+  "inline-flex items-center justify-center gap-x-2 rounded-lg px-4 py-3 text-center text-sm font-medium text-black shadow-xs outline-hidden ring-zinc-500 focus-visible:ring-3 transition duration-300";
+const borderClasses = "border border-neutral-800";
+// const bgColorClasses = "bg-indigo-600";
+const hoverClasses =
+  "hover:bg-neutral-800 hover:text-white active:text-neutral-700 hover:shadow-[0_0_20px_rgba(38,38,38,1)]";
+const disableClasses = "disabled:pointer-events-none disabled:opacity-50";
+const fontSizeClasses = "2xl:text-base";
+const ringClasses = "ring-zinc-500";
+
+const darkClasses =
+  "dark:border-white dark:bg-neutral-700 dark:text-white dark:ring-zinc-200 dark:hover:bg-white dark:focus:outline-hidden dark:hover:shadow-[0_0_20px_rgba(255,255,255,1)] dark:hover:text-black";
+---
+
+<!-- Styled hyperlink -->
+<a
+  class={`${baseClasses} ${borderClasses} ${hoverClasses} ${disableClasses} ${fontSizeClasses} ${ringClasses} ${darkClasses}`}
+  href={url}
+>
+  <DownloadIcon />
+  {title}
+</a>

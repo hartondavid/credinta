@@ -1,0 +1,189 @@
+---
+// Import the necessary dependencies
+import TabNav from "@components/ui/blocks/TabNav.astro";
+import TabContent from "@components/ui/blocks/TabContent.astro";
+import Icon from "@components/ui/icons/Icon.astro";
+
+// Define props from Astro
+const { title, tabs } = Astro.props;
+
+// Define TypeScript interface for tab object
+interface Tab {
+  heading: string;
+  content: string;
+  svg: string;
+  src: any;
+  alt: string;
+  first?: boolean;
+  second?: boolean;
+}
+
+// Define TypeScript interface for props
+interface Props {
+  title?: string;
+  tabs: Tab[];
+}
+---
+
+<section
+  class="mx-auto max-w-[85rem] px-4 py-10 sm:px-6 lg:px-8 lg:py-14 2xl:max-w-full"
+>
+  <div class="relative p-6 md:p-16">
+    <div
+      class="relative z-10 lg:grid lg:grid-cols-12 lg:items-center lg:gap-16"
+    >
+      <!-- Section's heading and tab navigation -->
+      <div
+        class="mb-10 text-center lg:order-2 lg:col-span-6 lg:col-start-8 lg:mb-0 lg:text-left"
+      >
+        <h2
+          class="fade-in-element text-2xl font-bold text-black sm:text-2xl dark:text-white"
+          data-delay="0"
+        >
+          <!-- About Fragment: https://docs.astro.build/en/basics/astro-syntax/#fragments -->
+          <Fragment set:html={title} />
+        </h2>
+        <!-- Tab navigation - use the attribute 'first' in the first TabNav for the component to work -->
+        <nav
+          class="fade-in-element mt-5 grid gap-4 md:mt-10"
+          aria-label="Tabs"
+          role="tablist"
+          data-delay="200"
+        >
+          {
+            tabs.map((tab, index) => (
+              <div class="fade-in-element" data-delay={400 + index * 100}>
+                <TabNav
+                  id={`tabs-with-card-item-${index + 1}`}
+                  dataTab={`#tabs-with-card-${index + 1}`}
+                  aria={`tabs-with-card-${index + 1}`}
+                  heading={tab.heading}
+                  content={tab.content}
+                  first={tab.first}
+                >
+                  <Icon name={tab.svg} />
+                </TabNav>
+              </div>
+            ))
+          }
+        </nav>
+      </div>
+
+      <!-- Contents for each tab - the 'first' attribute should be used in the first tab for that tab to be initially visible, 'second' changes the styles -->
+      <div
+        class="fade-in-element flex justify-center lg:col-span-6 lg:justify-start"
+        data-delay="600"
+      >
+        <div class="relative">
+          <div>
+            {
+              tabs.map((tab, index) => (
+                <div class="fade-in-element" data-delay={800 + index * 100}>
+                  <TabContent
+                    id={`tabs-with-card-${index + 1}`}
+                    aria={`tabs-with-card-item-${index + 1}`}
+                    src={tab.src}
+                    alt={tab.alt}
+                    first={tab.first}
+                    second={tab.second}
+                  />
+                </div>
+              ))
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="absolute inset-0 grid h-full w-full grid-cols-12">
+      <!-- Decorative background and sizing -->
+      <div
+        class="fade-in-element col-span-full h-5/6 w-full rounded-xl bg-neutral-100 sm:h-3/4 lg:col-span-7 lg:col-start-6 lg:h-full dark:bg-white/[.075]"
+        data-delay="1000"
+      >
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .fade-in-element {
+    opacity: 0;
+    transform: translateY(30px);
+    transition:
+      opacity 0.8s ease-out,
+      transform 0.8s ease-out;
+  }
+
+  .fade-in-element.fade-in {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Staggered animation delays */
+  .fade-in-element[data-delay="0"] {
+    transition-delay: 0ms;
+  }
+  .fade-in-element[data-delay="200"] {
+    transition-delay: 200ms;
+  }
+  .fade-in-element[data-delay="400"] {
+    transition-delay: 400ms;
+  }
+  .fade-in-element[data-delay="500"] {
+    transition-delay: 500ms;
+  }
+  .fade-in-element[data-delay="600"] {
+    transition-delay: 600ms;
+  }
+  .fade-in-element[data-delay="700"] {
+    transition-delay: 700ms;
+  }
+  .fade-in-element[data-delay="800"] {
+    transition-delay: 800ms;
+  }
+  .fade-in-element[data-delay="900"] {
+    transition-delay: 900ms;
+  }
+  .fade-in-element[data-delay="1000"] {
+    transition-delay: 1000ms;
+  }
+  .fade-in-element[data-delay="1100"] {
+    transition-delay: 1100ms;
+  }
+  .fade-in-element[data-delay="1200"] {
+    transition-delay: 1200ms;
+  }
+</style>
+
+<script>
+  // Intersection Observer for fade-in animations
+  const observerOptions = {
+    threshold: 0.1,
+    rootMargin: "0px 0px -50px 0px",
+  };
+
+  const fadeInObserver = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        const element = entry.target as HTMLElement;
+        const delay = parseInt(element.dataset.delay || "0");
+
+        setTimeout(() => {
+          element.classList.add("fade-in");
+        }, delay);
+
+        // Unobserve after animation is triggered
+        fadeInObserver.unobserve(element);
+      }
+    });
+  }, observerOptions);
+
+  // Observe all fade-in elements
+  document.addEventListener("DOMContentLoaded", () => {
+    const fadeElements = document.querySelectorAll(".fade-in-element");
+    fadeElements.forEach((element) => {
+      fadeInObserver.observe(element);
+    });
+  });
+</script>

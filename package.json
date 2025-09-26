@@ -69,12 +69,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/hartondavid/calarasi-warriors.git"
+    "url": "git+https://github.com/hartondavid/credinta.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/hartondavid/calarasi-warriors/issues"
+    "url": "https://github.com/hartondavid/credinta/issues"
   },
-  "homepage": "https://github.com/hartondavid/calarasi-warriors#readme"
+  "homepage": "https://github.com/hartondavid/credinta#readme"
 }

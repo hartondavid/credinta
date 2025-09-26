@@ -23,7 +23,7 @@ const footerLinks = [
 ];
 
 const socialLinks = {
-  facebook: "https://www.facebook.com/",
+  facebook: "https://www.facebook.com/bcbcredintavoluntari",
   instagram: "https://www.instagram.com/",
   youtube: "https://www.youtube.com/",
   tiktok: "https://www.tiktok.com/",

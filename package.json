@@ -1,7 +1,7 @@
 {
-  "name": "calarasi-warriors",
+  "name": "credinta",
   "version": "1.0.0",
-  "description": "Calarasi Warriors - Construction Services Website",
+  "description": "Biserica Credința - Website",
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",

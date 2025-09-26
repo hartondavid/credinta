@@ -114,7 +114,7 @@ export const GET: APIRoute = async ({ url }) => {
                 
                 <div style="text-align: center; color: #7f8c8d; font-size: 14px;">
                     <p>Calarași Warriors - Comunitatea ta de motocicliști!</p>
-                    <p>Pentru întrebări, ne poți contacta la: ${process.env.EMAIL_TO || 'contact@calarasiwarriors.club'}</p>
+                    <p>Pentru întrebări, ne poți contacta la: ${process.env.EMAIL_TO || 'contact@credinta.live'}</p>
                 </div>
             </body>
             </html>
@@ -163,7 +163,7 @@ export const GET: APIRoute = async ({ url }) => {
 
         await transporter.sendMail({
             from: `"Calarași Warriors" <${process.env.SMTP_USER}>`,
-            to: process.env.EMAIL_TO || 'admin@calarasiwarriors.club',
+            to: process.env.EMAIL_TO || 'admin@credinta.live',
             subject: `Participare confirmată la ${event.title}`,
             html: adminNotificationHtml
         });

@@ -213,7 +213,7 @@ export const POST: APIRoute = async ({ request }) => {
 
         await transporter.sendMail({
             from: `"Calarași Warriors" <${process.env.SMTP_USER}>`,
-            to: process.env.EMAIL_TO || 'admin@calarasiwarriors.club',
+            to: process.env.EMAIL_TO || 'admin@credinta.live',
             subject: `Nouă participare la ${event.title}`,
             html: adminEmailHtml
         });

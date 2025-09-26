@@ -44,64 +44,71 @@ const ogTitle = `${(post as any).data.title} | Insights | ${SITE.title}`;
     image: `${Astro.site}${(post as any).data.cardImage.src}`,
     author: {
       "@type": "Organization",
-      name: "Calarasi Warriors",
-      url: "https://calarasiwarriors.club"
+      name: "Biserica Credința",
+      url: "https://credinta.live",
     },
     publisher: {
       "@type": "Organization",
       name: "Calarasi Warriors",
       logo: {
         "@type": "ImageObject",
-        url: "https://calarasiwarriors.club/images/logo.png",
+        url: "https://credinta.live/images/logo.png",
       },
     },
     mainEntityOfPage: {
       "@type": "WebPage",
-      "@id": `https://calarasiwarriors.club/insights/${(post as any).id.replace(/^en\//, "")}`,
+      "@id": `https://credinta.live/insights/${(post as any).id.replace(/^en\//, "")}`,
     },
-    url: `https://calarasiwarriors.club/insights/${(post as any).id.replace(/^en\//, "")}`,
-    datePublished: (post as any).data.datePublished || new Date().toISOString().split('T')[0],
-    dateModified: (post as any).data.dateModified || new Date().toISOString().split('T')[0],
-    articleSection: "Sport și educație",
-    keywords: (post as any).data.keywords || ["sport", "educație", "Calarasi Warriors"],
+    url: `https://credinta.live/insights/${(post as any).id.replace(/^en\//, "")}`,
+    datePublished:
+      (post as any).data.datePublished ||
+      new Date().toISOString().split("T")[0],
+    dateModified:
+      (post as any).data.dateModified || new Date().toISOString().split("T")[0],
+    articleSection: "Credință și dragoste",
+    keywords: (post as any).data.keywords || [
+      "credință",
+      "dragoste",
+      "Biserica Credința",
+    ],
     inLanguage: "ro-RO",
     isPartOf: {
       "@type": "WebSite",
-      url: "https://calarasiwarriors.club",
-      name: "Calarasi Warriors"
+      url: "https://credinta.live",
+      name: "Biserica Credința",
     },
     about: {
       "@type": "Organization",
-      "name": "Calarasi Warriors",
-      "description": "Club de sport din Calarasi, România",
-      "url": "https://calarasiwarriors.club",
-      "logo": "https://calarasiwarriors.club/images/logo.png",
-      "address": {
+      name: "Biserica Credința",
+      description: "Biserica Credința este o biserică din Voluntari, Ilfov.",
+      url: "https://credinta.live",
+      logo: "https://credinta.live/images/logo.png",
+      address: {
         "@type": "PostalAddress",
-        "addressLocality": "Călărași",
-        "addressCountry": "RO"
-      }
+        addressLocality: "Voluntari",
+        addressCountry: "RO",
+      },
     },
     audience: {
       "@type": "Audience",
-      "audienceType": "Comunitatea sportivă din Călărași"
+      audienceType: "Comunitatea sportivă din Călărași",
     },
     genre: "Sport și educație",
     wordCount: (post as any).data.wordCount || 500,
     articleBody: metaDescription,
     reviewRating: {
       "@type": "Rating",
-      "ratingValue": "5",
-      "bestRating": "5",
-      "worstRating": "1"
+      ratingValue: "5",
+      bestRating: "5",
+      worstRating: "1",
     },
     aggregateRating: {
       "@type": "AggregateRating",
-      "ratingValue": "4.8",
-      "reviewCount": "150",
-      "bestRating": "5",
-      "worstRating": "1"
-    }
+      ratingValue: "4.8",
+      reviewCount: "150",
+      bestRating: "5",
+      worstRating: "1",
+    },
   }}
 >
   <section class="py-6 sm:py-8 lg:py-12">

@@ -59,8 +59,8 @@ const footerLinks: FooterSection[] = [
     ],
     map: {
       address: "Bulevardul Voluntari nr. 61A, Voluntari, Ilfov",
-      latitude: 44.4885903,
-      longitude: 26.181061,
+      latitude: 44.48882326349935,
+      longitude: 26.183719790624945,
       zoom: 16,
       height: "200px",
       flag: "🇷🇴"

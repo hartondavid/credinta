@@ -91,102 +91,105 @@ const ogTitle = `${title} | ${SITE.title}`;
   structuredData={{
     "@context": "https://schema.org",
     "@type": "WebPage",
-    "@id": `https://calarasiwarriors.club/products?filter=${filter}`,
-    url: `https://calarasiwarriors.club/products?filter=${filter}`,
+    "@id": `https://credinta.live/products?filter=${filter}`,
+    url: `https://credinta.live/products?filter=${filter}`,
     name: `${title} | ${SITE.title}`,
     description: metaDescription,
     isPartOf: {
       "@type": "WebSite",
-      url: "https://calarasiwarriors.club",
-      name: "Calarasi Warriors",
-      description: "Calarasi Warriors este un club de sport din Calarasi, România.",
+      url: "https://credinta.live",
+      name: "Biserica Credința",
+      description: "Biserica Credința este o biserică din Voluntari, Ilfov.",
     },
     inLanguage: "ro-RO",
     breadcrumb: {
       "@type": "BreadcrumbList",
-      "itemListElement": [
+      itemListElement: [
         {
           "@type": "ListItem",
-          "position": 1,
-          "name": "Acasă",
-          "item": "https://calarasiwarriors.club"
+          position: 1,
+          name: "Acasă",
+          item: "https://credinta.live",
         },
         {
           "@type": "ListItem",
-          "position": 2,
-          "name": "Produse",
-          "item": "https://calarasiwarriors.club/products"
+          position: 2,
+          name: "Produse",
+          item: "https://credinta.live/products",
         },
         {
           "@type": "ListItem",
-          "position": 3,
-          "name": title,
-          "item": `https://calarasiwarriors.club/products?filter=${filter}`
-        }
-      ]
+          position: 3,
+          name: title,
+          item: `https://credinta.live/products?filter=${filter}`,
+        },
+      ],
     },
     mainEntity: {
       "@type": "ItemList",
-      "name": title,
-      "description": subTitle,
-      "numberOfItems": product.length,
-      "itemListElement": product.map((item, index) => ({
+      name: title,
+      description: subTitle,
+      numberOfItems: product.length,
+      itemListElement: product.map((item, index) => ({
         "@type": "Product",
-        "position": index + 1,
-        "name": item.data.title,
-        "description": item.data.description,
-        "brand": {
+        position: index + 1,
+        name: item.data.title,
+        description: item.data.description,
+        brand: {
           "@type": "Brand",
-          "name": "Calarasi Warriors"
+          name: "Biserica Credința",
         },
-        "url": `https://calarasiwarriors.club/products/${item.data.title.toLowerCase().replace(/\s+/g, "-")}`,
-        "image": item.data.cardImage ? `${Astro.site}${item.data.cardImage.src}` : undefined,
-        "category": "Sport și educație",
-        "inLanguage": "ro-RO"
-      }))
+        url: `https://credinta.live/products/${item.data.title.toLowerCase().replace(/\s+/g, "-")}`,
+        image: item.data.cardImage
+          ? `${Astro.site}${item.data.cardImage.src}`
+          : undefined,
+        category: "Sport și educație",
+        inLanguage: "ro-RO",
+      })),
     },
     potentialAction: {
       "@type": "SearchAction",
-      "target": {
+      target: {
         "@type": "EntryPoint",
-        "urlTemplate": "https://calarasiwarriors.club/products?search={search_term_string}"
+        urlTemplate:
+          "https://credinta.live/products?search={search_term_string}",
       },
-      "query-input": "required name=search_term_string"
+      "query-input": "required name=search_term_string",
     },
     about: {
       "@type": "Organization",
-      "name": "Calarasi Warriors",
-      "description": "Club de sport din Calarasi, România",
-      "url": "https://calarasiwarriors.club",
-      "logo": "https://calarasiwarriors.club/images/logo.png",
-      "address": {
+      name: "Biserica Credința",
+      description: "Biserica Credința este o biserică din Voluntari, Ilfov.",
+      url: "https://credinta.live",
+      logo: "https://credinta.live/images/logo.png",
+      address: {
         "@type": "PostalAddress",
-        "addressLocality": "Călărași",
-        "addressCountry": "RO"
-      }
+        addressLocality: "Voluntari",
+        addressCountry: "RO",
+      },
     },
     audience: {
       "@type": "Audience",
-      "audienceType": "Comunitatea sportivă din Călărași"
+      audienceType: "Biserica Credința din Voluntari, Ilfov.",
     },
     genre: "Sport și educație",
-    keywords: "produse sport, Calarasi Warriors, club sportiv, evenimente sport, comunitate sportivă",
+    keywords: "produse sport, Biserica Credința, biserică",
     dateCreated: "2024-01-01",
-    dateModified: new Date().toISOString().split('T')[0],
-    lastReviewed: new Date().toISOString().split('T')[0],
+    dateModified: new Date().toISOString().split("T")[0],
+    lastReviewed: new Date().toISOString().split("T")[0],
     reviewRating: {
       "@type": "Rating",
-      "ratingValue": "5",
-      "bestRating": "5",
-      "worstRating": "1"
+      ratingValue: "5",
+      bestRating: "5",
+      worstRating: "1",
     },
     aggregateRating: {
       "@type": "AggregateRating",
-      "ratingValue": "4.8",
-      "reviewCount": "150",
-      "bestRating": "5",
-      "worstRating": "1"
-    }
+      ratingValue: "4.8",
+      reviewCount: "150",
+      bestRating: "5",
+      worstRating: "1",
+    },
   }}
 >
   <div
@@ -276,8 +279,8 @@ const ogTitle = `${title} | ${SITE.title}`;
     ]}
   />
   {/* Testimonials section */}
-  <TestimonialsSectionAlt
+  <!-- <TestimonialsSectionAlt
     title="What Our Customers Say"
     testimonials={testimonials}
-  />
+  /> -->
 </MainLayout>

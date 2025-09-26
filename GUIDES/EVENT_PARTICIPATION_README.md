@@ -103,8 +103,8 @@ SMTP_USER=your-email@gmail.com
 SMTP_PASS=your-app-password
 
 # Site Configuration
-SITE_URL=https://calarasiwarriors.club
-EMAIL_TO=admin@calarasiwarriors.club
+SITE_URL=https://credinta.live
+EMAIL_TO=admin@credinta.live
 
 # Database
 DATABASE_URL=postgresql://...

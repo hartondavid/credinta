@@ -11,7 +11,7 @@ import react from "@astrojs/react";
 // https://astro.build/config
 export default defineConfig({
   // https://docs.astro.build/en/guides/images/#authorizing-remote-images
-  site: "https://calarasiwarriors.club",
+  site: "https://credinta.live",
   image: {
     domains: ["images.unsplash.com", "img.youtube.com", "res.cloudinary.com"],
   },
@@ -60,12 +60,11 @@ export default defineConfig({
         {
           label: "Site Navigation",
           items: [
-            { label: "Acasă", link: "https://calarasiwarriors.club/" },
-            { label: "Despre noi", link: "https://calarasiwarriors.club/aboutUs" },
-            { label: "Proiecte trecute", link: "https://calarasiwarriors.club/past-projects" },
-            { label: "Viziune și scop", link: "https://calarasiwarriors.club/ourVision" },
-            { label: "Știri/Podcast", link: "https://calarasiwarriors.club/news" },
-            { label: "Contact", link: "https://calarasiwarriors.club/contact" },
+            { label: "Acasă", link: "https://credinta.live/" },
+            { label: "Despre noi", link: "https://credinta.live/aboutUs" },
+            { label: "Proiecte trecute", link: "https://credinta.live/past-projects" },
+
+            { label: "Contact", link: "https://credinta.live/contact" },
           ],
         },
       ],
@@ -91,14 +90,14 @@ export default defineConfig({
           tag: "meta",
           attrs: {
             property: "og:image",
-            content: "https://calarasiwarriors.club" + "/social.png",
+            content: "https://credinta.live" + "/social.png",
           },
         },
         {
           tag: "meta",
           attrs: {
             property: "twitter:image",
-            content: "https://calarasiwarriors.club" + "/social.png",
+            content: "https://credinta.live" + "/social.png",
           },
         },
       ],

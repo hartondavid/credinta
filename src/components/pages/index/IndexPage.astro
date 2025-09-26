@@ -227,84 +227,40 @@ const { heroVideos, testimonials, coaches, sections, featuresSections } =
     set:html={JSON.stringify({
       "@context": "https://schema.org",
       "@type": "SiteNavigationElement",
-      "@id": "https://calarasiwarriors.club/#main-navigation",
+      "@id": "https://credinta.live/#main-navigation",
       name: "Navigația Principală",
       hasPart: [
         {
           "@type": "WebPage",
-          "@id": "https://calarasiwarriors.club/",
-          url: "https://calarasiwarriors.club/",
+          "@id": "https://credinta.live/",
+          url: "https://credinta.live/",
           name: "Acasă",
           description: "Pagina principală a Clubului Sportiv Călărași Warriors",
         },
         {
           "@type": "WebPage",
-          "@id": "https://calarasiwarriors.club/past-projects",
-          url: "https://calarasiwarriors.club/past-projects",
+          "@id": "https://credinta.live/past-projects",
+          url: "https://credinta.live/past-projects",
           name: "Proiecte",
           description:
             "Proiecte trecute ale Clubului Sportiv Călărași Warriors",
         },
         {
           "@type": "WebPage",
-          "@id": "https://calarasiwarriors.club/aboutUs",
-          url: "https://calarasiwarriors.club/aboutUs",
+          "@id": "https://credinta.live/aboutUs",
+          url: "https://credinta.live/aboutUs",
           name: "Despre Noi",
           description: "Informații despre Clubul Sportiv Călărași Warriors",
         },
         {
           "@type": "WebPage",
-          "@id": "https://calarasiwarriors.club/contact",
-          url: "https://calarasiwarriors.club/contact",
+          "@id": "https://credinta.live/contact",
+          url: "https://credinta.live/contact",
           name: "Contact",
           description:
             "Informații de contact pentru Clubul Sportiv Călărași Warriors",
         },
       ],
-    })}
-  />
-
-  <!-- PDF Document Structured Data -->
-  <script
-    is:inline
-    type="application/ld+json"
-    set:html={JSON.stringify({
-      "@context": "https://schema.org",
-      "@type": "Document",
-      "@id":
-        "https://calarasiwarriors.club/REGULAMENT-DE-ORDINE-INTERIOARĂ.pdf",
-      name: "Regulament de Ordine Interioară",
-      description:
-        "Regulament de ordine interioară al Clubului Sportiv Călărași Warriors.",
-      url: "https://calarasiwarriors.club/REGULAMENT-DE-ORDINE-INTERIOARĂ.pdf",
-      fileFormat: "application/pdf",
-      contentSize: "PDF Document",
-      encodingFormat: "application/pdf",
-      isPartOf: {
-        "@type": "WebSite",
-        name: "Calarasi Warriors",
-        url: "https://calarasiwarriors.club",
-      },
-      author: {
-        "@type": "Organization",
-        name: "Club Sportiv Călărași Warriors",
-      },
-      publisher: {
-        "@type": "Organization",
-        name: "Club Sportiv Călărași Warriors",
-        url: "https://calarasiwarriors.club",
-      },
-      datePublished: "2024-01-01",
-      dateModified: new Date().toISOString().split("T")[0],
-      keywords:
-        "regulament, ordine interioară, club sportiv, Călărași Warriors, reguli, proceduri",
-      inLanguage: "ro-RO",
-      about: {
-        "@type": "Thing",
-        name: "Regulament Club Sportiv",
-        description:
-          "Regulamentul oficial al Clubului Sportiv Călărași Warriors",
-      },
     })}
   />
 </MainLayout>

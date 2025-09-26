@@ -50,6 +50,6 @@ specificationsRight:
   - title: "Applications"
     subTitle: "Ideal for use in a wide range of industrial machinery, equipment, and assemblies that demand precise and secure fastening."
 blueprints:
-  first: "/src/images/blueprint-1.avif"
-  second: "/src/images/blueprint-2.avif"   
+  first: "/src/images/hero-image.avif"
+  second: "/src/images/hero-image.avif"   
 ---

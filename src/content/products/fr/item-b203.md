@@ -5,8 +5,8 @@ main:
   id: 3
   content: |
     Découvrez le SF-BN B203 – votre compagnon fiable pour des fixations de qualité professionnelle. Cet ensemble complet comprend une sélection polyvalente de boulons à vis et d'écrous, méticuleusement conçus pour offrir la tenue la plus solide pour vos projets de construction et d'assemblage.
-  imgCard: "/src/images/product-image-3.avif"
-  imgMain: "/src/images/product-image-main-3.avif"
+  imgCard: "/src/images/hero-image.avif"
+  imgMain: "/src/images/hero-image.avif"
   imgAlt: "Maquettes de boîtes d'un ensemble de boulons à vis et écrous"
 tabs:
   - id: "tabs-with-card-item-1"
@@ -50,6 +50,6 @@ specificationsRight:
   - title: "Applications adaptées"
     subTitle: "Idéal pour un large éventail d'utilisations, des environnements de construction aux assemblages mécaniques qui nécessitent des joints solides et sécurisés."
 blueprints:
-  first: "/src/images/blueprint-1.avif"
-  second: "/src/images/blueprint-2.avif"
+  first: "/src/images/hero-image.avif"
+  second: "/src/images/hero-image.avif"
 ---

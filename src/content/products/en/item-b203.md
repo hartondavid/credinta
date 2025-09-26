@@ -5,8 +5,8 @@ main:
   id: 3
   content: |
     Meet the SF-BN B203 – your reliable companion for professional-grade fastening. This comprehensive box set comes with a versatile selection of tap bolts and nuts, meticulously crafted to provide the strongest hold for your construction and assembly projects.
-  imgCard: "/src/images/product-image-3.avif"
-  imgMain: "/src/images/product-image-main-3.avif"
+  imgCard: "/src/images/hero-image.avif"
+  imgMain: "/src/images/hero-image.avif"
   imgAlt: "Mockup boxes of a tap bolts and nuts set"
 tabs:
   - id: "tabs-with-card-item-1"
@@ -50,6 +50,6 @@ specificationsRight:
   - title: "Suitable Applications"
     subTitle: "Ideal for a wide array of uses, from construction environments to mechanical assemblies that demand strong and secure joints."
 blueprints:
-  first: "/src/images/blueprint-1.avif"
-  second: "/src/images/blueprint-2.avif"  
+  first: "/src/images/hero-image.avif"
+  second: "/src/images/hero-image.avif"  
 ---

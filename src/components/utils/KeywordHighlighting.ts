@@ -29,11 +29,14 @@ export const highlightKeywords = (text: string, keywords: string[]) => {
 };
 
 // Funcție pentru procesarea features cu highlighting
-export const processFeaturesWithHighlighting = (features: any[], keywords: string[]) => {
-    return features.map((feature) => ({
-        ...feature,
-        content: highlightKeywords(feature.content, keywords),
-    }));
+export const processFeaturesWithHighlighting = (features: any[], keywords: { [key: string]: string[] }) => {
+    return features.map((feature) => {
+        const featureKeywords = keywords[feature.heading] || [];
+        return {
+            ...feature,
+            content: highlightKeywords(feature.content, featureKeywords),
+        };
+    });
 };
 
 // Funcție pentru procesarea conținutului antrenorilor

@@ -19,7 +19,7 @@ export const SEO = {
     description: SITE.description,
     inLanguage: "ro-RO",
     sameAs: [
-      "https://www.facebook.com/",
+      "https://www.facebook.com/bcbcredintavoluntari",
       "https://www.instagram.com/",
       "https://www.youtube.com/",
       "https://www.tiktok.com/"

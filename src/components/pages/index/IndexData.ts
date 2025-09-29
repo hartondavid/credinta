@@ -16,7 +16,7 @@ export function processIndexPageData(
         secondContentForCoacheKeywords: string[];
         thirdContentForCoacheKeywords: string[];
         fourthContentForCoacheKeywords: string[];
-        featuresKeywords: string[];
+        featuresKeywords: { [key: string]: string[] };
         secondSectionKeywords: string[];
         heroKeywords: string[];
         fifthContentForCoacheKeywords: string[];

@@ -32,41 +32,94 @@ export const secondSectionKeywords = [
   "cu",
   "zi",
 ];
-export const featuresKeywords = [
-  "biserică",
-  "familie",
-  "comunitate",
-  "uniți",
-  "dragostea",
-  "Dumnezeu",
-  "aproape",
-  "concret",
-  "inimoși",
-  "dorința",
-  "creștini",
-  "Hristos",
-  "credința",
-  "autentic",
-  "dragoste",
-  "semeni",
-  "vie",
-  "valori",
-  "fundamentale",
-  "respect",
-  "empatie",
-  "colaborare",
-  "responsabilitate",
-  "socială",
-  "dedicare",
-  "loc",
-  "persoană",
-  "sprijin",
-  "spiritual",
-  "prietenie",
-  "încurajare",
-  "viața",
-  "zi",
-];
+export const featuresKeywords = {
+  "Credința în Isus Hristos/Urmarea lui Hristos": [
+    "credința",
+    "Hristos",
+    "Isus",
+    "urmarea",
+    "mântuirea",
+    "Dumnezeu"
+  ],
+  "Autoritatea Bibliei": [
+    "Biblia",
+    "Cuvantul",
+    "Dumnezeu",
+
+    "El",
+
+
+  ],
+  "Botezul Credinței": [
+    "Botezul",
+    "schimbării minții",
+    "fără Dumnezeu",
+    "viață nouă",
+    "cu Dumnezeu"
+  ],
+  "Mântuirea prin Har": [
+    "mântuirea",
+    "har",
+    "dar",
+    "divin",
+    "realizare",
+    "eforturi",
+    "umane",
+
+  ],
+  "Dragoste (față de Dumnezeu și față de semeni)": [
+    "modalitate autentică",
+    "credința",
+    "principiu",
+    "fundamental",
+
+  ],
+  "Comunitate/Unitate": [
+    "comunitate vie",
+    "unitate",
+    "biserică de familie",
+    "inimoși",
+    "uniți",
+    "întărirea legăturilor",
+
+  ],
+  "Sprijin Spiritual, Prietenie și Încurajare": [
+    "spiritual",
+    "prietenie",
+    " încurajare",
+
+  ],
+  "Implicare Socială/Impact Social": [
+    "impact",
+    "social",
+    "program de duminică",
+    "proiecte",
+    "inițiative",
+  ],
+  "Mărturie a Credinței și a Speranței": [
+    "exemplu",
+    "sursă de inspirație",
+
+  ],
+  "Lumină în Oraș": [
+    "influență pozitivă",
+    " vizibilă",
+  ],
+  "Creștere în Har, Adevăr și Dragoste": [
+
+    "dezvoltare continuă",
+    "spiritual",
+    "relațional"
+  ],
+  "Inima Mare": [
+
+    "biserică mică",
+    "compasiune",
+    "primire",
+    "dedicare",
+
+  ]
+};
 
 export const coacheKeywords = [
 

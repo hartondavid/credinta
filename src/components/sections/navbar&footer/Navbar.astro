@@ -40,24 +40,26 @@ const homeUrl = Astro.currentLocale === "fr" ? "/fr" : "/";
           id="navbar-logo"
         />
       </a>
-      <FooterSocialLink url={strings.socialLinks.facebook}
-        ><Icon name="facebookFooter" />
-      </FooterSocialLink>
-      <FooterSocialLink url={strings.socialLinks.instagram}
-        ><Icon name="instagramFooter" />
-      </FooterSocialLink>
-      <FooterSocialLink url={strings.socialLinks.tiktok}
-        ><Icon name="tiktokFooter" />
-      </FooterSocialLink>
+      <div class="flex space-x-1">
+        <FooterSocialLink url={strings.socialLinks.facebook}
+          ><Icon name="facebookFooter" />
+        </FooterSocialLink>
+        <FooterSocialLink url={strings.socialLinks.instagram}
+          ><Icon name="instagramFooter" />
+        </FooterSocialLink>
+        <FooterSocialLink url={strings.socialLinks.tiktok}
+          ><Icon name="tiktokFooter" />
+        </FooterSocialLink>
+      </div>
 
       <!-- Church meeting time announcement -->
       <div
-        class="ml-5 hidden min-w-[280px] items-center rounded-[10px] border-t-5 border-[#08BABE] bg-gradient-to-r from-[#e0e3e3] to-[#ffffff] px-6 py-3 backdrop-blur-sm md:flex dark:border-[#08BABE]/30 dark:from-[#74becc]/30 dark:to-[#000000]/30"
+        class="ml-5 hidden min-w-[400px] items-center rounded-[10px] border-t-5 border-[#305c76] bg-gradient-to-r from-[#e0e3e3] to-[#ffffff] px-6 py-3 backdrop-blur-sm md:flex dark:border-[#74becc] dark:from-[#74becc]/30 dark:to-[#000000]/30"
       >
         <div class="flex items-center space-x-2">
           <!-- Church bell icon -->
           <svg
-            class="h-10 w-10 text-[#08BABE] dark:text-[#08BABE]"
+            class="h-10 w-10 text-[#305c76] dark:text-[#74becc]"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -71,7 +73,7 @@ const homeUrl = Astro.currentLocale === "fr" ? "/fr" : "/";
           </svg>
           <div class="text-sm">
             <span class="ml-1 font-bold text-black dark:text-white"
-              >In fiecare Duminică între orele 10:00-12:00</span
+              >În fiecare Duminică între orele 10:00-12:00</span
             >
           </div>
         </div>
@@ -79,7 +81,7 @@ const homeUrl = Astro.currentLocale === "fr" ? "/fr" : "/";
       <br />
 
       <!-- Church meeting time announcement -->
-      <div
+      <!-- <div
         class="ml-3 hidden min-w-[370px] items-center rounded-[10px] border-t-5 border-[#08BABE] bg-gradient-to-r from-[#e0e3e3] to-[#ffffff] px-6 py-3 backdrop-blur-sm md:flex dark:border-[#08BABE]/30 dark:from-[#74becc]/30 dark:to-[#000000]/30"
       >
         <div class="flex items-center space-x-2">
@@ -90,7 +92,7 @@ const homeUrl = Astro.currentLocale === "fr" ? "/fr" : "/";
             >
           </div>
         </div>
-      </div>
+      </div> -->
 
       <!-- Collapse toggle for smaller screens -->
       <div class="mr-5 ml-auto md:hidden">
@@ -148,12 +150,12 @@ const homeUrl = Astro.currentLocale === "fr" ? "/fr" : "/";
       >
         <!-- Church meeting time announcement for mobile -->
         <div
-          class="flex items-center justify-center rounded-[10px] border-t-5 border-[#08BABE] bg-gradient-to-r from-[#e0e3e3] to-[#ffffff] px-4 py-3 backdrop-blur-sm md:hidden dark:border-[#08BABE]/30 dark:from-[#74becc]/30 dark:to-[#000000]/30"
+          class="flex items-center justify-center rounded-[10px] border-t-5 border-[#305c76] bg-gradient-to-r from-[#e0e3e3] to-[#ffffff] px-4 py-3 backdrop-blur-sm md:hidden dark:border-[#74becc] dark:from-[#74becc]/30 dark:to-[#000000]/30"
         >
           <div class="flex items-center space-x-2">
             <!-- Church bell icon -->
             <svg
-              class="h-5 w-5 text-[#08BABE] dark:text-[#08BABE]"
+              class="h-5 w-5 text-[#305c76] dark:text-[#74becc]"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -167,13 +169,13 @@ const homeUrl = Astro.currentLocale === "fr" ? "/fr" : "/";
             </svg>
             <div class="text-center text-sm">
               <span class="ml-1 font-bold text-black dark:text-white"
-                >In fiecare Duminică între orele 10:00-12:00</span
+                >În fiecare Duminică între orele 10:00-12:00</span
               >
             </div>
           </div>
         </div>
 
-        <div
+        <!-- <div
           class="flex items-center justify-center rounded-[10px] border-t-5 border-[#08BABE] bg-gradient-to-r from-[#e0e3e3] to-[#ffffff] px-4 py-3 backdrop-blur-sm md:hidden dark:border-[#08BABE]/30 dark:from-[#74becc]/30 dark:to-[#000000]/30"
         >
           <div class="flex items-center space-x-2">
@@ -184,7 +186,7 @@ const homeUrl = Astro.currentLocale === "fr" ? "/fr" : "/";
               >
             </div>
           </div>
-        </div>
+        </div> -->
 
         <!-- Navigation links and Authentication component -->
         {

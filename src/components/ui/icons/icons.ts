@@ -436,20 +436,7 @@ export const Icons = {
     strokeLinejoin: "round",
     stroke: "currentColor",
   },
-  community: {
-    paths: [
-      {
-        d: "M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z",
-      },
-    ],
-    class: "mt-1 size-5 shrink-0",
-    viewBox: "0 0 24 24",
-    fill: "none",
-    strokeWidth: "1.5",
-    strokeLinecap: "round",
-    strokeLinejoin: "round",
-    stroke: "currentColor",
-  },
+
   chevronDown: {
     paths: [
       {
@@ -674,33 +661,30 @@ export const Icons = {
   church: {
     paths: [
       {
-        d: "M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z",
+        d: "M87.16,28.3 L87.16,51.47 L55.17,51.47 L55.17,122.88 L31.99,122.88 L31.99,51.47 L0,51.47 L0,28.3 L31.99,28.3 L31.99,0 L55.17,0 L55.17,28.3 Z",
+        fillRule: "evenodd",
+        clipRule: "evenodd",
       },
     ],
-    class: "mt-1 h-8 w-8 shrink-0 fill-[#08BABE] dark:fill-[#08BABE]",
-    width: 24,
-    height: 24,
-    viewBox: "0 0 24 24",
+    class: "w-15 h-15 text-[#305c76] dark:text-[#74becc]",
+    width: 87.16,
+    height: 122.88,
+    viewBox: "0 0 87.16 122.88",
     fill: "currentColor",
   },
   book: {
     paths: [
       {
-        d: "M4 19.5A2.5 2.5 0 0 1 6.5 17H20",
-      },
-      {
-        d: "M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z",
+        d: "M17.16,0h82.72c1.82,0,3.31,1.49,3.31,3.31v92.32c-0.15,2.58-3.48,2.64-7.07,2.48H15.94 c-4.98,0-9.05,4.07-9.05,9.05c0,4.98,4.07,9.05,9.05,9.05l80.17,0v-9.63l7.07,0v12.24c0,2.23-1.82,4.05-4.05,4.05l-82.85,0 C7.33,122.88,0,115.55,0,106.59V17.16C0,7.72,7.72,0,17.16,0L17.16,0z M75.38,33.69v12.02H58.79v37.03H46.77V45.71H30.18V33.69 h16.59V19.02h12.02v14.68H75.38L75.38,33.69z",
+        fillRule: "evenodd",
+        clipRule: "evenodd",
       },
     ],
-    class: "mt-1 h-8 w-8 shrink-0 fill-[#08BABE] dark:fill-[#08BABE]",
-    width: 24,
-    height: 24,
-    viewBox: "0 0 24 24",
-    fill: "none",
-    strokeWidth: "1.5",
-    strokeLinecap: "round",
-    strokeLinejoin: "round",
-    stroke: "currentColor",
+    class: "w-10 h-10 text-[#305c76] dark:text-[#74becc]",
+    width: 103.19,
+    height: 122.88,
+    viewBox: "0 0 103.19 122.88",
+    fill: "currentColor",
   },
   waterDrop: {
     paths: [
@@ -708,7 +692,7 @@ export const Icons = {
         d: "M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z",
       },
     ],
-    class: "mt-1 h-8 w-8 shrink-0 fill-[#08BABE] dark:fill-[#08BABE]",
+    class: "mt-1 h-8 w-8 shrink-0 fill-[#305c76] dark:fill-[#74becc]",
     width: 24,
     height: 24,
     viewBox: "0 0 24 24",
@@ -717,30 +701,14 @@ export const Icons = {
   gift: {
     paths: [
       {
-        d: "M20 12v10H4V12",
-      },
-      {
-        d: "M2 7h20v5H2z",
-      },
-      {
-        d: "M12 22V7",
-      },
-      {
-        d: "M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z",
-      },
-      {
-        d: "M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z",
+        d: "M20 7h-.7c.229-.467.349-.98.351-1.5a3.5 3.5 0 0 0-3.5-3.5c-1.717 0-3.215 1.2-4.331 2.481C10.4 2.842 8.949 2 7.5 2A3.5 3.5 0 0 0 4 5.5c.003.52.123 1.033.351 1.5H4a2 2 0 0 0-2 2v2a1 1 0 0 0 1 1h18a1 1 0 0 0 1-1V9a2 2 0 0 0-2-2Zm-9.942 0H7.5a1.5 1.5 0 0 1 0-3c.9 0 2 .754 3.092 2.122-.219.337-.392.635-.534.878Zm6.1 0h-3.742c.933-1.368 2.371-3 3.739-3a1.5 1.5 0 0 1 0 3h.003ZM13 14h-2v8h2v-8Zm-4 0H4v6a2 2 0 0 0 2 2h3v-8Zm6 0v8h3a2 2 0 0 0 2-2v-6h-5Z",
       },
     ],
-    class: "mt-1 h-8 w-8 shrink-0 fill-[#08BABE] dark:fill-[#08BABE]",
+    class: "mt-1 h-8 w-8 shrink-0 fill-[#305c76] dark:fill-[#74becc]",
     width: 24,
     height: 24,
     viewBox: "0 0 24 24",
-    fill: "none",
-    strokeWidth: "2",
-    strokeLinecap: "round",
-    strokeLinejoin: "round",
-    stroke: "currentColor",
+    fill: "currentColor",
   },
   heart: {
     paths: [
@@ -748,89 +716,52 @@ export const Icons = {
         d: "M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.51 4.04 3 5.5l7 7Z",
       },
     ],
-    class: "mt-1 h-8 w-8 shrink-0 fill-[#08BABE] dark:fill-[#08BABE]",
+    class: "mt-1 h-8 w-8 shrink-0 fill-[#305c76] dark:fill-[#74becc]",
     width: 24,
     height: 24,
     viewBox: "0 0 24 24",
     fill: "currentColor",
   },
+
   people: {
     paths: [
       {
-        d: "M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2",
-      },
-      {
-        d: "M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z",
-      },
-      {
-        d: "M22 21v-2a4 4 0 0 0-3-3.87",
-      },
-      {
-        d: "M16 3.13a4 4 0 0 1 0 7.75",
+        d: "M8 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm-2 9a4 4 0 0 0-4 4v1a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-1a4 4 0 0 0-4-4H6Zm7.25-2.095c.478-.86.75-1.85.75-2.905a5.973 5.973 0 0 0-.75-2.906 4 4 0 1 1 0 5.811ZM15.466 20c.34-.588.535-1.271.535-2v-1a5.978 5.978 0 0 0-1.528-4H18a4 4 0 0 1 4 4v1a2 2 0 0 1-2 2h-4.535Z",
+        fillRule: "evenodd",
+        clipRule: "evenodd",
       },
     ],
-    class: "mt-1 h-8 w-8 shrink-0 fill-[#08BABE] dark:fill-[#08BABE]",
+    class: "-mt-10 w-30 h-30 text-[#305c76] dark:text-[#74becc]",
     width: 24,
     height: 24,
     viewBox: "0 0 24 24",
-    fill: "none",
-    strokeWidth: "2",
-    strokeLinecap: "round",
-    strokeLinejoin: "round",
-    stroke: "currentColor",
+    fill: "currentColor",
   },
   support: {
     paths: [
       {
-        d: "M9 12l2 2 4-4",
-      },
-      {
-        d: "M21 12c.552 0 1-.448 1-1s-.448-1-1-1-1 .448-1 1 .448 1 1 1z",
-      },
-      {
-        d: "M3 12c.552 0 1-.448 1-1s-.448-1-1-1-1 .448-1 1 .448 1 1 1z",
-      },
-      {
-        d: "M12 21c.552 0 1-.448 1-1s-.448-1-1-1-1 .448-1 1 .448 1 1 1z",
-      },
-      {
-        d: "M12 3c.552 0 1-.448 1-1s-.448-1-1-1-1 .448-1 1 .448 1 1 1z",
+        d: "M45.13,35.29h-0.04c-7.01-0.79-16.42,0.01-20.78,0C17.04,35.6,9.47,41.91,5.02,51.3 c-2.61,5.51-3.3,9.66-3.73,15.55C0.42,72.79-0.03,78.67,0,84.47c1.43,9.03,12.88,6.35,13.85,0l1.39-18.2 c0.21-2.75,0.4-4.61,1.51-7.23c0.52-1.23,1.15-2.28,1.89-3.15l0.69,33.25l-0.39,2.78h31.49l-0.42-3.1l0.61-36.67 c3.2-1.29,5.96-1.89,8.39-1.99c-0.12,0.25-0.25,0.5-0.37,0.75c-2.61,5.51-3.3,9.66-3.73,15.55c-0.86,5.93-1.32,11.81-1.29,17.61 c1.43,9.03,12.88,6.35,13.85,0l1.39-18.2c0.21-2.75,0.4-4.61,1.51-7.23c0.52-1.23,1.15-2.28,1.89-3.15l0.69,33.25l-0.46,3.24h31.62 l-0.48-3.55l0.49-28.62v0.56l0.1-4.87c0.74,0.87,1.36,1.92,1.89,3.15c1.12,2.62,1.3,4.48,1.51,7.23l1.39,18.2 c1.34,8.68,13.85,8.85,13.85,0c0.03-5.81-0.42-11.68-1.29-17.61c-0.43-5.89-1.12-10.04-3.73-15.55 c-4.57-9.65-10.48-14.76-19.45-15.81c-5.53-0.45-14.82,0.06-20.36-0.1c-1.38,0.19-2.74,0.47-4.06,0.87 c-3.45-0.48-8.01-1.07-12.56-1.09C54.76,34.77,48.15,35.91,45.13,35.29L45.13,35.29z M88.3,0c9.01,0,16.32,7.31,16.32,16.32 c0,9.01-7.31,16.32-16.32,16.32c-9.01,0-16.32-7.31-16.32-16.32C71.98,7.31,79.29,0,88.3,0L88.3,0z M34.56,0 c9.01,0,16.32,7.31,16.32,16.32c0,9.01-7.31,16.32-16.32,16.32s-16.32-7.31-16.32-16.32C18.24,7.31,25.55,0,34.56,0L34.56,0z",
+        fillRule: "evenodd",
+        clipRule: "evenodd",
       },
     ],
-    class: "mt-1 h-8 w-8 shrink-0 fill-[#08BABE] dark:fill-[#08BABE]",
-    width: 24,
-    height: 24,
-    viewBox: "0 0 24 24",
-    fill: "none",
-    strokeWidth: "2",
-    strokeLinecap: "round",
-    strokeLinejoin: "round",
-    stroke: "currentColor",
+    class: "w-15 h-15 text-[#305c76] dark:text-[#74becc]",
+    width: 122.88,
+    height: 91.99,
+    viewBox: "0 0 122.88 91.99",
+    fill: "currentColor",
   },
   testimony: {
     paths: [
       {
-        d: "M8 2v4",
-      },
-      {
-        d: "M16 2v4",
-      },
-      {
-        d: "M3 10h18",
-      },
-      {
-        d: "M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z",
+        d: "M8.597 3.2A1 1 0 0 0 7.04 4.289a3.49 3.49 0 0 1 .057 1.795 3.448 3.448 0 0 1-.84 1.575.999.999 0 0 0-.077.094c-.596.817-3.96 5.6-.941 10.762l.03.049a7.73 7.73 0 0 0 2.917 2.602 7.617 7.617 0 0 0 3.772.829 8.06 8.06 0 0 0 3.986-.975 8.185 8.185 0 0 0 3.04-2.864c1.301-2.2 1.184-4.556.588-6.441-.583-1.848-1.68-3.414-2.607-4.102a1 1 0 0 0-1.594.757c-.067 1.431-.363 2.551-.794 3.431-.222-2.407-1.127-4.196-2.224-5.524-1.147-1.39-2.564-2.3-3.323-2.788a8.487 8.487 0 0 1-.432-.287Z",
       },
     ],
-    class: "mt-1 h-8 w-8 shrink-0 fill-[#08BABE] dark:fill-[#08BABE]",
+    class: "w-10 h-10 text-[#305c76] dark:text-[#74becc]",
     width: 24,
     height: 24,
     viewBox: "0 0 24 24",
-    fill: "none",
-    strokeWidth: "2",
-    strokeLinecap: "round",
-    strokeLinejoin: "round",
-    stroke: "currentColor",
+    fill: "currentColor",
   },
   light: {
     paths: [
@@ -841,7 +772,7 @@ export const Icons = {
         d: "M12 2C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7z",
       },
     ],
-    class: "mt-1 h-8 w-8 shrink-0 fill-[#08BABE] dark:fill-[#08BABE]",
+    class: "mt-1 h-8 w-8 shrink-0 fill-[#305c76] dark:fill-[#74becc]",
     width: 24,
     height: 24,
     viewBox: "0 0 24 24",
@@ -850,13 +781,10 @@ export const Icons = {
   growth: {
     paths: [
       {
-        d: "M3 3v18h18",
-      },
-      {
-        d: "M18.7 8l-5.1 5.2-2.8-2.7L7 14.3",
+        d: "M4 4v15a1 1 0 0 0 1 1h15M8 16l2.5-5.5 3 3L17.273 7 20 9.667",
       },
     ],
-    class: "mt-1 h-8 w-8 shrink-0 fill-[#08BABE] dark:fill-[#08BABE]",
+    class: "w-20 h-20 text-[#305c76] dark:text-[#74becc]",
     width: 24,
     height: 24,
     viewBox: "0 0 24 24",
@@ -865,6 +793,7 @@ export const Icons = {
     strokeLinecap: "round",
     strokeLinejoin: "round",
     stroke: "currentColor",
+
   },
   bigHeart: {
     paths: [
@@ -872,7 +801,21 @@ export const Icons = {
         d: "M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.51 4.04 3 5.5l7 7Z",
       },
     ],
-    class: "mt-1 h-10 w-10 shrink-0 fill-[#08BABE] dark:fill-[#08BABE]",
+    class: "mt-1 h-10 w-10 shrink-0 fill-[#305c76] dark:fill-[#74becc]",
+    width: 24,
+    height: 24,
+    viewBox: "0 0 24 24",
+    fill: "currentColor",
+  },
+  community: {
+    paths: [
+      {
+        d: "M12 6a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Zm-1.5 8a4 4 0 0 0-4 4 2 2 0 0 0 2 2h7a2 2 0 0 0 2-2 4 4 0 0 0-4-4h-3Zm6.82-3.096a5.51 5.51 0 0 0-2.797-6.293 3.5 3.5 0 1 1 2.796 6.292ZM19.5 18h.5a2 2 0 0 0 2-2 4 4 0 0 0-4-4h-1.1a5.503 5.503 0 0 1-.471.762A5.998 5.998 0 0 1 19.5 18ZM4 7.5a3.5 3.5 0 0 1 5.477-2.889 5.5 5.5 0 0 0-2.796 6.293A3.501 3.501 0 0 1 4 7.5ZM7.1 12H6a4 4 0 0 0-4 4 2 2 0 0 0 2 2h.5a5.998 5.998 0 0 1 3.071-5.238A5.505 5.505 0 0 1 7.1 12Z",
+        fillRule: "evenodd",
+        clipRule: "evenodd",
+      },
+    ],
+    class: "mt-1 h-10 w-10 shrink-0 fill-[#305c76] dark:fill-[#74becc]",
     width: 24,
     height: 24,
     viewBox: "0 0 24 24",

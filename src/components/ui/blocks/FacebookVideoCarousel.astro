@@ -1,0 +1,562 @@
+---
+// Import necessary dependencies
+
+// Define props from Astro
+const { videos = [] } = Astro.props;
+
+// Define TypeScript interface for props
+interface FacebookVideo {
+  id: string;
+  title: string;
+  description?: string;
+  thumbnail?: string;
+  facebookVideoId: string;
+  facebookPostUrl?: string;
+}
+
+interface Props {
+  videos: FacebookVideo[];
+}
+
+// Function to generate Facebook video embed URL
+function getFacebookVideoEmbedUrl(facebookVideoId: string): string {
+  // Clean the Facebook video ID
+  const cleanId = facebookVideoId.trim();
+  // Facebook video embed URL format
+  return `https://www.facebook.com/plugins/video.php?href=https%3A%2F%2Fwww.facebook.com%2F${cleanId}&show_text=false&width=560&height=315&appId`;
+}
+
+// Function to generate Facebook video thumbnail URL
+function getFacebookThumbnailUrl(facebookVideoId: string): string {
+  const cleanId = facebookVideoId.trim();
+  // This is a placeholder - Facebook doesn't provide direct thumbnail URLs
+  // You would need to use Facebook Graph API to get thumbnails
+  return `https://graph.facebook.com/${cleanId}/picture?type=large`;
+}
+
+// Generate unique ID for this carousel instance
+const carouselId = `facebook-carousel-${Math.random().toString(36).substr(2, 9)}`;
+
+// Generate unique IDs for each video in this carousel
+const videoIds = videos.map((_, index) => `${carouselId}-video-${index}`);
+---
+
+{videos && videos.length > 0 ? (
+  <!-- Facebook Video Carousel Container -->
+  <div class="relative w-full overflow-hidden rounded-xl" id={carouselId} data-carousel-instance>
+    <!-- Carousel Container -->
+    <div class="facebook-video-carousel flex transition-transform duration-500 ease-in-out">
+      {
+        videos.map((video, index) => (
+          <div class="w-full flex-shrink-0">
+            <div class="relative aspect-video w-full overflow-hidden rounded-xl bg-neutral-100 dark:bg-neutral-800">
+              <!-- Video Preview Container -->
+              <div class="video-preview-container h-full w-full relative" data-video-index={index} data-video-id={videoIds[index]}>
+                <!-- Facebook Video Player (hidden by default, shown when playing) -->
+                <div class="video-player-wrapper h-full w-full hidden" data-video-index={index}>
+                  <iframe
+                    class="h-full w-full rounded-xl"
+                    frameborder="0"
+                    allowfullscreen
+                    allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+                    loading="lazy"
+                    title={video.title}
+                    src={getFacebookVideoEmbedUrl(video.facebookVideoId)}
+                  ></iframe>
+                </div>
+                
+                <!-- Video Thumbnail (shown when video is not playing) -->
+                <div class="video-thumbnail-wrapper h-full w-full absolute inset-0" data-video-index={index}>
+                  <!-- Custom Thumbnail or Generated Thumbnail -->
+                  {video.thumbnail ? (
+                    <img
+                      src={video.thumbnail}
+                      alt={video.title}
+                      class="h-full w-full object-cover rounded-xl"
+                      loading="lazy"
+                      onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                      onload="this.nextElementSibling.style.display='none';"
+                    />
+                  ) : video.facebookVideoId ? (
+                    <img
+                      src={getFacebookThumbnailUrl(video.facebookVideoId)}
+                      alt={video.title}
+                      class="h-full w-full object-cover rounded-xl"
+                      loading="lazy"
+                      onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                      onload="this.nextElementSibling.style.display='none';"
+                    />
+                  ) : null}
+                  
+                  <!-- Fallback Placeholder (shown when thumbnail fails to load) -->
+                  <div class="flex h-full w-full items-center justify-center bg-gradient-to-br from-blue-200 to-blue-300 dark:from-blue-700 dark:to-blue-800 rounded-xl" style={video.thumbnail || video.facebookVideoId ? 'display: none;' : 'display: flex;'}>
+                    <div class="text-center">
+                      <div class="relative mx-auto h-16 w-16">
+                        <!-- Facebook Video Icon Background -->
+                        <div class="absolute inset-0 rounded-full bg-blue-300 dark:bg-blue-600"></div>
+                        <!-- Play Icon -->
+                        <svg class="absolute inset-0 h-full w-full text-blue-500 dark:text-blue-400" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M8 5v14l11-7z"/>
+                        </svg>
+                      </div>
+                      <p class="mt-4 text-sm font-medium text-blue-600 dark:text-blue-300">{video.title}</p>
+                      {video.description && (
+                        <p class="mt-1 text-xs text-blue-500 dark:text-blue-400">{video.description}</p>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <!-- Play/Pause Button Overlay -->
+                  <div class="absolute inset-0 flex items-center justify-center">
+                    <button
+                      class="play-pause-btn group relative flex h-16 w-16 items-center justify-center rounded-full bg-white/90 shadow-lg transition-all duration-300 hover:bg-white hover:scale-110 dark:bg-neutral-800/90 dark:hover:bg-neutral-800"
+                      data-facebook-video-id={video.facebookVideoId}
+                      data-video-title={video.title}
+                      data-video-index={index}
+                      data-video-id={videoIds[index]}
+                    >
+                      <!-- Play Icon -->
+                      <svg class="play-icon ml-1 h-8 w-8 text-neutral-800 transition-colors group-hover:text-blue-500 dark:text-neutral-200" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M8 5v14l11-7z"/>
+                      </svg>
+                      <!-- Pause Icon (hidden by default) -->
+                      <svg class="pause-icon hidden h-8 w-8 text-neutral-800 transition-colors group-hover:text-blue-500 dark:text-neutral-200" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+                      </svg>
+                    </button>
+                  </div>
+                  
+                  <!-- Video Info Overlay -->
+                  <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4 text-white rounded-b-xl">
+                    <h3 class="text-lg font-semibold">{video.title}</h3>
+                    {video.description && (
+                      <p class="mt-1 text-sm text-neutral-200">{video.description}</p>
+                    )}
+                    <!-- Facebook Link -->
+                    {video.facebookPostUrl && (
+                      <a 
+                        href={video.facebookPostUrl} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        class="mt-2 inline-flex items-center text-xs text-blue-300 hover:text-blue-200"
+                      >
+                        <svg class="mr-1 h-3 w-3" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                        </svg>
+                        Vezi pe Facebook
+                      </a>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        ))
+      }
+    </div>
+    
+    <!-- Navigation Arrows -->
+    {videos.length > 1 && (
+      <>
+        <button
+          class="prev-btn absolute left-4 top-1/2 -translate-y-1/2 rounded-full bg-white/90 p-2 shadow-lg transition-all duration-300 hover:bg-white hover:scale-110 dark:bg-neutral-800/90 dark:hover:bg-neutral-800"
+        >
+          <svg class="h-6 w-6 text-neutral-800 dark:text-neutral-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+          </svg>
+        </button>
+        
+        <button
+          class="next-btn absolute right-4 top-1/2 -translate-y-1/2 rounded-full bg-white/90 p-2 shadow-lg transition-all duration-300 hover:bg-white hover:scale-110 dark:bg-neutral-800/90 dark:hover:bg-neutral-800"
+        >
+          <svg class="h-6 w-6 text-neutral-800 dark:text-neutral-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+          </svg>
+        </button>
+      </>
+    )}
+    
+    <!-- Dots Indicator -->
+    {videos.length > 1 && (
+      <div class="carousel-dots absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2">
+        {
+          videos.map((_, index) => (
+            <button
+              class={`carousel-dot h-2 w-2 rounded-full transition-all duration-300 ${
+                index === 0 ? 'bg-white' : 'bg-white/50'
+              }`}
+              data-slide={index}
+            ></button>
+          ))
+        }
+      </div>
+    )}
+    
+  </div>
+) : (
+  <!-- Fallback when no videos -->
+  <div class="relative aspect-video w-full overflow-hidden rounded-xl bg-neutral-100 dark:bg-neutral-800">
+    <div class="flex h-full w-full items-center justify-center bg-blue-200 dark:bg-blue-700">
+      <div class="text-center">
+        <svg class="mx-auto h-16 w-16 text-blue-400" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+        </svg>
+        <p class="mt-4 text-blue-500 dark:text-blue-400">Nu sunt videoclipuri Facebook disponibile</p>
+      </div>
+    </div>
+  </div>
+)}
+
+<script define:vars={{ totalSlides: videos.length, carouselId }}>
+  // Each carousel instance gets its own variables
+  let currentSlide = 0;
+  let currentlyPlayingVideo = null;
+  let videoStates = new Map(); // Track play/pause state for each video
+  
+  // Find this specific carousel instance using the unique ID
+  const carouselContainer = document.getElementById(carouselId);
+  if (!carouselContainer) {
+    console.log(`Facebook carousel container with ID ${carouselId} not found`);
+    return;
+  }
+  
+  const carouselElement = carouselContainer.querySelector('.facebook-video-carousel');
+  if (!carouselElement) {
+    console.log(`Facebook carousel element not found in container ${carouselId}`);
+    return;
+  }
+  
+  // Check if already initialized
+  if (carouselContainer.dataset.initialized) {
+    console.log(`Facebook carousel ${carouselId} already initialized, skipping`);
+    return;
+  }
+  
+  // Mark as initialized
+  carouselContainer.dataset.initialized = 'true';
+  
+  console.log(`Initializing FacebookVideoCarousel ${carouselId} with ${totalSlides} slides`);
+  
+  function showSlide(index) {
+    console.log(`showSlide called with index: ${index}, currentSlide: ${currentSlide}`);
+    
+    // Pause the previous video before showing new slide
+    if (currentSlide !== index && currentSlide >= 0) {
+      console.log(`Pausing previous video at index: ${currentSlide}`);
+      pauseVideoAtIndex(currentSlide);
+    }
+    
+    if (carouselElement) {
+      const transform = `translateX(-${index * 100}%)`;
+      console.log(`Setting carousel transform to: ${transform}`);
+      carouselElement.style.transform = transform;
+    }
+    
+    // Update dots for this carousel
+    const dots = carouselContainer.querySelectorAll('.carousel-dot');
+    dots.forEach((dot, i) => {
+      if (dot) {
+        dot.classList.toggle('bg-white', i === index);
+        dot.classList.toggle('bg-white/50', i !== index);
+      }
+    });
+    
+    currentSlide = index;
+    console.log(`Current slide updated to: ${currentSlide}`);
+  }
+  
+  function nextSlide() {
+    if (totalSlides > 1) {
+      console.log(`nextSlide: currentSlide=${currentSlide}, totalSlides=${totalSlides}`);
+      
+      // Pause current video before moving to next
+      pauseVideoAtIndex(currentSlide);
+      
+      const next = (currentSlide + 1) % totalSlides;
+      console.log(`Moving to next slide: ${next}`);
+      showSlide(next);
+    }
+  }
+  
+  function previousSlide() {
+    if (totalSlides > 1) {
+      console.log(`previousSlide: currentSlide=${currentSlide}, totalSlides=${totalSlides}`);
+      
+      // Pause current video before moving to previous
+      pauseVideoAtIndex(currentSlide);
+      
+      const prev = (currentSlide - 1 + totalSlides) % totalSlides;
+      console.log(`Moving to previous slide: ${prev}`);
+      showSlide(prev);
+    }
+  }
+  
+  function goToSlide(index) {
+    if (index >= 0 && index < totalSlides) {
+      console.log(`goToSlide: currentSlide=${currentSlide}, target=${index}`);
+      
+      // Pause current video before jumping to specific slide
+      pauseVideoAtIndex(currentSlide);
+      
+      showSlide(index);
+    }
+  }
+  
+  function pauseVideoAtIndex(videoIndex) {
+    console.log(`Pausing video at index ${videoIndex}`);
+    const videoId = `${carouselId}-video-${videoIndex}`;
+    const previewContainer = carouselContainer.querySelector(`.video-preview-container[data-video-id="${videoId}"]`);
+    if (!previewContainer) return;
+    
+    const playerWrapper = previewContainer.querySelector('.video-player-wrapper');
+    const thumbnailWrapper = previewContainer.querySelector('.video-thumbnail-wrapper');
+    const playPauseBtn = previewContainer.querySelector('.play-pause-btn');
+    
+    if (playerWrapper && thumbnailWrapper && playPauseBtn) {
+      // Hide player and show thumbnail
+      playerWrapper.classList.add('hidden');
+      thumbnailWrapper.classList.remove('hidden');
+      
+      // Update button state
+      const playIcon = playPauseBtn.querySelector('.play-icon');
+      const pauseIcon = playPauseBtn.querySelector('.pause-icon');
+      if (playIcon) playIcon.classList.remove('hidden');
+      if (pauseIcon) pauseIcon.classList.add('hidden');
+      
+      // Set video state
+      videoStates.set(videoIndex, false);
+      
+      if (currentlyPlayingVideo === videoIndex) {
+        currentlyPlayingVideo = null;
+      }
+    }
+  }
+  
+  function toggleVideo(videoIndex) {
+    const videoId = `${carouselId}-video-${videoIndex}`;
+    const previewContainer = carouselContainer.querySelector(`.video-preview-container[data-video-id="${videoId}"]`);
+    const playerWrapper = previewContainer?.querySelector('.video-player-wrapper');
+    const thumbnailWrapper = previewContainer?.querySelector('.video-thumbnail-wrapper');
+    const playPauseBtn = previewContainer?.querySelector('.play-pause-btn');
+    
+    if (!previewContainer || !playerWrapper || !thumbnailWrapper || !playPauseBtn) return;
+    
+    const isCurrentlyPlaying = videoStates.get(videoIndex) || false;
+    
+    if (isCurrentlyPlaying) {
+      pauseVideo(videoIndex);
+    } else {
+      playVideo(videoIndex);
+    }
+  }
+  
+  function playVideo(videoIndex) {
+    console.log(`playVideo called for index ${videoIndex}`);
+    
+    // Stop any currently playing video first
+    if (currentlyPlayingVideo !== null && currentlyPlayingVideo !== videoIndex) {
+      pauseVideo(currentlyPlayingVideo);
+    }
+    
+    const videoId = `${carouselId}-video-${videoIndex}`;
+    const previewContainer = carouselContainer.querySelector(`.video-preview-container[data-video-id="${videoId}"]`);
+    console.log(`Found preview container:`, previewContainer);
+    if (!previewContainer) {
+      console.log(`No preview container found for index ${videoIndex}`);
+      return;
+    }
+    
+    const playerWrapper = previewContainer.querySelector('.video-player-wrapper');
+    const thumbnailWrapper = previewContainer.querySelector('.video-thumbnail-wrapper');
+    const playPauseBtn = previewContainer.querySelector('.play-pause-btn');
+    
+    console.log(`Found elements:`, {
+      playerWrapper: !!playerWrapper,
+      thumbnailWrapper: !!thumbnailWrapper,
+      playPauseBtn: !!playPauseBtn
+    });
+    
+    if (!playerWrapper || !thumbnailWrapper || !playPauseBtn) {
+      console.log(`Missing required elements for video ${videoIndex}`);
+      return;
+    }
+    
+    // Show player and hide thumbnail
+    playerWrapper.classList.remove('hidden');
+    thumbnailWrapper.classList.add('hidden');
+    console.log(`Switched from thumbnail to player for video ${videoIndex}`);
+    
+    // Update button state
+    const playIcon = playPauseBtn.querySelector('.play-icon');
+    const pauseIcon = playPauseBtn.querySelector('.pause-icon');
+    if (playIcon) playIcon.classList.add('hidden');
+    if (pauseIcon) pauseIcon.classList.remove('hidden');
+    
+    // Set video state
+    videoStates.set(videoIndex, true);
+    currentlyPlayingVideo = videoIndex;
+    console.log(`Video ${videoIndex} is now playing`);
+  }
+  
+  function pauseVideo(videoIndex) {
+    console.log(`pauseVideo called for index ${videoIndex}`);
+    
+    const videoId = `${carouselId}-video-${videoIndex}`;
+    const previewContainer = carouselContainer.querySelector(`.video-preview-container[data-video-id="${videoId}"]`);
+    if (!previewContainer) return;
+    
+    const playerWrapper = previewContainer.querySelector('.video-player-wrapper');
+    const thumbnailWrapper = previewContainer.querySelector('.video-thumbnail-wrapper');
+    const playPauseBtn = previewContainer.querySelector('.play-pause-btn');
+    
+    if (previewContainer && playerWrapper && thumbnailWrapper && playPauseBtn) {
+      // Hide player and show thumbnail
+      playerWrapper.classList.add('hidden');
+      thumbnailWrapper.classList.remove('hidden');
+      
+      // Update button state
+      const playIcon = playPauseBtn.querySelector('.play-icon');
+      const pauseIcon = playPauseBtn.querySelector('.pause-icon');
+      if (playIcon) playIcon.classList.remove('hidden');
+      if (pauseIcon) pauseIcon.classList.add('hidden');
+      
+      // Set video state
+      videoStates.set(videoIndex, false);
+      
+      if (currentlyPlayingVideo === videoIndex) {
+        currentlyPlayingVideo = null;
+      }
+    }
+  }
+  
+  function stopAllVideos() {
+    if (currentlyPlayingVideo !== null) {
+      pauseVideo(currentlyPlayingVideo);
+    }
+    
+    videoStates.clear();
+    currentlyPlayingVideo = null;
+  }
+  
+  // Initialize carousel
+  if (totalSlides > 1) {
+    // Carousel initialized without auto-advance
+  }
+  
+  // Event listeners for this carousel
+  const playPauseButtons = carouselContainer.querySelectorAll('.play-pause-btn');
+  console.log(`Found ${playPauseButtons.length} play/pause buttons in Facebook carousel ${carouselId}`);
+  
+  playPauseButtons.forEach((button, index) => {
+    const videoIndex = button.getAttribute('data-video-index');
+    console.log(`Setting up event listener for button ${index}, video index: ${videoIndex} in Facebook carousel ${carouselId}`);
+    
+    button.addEventListener('click', function() {
+      console.log(`Play button clicked for video index: ${videoIndex} in Facebook carousel ${carouselId}`);
+      if (videoIndex !== null) {
+        toggleVideo(parseInt(videoIndex));
+      }
+    });
+  });
+  
+  // Navigation buttons
+  const prevBtn = carouselContainer.querySelector('.prev-btn');
+  const nextBtn = carouselContainer.querySelector('.next-btn');
+  
+  if (prevBtn) {
+    prevBtn.addEventListener('click', function() {
+      stopAllVideos();
+      previousSlide();
+    });
+  }
+  
+  if (nextBtn) {
+    nextBtn.addEventListener('click', function() {
+      stopAllVideos();
+      nextSlide();
+    });
+  }
+  
+  // Dot navigation
+  const dots = carouselContainer.querySelectorAll('.carousel-dot');
+  dots.forEach((dot, index) => {
+    dot.addEventListener('click', function() {
+      stopAllVideos();
+      goToSlide(index);
+    });
+  });
+  
+  console.log(`FacebookVideoCarousel ${carouselId} initialized successfully`);
+</script>
+
+<style>
+  /* Facebook video carousel specific styles */
+  .facebook-video-carousel {
+    display: flex;
+    transition: transform 0.5s ease-in-out;
+  }
+  
+  /* Facebook video player responsive styles */
+  .video-player-wrapper iframe {
+    border: none;
+    border-radius: 0.75rem;
+  }
+  
+  /* Facebook branding colors */
+  .bg-blue-200 {
+    background-color: #e3f2fd;
+  }
+  
+  .bg-blue-300 {
+    background-color: #bbdefb;
+  }
+  
+  .bg-blue-400 {
+    background-color: #90caf9;
+  }
+  
+  .bg-blue-500 {
+    background-color: #64b5f6;
+  }
+  
+  .bg-blue-600 {
+    background-color: #42a5f5;
+  }
+  
+  .bg-blue-700 {
+    background-color: #1e88e5;
+  }
+  
+  .bg-blue-800 {
+    background-color: #1976d2;
+  }
+  
+  /* Dark mode Facebook colors */
+  .dark .bg-blue-200 {
+    background-color: #0d47a1;
+  }
+  
+  .dark .bg-blue-300 {
+    background-color: #1565c0;
+  }
+  
+  .dark .bg-blue-400 {
+    background-color: #1976d2;
+  }
+  
+  .dark .bg-blue-500 {
+    background-color: #1e88e5;
+  }
+  
+  .dark .bg-blue-600 {
+    background-color: #2196f3;
+  }
+  
+  .dark .bg-blue-700 {
+    background-color: #42a5f5;
+  }
+  
+  .dark .bg-blue-800 {
+    background-color: #64b5f6;
+  }
+</style>

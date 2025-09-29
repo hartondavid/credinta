@@ -375,19 +375,20 @@ const metaDescription = "Explorează proiectele realizate de Clubul Sportiv Cala
 
                     {/* Gallery Button - Fixed Position */}
               {project.showGallery && (
-                      <div class="fade-in-element" data-delay={index * 200 + 100}>
+                      <div class="fade-in-element">
                   <button
                     type="button"
-                          class="gallery-button rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 px-4 py-2 text-white shadow-lg transition-all duration-300 hover:from-purple-600 hover:to-pink-600 hover:shadow-xl hover:scale-105"
+                          class="gallery-button rounded-lg px-4 py-2 text-black shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-105 dark:text-white"
                     data-project-index={index}
                     data-gallery-photos={JSON.stringify(project.galleryPhotos)}
                   >
                           <div class="flex items-center justify-center space-x-2">
+                            <span>Galerie</span>
                             <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 4L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                       </svg>
-                            <ImageIcon sx={{ color: "blue", fontSize: "30px" }} />
-                            <span class="text-xs opacity-90">({project.galleryPhotos.length})</span>
+                            {/* <ImageIcon sx={{ color: "blue", fontSize: "30px" }} />
+                            <span class="text-xs opacity-90">({project.galleryPhotos.length})</span> */}
                     </div>
                   </button>
                 </div>
@@ -421,7 +422,7 @@ const metaDescription = "Explorează proiectele realizate de Clubul Sportiv Cala
                   <div class="carousel-container relative w-full">
                     {project.cloudinaryIds.map((cloudinaryId: string, photoIndex: number) => (
                       <div
-                        class={`carousel-item ${photoIndex === 0 ? "opacity-100" : "opacity-0"} cursor-pointer transition-opacity duration-500`}
+                        class={`carousel-item ${photoIndex === 0 ? "active" : ""} cursor-pointer`}
                         data-event-index={index}
                         data-photo-index={photoIndex}
                       >
@@ -1011,6 +1012,34 @@ const metaDescription = "Explorează proiectele realizate de Clubul Sportiv Cala
     }
   }
 
+  /* Carousel styles */
+  .carousel-container {
+    position: relative;
+    width: 100%;
+    height: 400px; /* Fixed height for carousel */
+    overflow: hidden;
+  }
+
+  .carousel-item {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
+  }
+
+  .carousel-item.active {
+    opacity: 1;
+  }
+
+  .carousel-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
   /* Modal styles */
   #photoModal {
     backdrop-filter: blur(5px);
@@ -1168,7 +1197,11 @@ const metaDescription = "Explorează proiectele realizate de Clubul Sportiv Cala
       function showItem(index: number) {
         items.forEach((item, i) => {
           const element = item as HTMLElement;
-          element.style.opacity = i === index ? "1" : "0";
+          if (i === index) {
+            element.classList.add("active");
+          } else {
+            element.classList.remove("active");
+          }
         });
 
         dots.forEach((dot, i) => {

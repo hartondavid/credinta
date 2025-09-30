@@ -9,12 +9,12 @@ export interface CloudinaryImage {
     resourceType: string;
 }
 
-// Cloudinary configuration
+// Cloudinary configuration using environment variables
 const CLOUDINARY_CONFIG = {
-    cloudName: 'drtkpapql', // Replace with your cloud name
-    apiKey: '338311426474968',       // Replace with your API key
-    apiSecret: '2ubvCrA1JrUYg8O_KVdsT14bsLQ', // Replace with your API secret
-    uploadPreset: 'calarasi-warriors' // Replace with your upload preset
+    cloudName: import.meta.env.CLOUDINARY_CLOUD_NAME || '',
+    apiKey: import.meta.env.CLOUDINARY_API_KEY || '',
+    apiSecret: import.meta.env.CLOUDINARY_API_SECRET || '',
+    // uploadPreset: import.meta.env.CLOUDINARY_UPLOAD_PRESET || ''
 };
 
 // Generate Cloudinary URL for private images

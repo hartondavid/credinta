@@ -10,6 +10,7 @@ import SecondSection from "@components/sections/landing/SecondSection.astro";
 import TestimonialsSectionAlt from "@components/sections/testimonials/TestimonialsSectionAlt.astro";
 import CoachesSection from "@components/sections/testimonials/coachesSection.astro";
 import ActivitiesSection from "@components/ui/blocks/activitiesSection.astro";
+import FutureProjectsCarousel from "@components/ui/blocks/FutureProjectsCarousel.astro";
 import { sportiveSections } from "@/components/pages/index/IndexConstants";
 
 // Import images
@@ -188,6 +189,9 @@ const { heroVideos, testimonials, coaches, sections, featuresSections } =
     secondaryBtn="PROIECTELE NOASTRE"
     secondaryBtnURL="/past-projects"
   />
+
+  <!-- Future Projects Carousel -->
+  <FutureProjectsCarousel title="Proiecte Viitoare" maxItems={6} />
 
   <!-- <CoachesSection
     title={`Cine sunt <span class="text-[#08BABE] dark:text-[#08BABE]">antrenorii</span>?`}

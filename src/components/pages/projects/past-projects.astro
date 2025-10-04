@@ -126,7 +126,7 @@ try {
           leftPhotos: [], // Va fi populat din cloudinaryIds dacă este necesar
           rightPhotos: [], // Va fi populat din cloudinaryIds dacă este necesar
           galleryPhotos: (typeof post.gallery_image_ids === 'string' ? JSON.parse(post.gallery_image_ids) : post.gallery_image_ids || []).map((cloudinaryId: string, index: number) => ({
-            url: `https://res.cloudinary.com/drtkpapql/image/upload/q_auto/${cloudinaryId}`,
+            url: `https://res.cloudinary.com/${import.meta.env.CLOUDINARY_CLOUD_NAME}/image/upload/q_auto/${cloudinaryId}`,
             alt: `${post.title} - Imagine ${index + 1}`,
             title: `${post.title} - Imagine ${index + 1}`
           })),
@@ -218,7 +218,7 @@ const metaDescription = "Explorează proiectele realizate de Clubul Sportiv Cala
         },
         "url": project.url || `https://credinta.live/past-projects#project-${project.id}`,
         "image": project.cloudinaryIds && project.cloudinaryIds.length > 0 ? 
-          project.cloudinaryIds.map((id: string) => `https://res.cloudinary.com/drtkpapql/image/upload/q_auto/${id}`) : 
+          project.cloudinaryIds.map((id: string) => `https://res.cloudinary.com/${import.meta.env.CLOUDINARY_CLOUD_NAME}/image/upload/q_auto/${id}`) : 
           undefined,
         "keywords": project.keywords || [],
         "projectType": project.projectType || "Sport",
@@ -427,7 +427,7 @@ const metaDescription = "Explorează proiectele realizate de Clubul Sportiv Cala
                         data-photo-index={photoIndex}
                       >
                         <img
-                          src={`https://res.cloudinary.com/drtkpapql/image/upload/${cloudinaryId}`}
+                          src={`https://res.cloudinary.com/${import.meta.env.CLOUDINARY_CLOUD_NAME}/image/upload/${cloudinaryId}`}
                           alt={`${project.title} - Imagine ${photoIndex + 1}`}
                           title={`${project.title} - Imagine ${photoIndex + 1}`}
                           class="h-auto w-auto object-contain transition-transform duration-300 hover:scale-105"

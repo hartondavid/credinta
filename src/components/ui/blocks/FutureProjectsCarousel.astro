@@ -1,0 +1,501 @@
+---
+// Import necessary dependencies
+// @ts-ignore
+import databaseManager from "../../../../database.mjs";
+import { highlightKeywords } from "@/components/pages/projects/projectUtils";
+
+// Helper function to extract YouTube ID from URL
+function extractYouTubeId(url: string): string {
+  const regex = /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/;
+  const match = url.match(regex);
+  return match ? match[1] : '';
+}
+
+// Funcție pentru împărțirea inteligentă a conținutului în paragrafe
+function splitContentIntoParagraphs(content: string): string[] {
+  if (!content || content.trim().length === 0) {
+    return [];
+  }
+
+  // Împărțim pe puncte urmate de spațiu, dar păstrăm structura logică
+  const sentences = content
+    .split(/\.\s+/)
+    .filter(sentence => sentence.trim().length > 0)
+    .map(sentence => sentence.trim());
+
+  // Grupăm propozițiile în paragrafe logice (2-3 propoziții per paragraf)
+  const paragraphs: string[] = [];
+  let currentParagraph = '';
+
+  for (let i = 0; i < sentences.length; i++) {
+    const sentence = sentences[i];
+    
+    // Adăugăm punctul la sfârșitul propoziției dacă nu există
+    const formattedSentence = sentence.endsWith('.') ? sentence : sentence + '.';
+    
+    if (currentParagraph === '') {
+      currentParagraph = formattedSentence;
+    } else {
+      currentParagraph += ' ' + formattedSentence;
+    }
+
+    // Creăm un paragraf nou după 2-3 propoziții sau la sfârșitul textului
+    const shouldCreateParagraph = 
+      (i + 1) % 2 === 0 || // La fiecare 2 propoziții
+      i === sentences.length - 1; // Sau la sfârșitul textului
+
+    if (shouldCreateParagraph && currentParagraph.trim().length > 0) {
+      paragraphs.push(currentParagraph.trim());
+      currentParagraph = '';
+    }
+  }
+
+  // Dacă rămâne conținut neprocesat, îl adăugăm ca ultimul paragraf
+  if (currentParagraph.trim().length > 0) {
+    paragraphs.push(currentParagraph.trim());
+  }
+
+  return paragraphs.length > 0 ? paragraphs : [content];
+}
+
+// Obținem datele din baza de date pentru proiectele viitoare
+let futureProjects: any[] = [];
+
+try {
+  const knex = await databaseManager.getKnex();
+  
+  if (knex) {
+    // Verifică dacă tabela există
+    const tableExists = await knex.schema.hasTable('posts');
+    
+    if (tableExists) {
+      // Obține postările pentru proiecte viitoare (limitat la 6 pentru carousel)
+      const posts = await knex('posts')
+        .where({ 
+          category: 'project',
+          project_type: 'future',
+          is_published: true 
+        })
+        .orderBy('created_at', 'desc')
+        .limit(6);
+
+      // Transformă datele în formatul așteptat
+      futureProjects = posts.map((post: any) => {
+        // Împărțim content-ul în paragrafe inteligent și evidențiem cuvintele cheie
+        const paragraphs = splitContentIntoParagraphs(post.content).map(paragraph => {
+          const keywords = typeof post.keywords === 'string' ? JSON.parse(post.keywords) : post.keywords;
+          return highlightKeywords(paragraph, keywords || []);
+        });
+
+        return {
+          id: post.id,
+          title: post.title,
+          content: post.content,
+          createdAt: post.created_at,
+          keywords: typeof post.keywords === 'string' ? JSON.parse(post.keywords) : post.keywords,
+          projectType: post.project_type,
+          postType: post.post_type,
+          eventType: post.event_type,
+          startDate: post.start_date,
+          endDate: post.end_date,
+          duration: post.duration,
+          isActive: post.is_active,
+          cloudinaryIds: typeof post.cloudinary_ids === 'string' ? JSON.parse(post.cloudinary_ids) : post.cloudinary_ids,
+          galleryIds: typeof post.gallery_image_ids === 'string' ? JSON.parse(post.gallery_image_ids) : post.gallery_image_ids,
+          showGallery: Boolean(post.gallery_flag),
+          testimonialVideos: typeof post.testimonial_videos === 'string' ? JSON.parse(post.testimonial_videos) : post.testimonial_videos,
+          youtubeVideos: typeof post.youtube_videos === 'string' ? JSON.parse(post.youtube_videos) : post.youtube_videos,
+          // Format pentru afișare
+          date: new Date(post.created_at).toLocaleDateString('ro-RO'),
+          paragraphs: paragraphs,
+          galleryPhotos: (typeof post.gallery_image_ids === 'string' ? JSON.parse(post.gallery_image_ids) : post.gallery_image_ids || []).map((galleryId: string, index: number) => ({
+            url: `https://res.cloudinary.com/${import.meta.env.CLOUDINARY_CLOUD_NAME}/image/upload/q_auto/${galleryId}`,
+            alt: `${post.title} - Galerie ${index + 1}`,
+            title: `${post.title} - Galerie ${index + 1}`
+          })),
+          videos: (typeof post.youtube_videos === 'string' ? JSON.parse(post.youtube_videos) : post.youtube_videos || []).map((url: string, index: number) => ({
+            id: `youtube-${index}`,
+            title: `Video ${index + 1}`,
+            description: `YouTube video ${index + 1}`,
+            youtubeId: extractYouTubeId(url)
+          }))
+        };
+      });
+    }
+  }
+} catch (error) {
+  console.error('Error fetching future projects from database:', error);
+  // Fallback la datele statice dacă baza de date nu este disponibilă
+  const { getMappedFutureProjects } = await import("@/components/pages/projects/projectData");
+  const fallbackProjects = getMappedFutureProjects();
+  
+  // Aplicăm aceeași logică de împărțire în paragrafe pentru datele fallback
+  futureProjects = fallbackProjects.slice(0, 6).map((project: any) => {
+    const paragraphs = splitContentIntoParagraphs(project.content).map(paragraph => {
+      return highlightKeywords(paragraph, project.keywords || []);
+    });
+
+    return {
+      ...project,
+      paragraphs: paragraphs
+    };
+  });
+}
+
+// Props interface
+interface Props {
+  title?: string;
+  maxItems?: number;
+}
+
+const { title = "Proiecte Viitoare", maxItems = 6 } = Astro.props;
+
+// Limit projects to maxItems
+const displayProjects = futureProjects.slice(0, maxItems);
+---
+
+{futureProjects.length > 0 && (
+  <section class="py-16 bg-gradient-to-br from-yellow-50/60 to-blue-50/60 dark:from-neutral-800 dark:to-neutral-900 relative overflow-hidden">
+    <!-- Decorative background elements -->
+    <div class="absolute inset-0 overflow-hidden">
+      <div class="absolute -top-40 -right-40 w-80 h-80 bg-[#305c76]/10 rounded-full blur-3xl dark:bg-[#74becc]/10"></div>
+      <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl"></div>
+    </div>
+    
+    <div class="mx-auto max-w-[85rem] px-4 sm:px-6 lg:px-8 relative z-10">
+      <!-- Section Header -->
+      <div class="text-center mb-12 fade-in-element">
+        <h2 class="text-3xl font-bold tracking-tight text-neutral-800 md:text-4xl dark:text-neutral-200">
+          {title}
+        </h2>
+        {/* <p class="mt-4 max-w-2xl mx-auto text-lg text-neutral-600 dark:text-neutral-400">
+          Descoperă proiectele viitoare ale comunității noastre și implică-te în inițiativele care construiesc viitorul împreună.
+        </p> */}
+      </div>
+
+      <!-- Carousel Container -->
+      <div class="relative">
+        <!-- Carousel Track -->
+        <div class="carousel-track overflow-hidden">
+          <div class="carousel-container flex transition-transform duration-500 ease-in-out" id="futureProjectsCarousel">
+            {displayProjects.map((project, index) => (
+              <div class="carousel-slide flex-shrink-0 w-full md:w-1/2 lg:w-1/3 px-4" data-slide-index={index}>
+                <article class="bg-white dark:bg-neutral-700 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden h-full group hover:-translate-y-2">
+                  <!-- Project Image -->
+                  {project.cloudinaryIds && project.cloudinaryIds.length > 0 && (
+                    <div class="relative h-48 overflow-hidden">
+                      <img
+                        src={`https://res.cloudinary.com/${import.meta.env.CLOUDINARY_CLOUD_NAME}/image/upload/h_300,w_400,c_fill,q_auto/${project.cloudinaryIds[0]}`}
+                        alt={`${project.title} - Imagine principală`}
+                        class="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                        loading="lazy"
+                      />
+                      <div class="absolute top-4 left-4">
+                        <span class="inline-flex items-center rounded-full bg-[#305c76] px-3 py-1 text-xs font-medium text-white dark:bg-[#74becc] dark:text-neutral-800">
+                          {project.date}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+
+                  <!-- Project Content -->
+                  <div class="p-6">
+                    <h3 class="text-xl font-bold text-neutral-800 dark:text-neutral-200 mb-3 line-clamp-2">
+                      {project.title}
+                    </h3>
+                    
+                    <!-- Project Description -->
+                    {project.paragraphs.length > 0 && (
+                      <div class="mb-4">
+                        <p class="text-neutral-600 dark:text-neutral-400 text-sm line-clamp-3">
+                          <Fragment set:html={project.paragraphs[0]} />
+                        </p>
+                      </div>
+                    )}
+
+                    <!-- Action Buttons -->
+                    <div class="flex flex-col gap-2">
+                      <a
+                        href="/future-projects"
+                        class="inline-flex items-center justify-center rounded-lg bg-[#305c76] px-4 py-2 text-sm font-medium text-white hover:bg-[#1e3a4a] transition-colors duration-200 dark:bg-[#74becc] dark:hover:bg-[#5a9bb3] dark:text-neutral-800"
+                      >
+                        Vezi Detalii
+                      </a>
+                      
+                      {project.isActive && (
+                        <a
+                          href={`/event-participants/${project.id}`}
+                          class="inline-flex items-center justify-center rounded-lg border border-[#305c76] px-4 py-2 text-sm font-medium text-[#305c76] hover:bg-[#305c76] hover:text-white transition-colors duration-200 dark:border-[#74becc] dark:text-[#74becc] dark:hover:bg-[#74becc] dark:hover:text-neutral-800"
+                        >
+                          Participanți
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                </article>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <!-- Navigation Buttons -->
+        {displayProjects.length > 3 && (
+          <>
+            <button
+              id="prevBtn"
+              class="carousel-nav absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 rounded-full bg-white shadow-lg p-3 text-neutral-600 hover:text-[#305c76] hover:bg-gray-50 transition-all duration-200 dark:bg-neutral-700 dark:text-neutral-300 dark:hover:text-[#74becc]"
+              aria-label="Proiectul anterior"
+            >
+              <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+            <button
+              id="nextBtn"
+              class="carousel-nav absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 rounded-full bg-white shadow-lg p-3 text-neutral-600 hover:text-[#305c76] hover:bg-gray-50 transition-all duration-200 dark:bg-neutral-700 dark:text-neutral-300 dark:hover:text-[#74becc]"
+              aria-label="Următorul proiect"
+            >
+              <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          </>
+        )}
+
+        <!-- Dots Indicator -->
+        {displayProjects.length > 3 && (
+          <div class="flex justify-center mt-8 space-x-2">
+            {Array.from({ length: Math.ceil(displayProjects.length / 3) }).map((_, index) => (
+              <button
+                class="carousel-dot w-3 h-3 rounded-full bg-neutral-300 hover:bg-[#305c76] transition-colors duration-200 dark:bg-neutral-600 dark:hover:bg-[#74becc]"
+                data-slide-group={index}
+                aria-label={`Slide ${index + 1}`}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+
+      <!-- View All Button -->
+      <div class="text-center mt-12">
+        <a
+          href="/future-projects"
+          class="inline-flex items-center rounded-lg bg-gradient-to-r from-[#305c76] to-[#1e3a4a] px-8 py-3 text-lg font-semibold text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 dark:from-[#74becc] dark:to-[#5a9bb3] dark:text-neutral-800"
+        >
+          Vezi Toate Proiectele Viitoare
+          <svg class="ml-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </a>
+      </div>
+    </div>
+  </section>
+)}
+
+<style>
+  .fade-in-element {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+  }
+
+  .fade-in-element.fade-in {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .carousel-track {
+    position: relative;
+  }
+
+  .carousel-container {
+    will-change: transform;
+  }
+
+  .carousel-slide {
+    transition: all 0.3s ease-in-out;
+  }
+
+  .carousel-nav {
+    z-index: 10;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+  }
+
+  .carousel-nav:hover {
+    opacity: 1;
+  }
+
+  .carousel-track:hover .carousel-nav {
+    opacity: 1;
+  }
+
+  .carousel-dot.active {
+    background-color: #305c76;
+  }
+
+  .dark .carousel-dot.active {
+    background-color: #74becc;
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .carousel-nav {
+      display: none;
+    }
+    
+    .carousel-slide {
+      width: 100%;
+    }
+  }
+
+  @media (min-width: 769px) and (max-width: 1024px) {
+    .carousel-slide {
+      width: 50%;
+    }
+  }
+
+  @media (min-width: 1025px) {
+    .carousel-slide {
+      width: 33.333333%;
+    }
+  }
+</style>
+
+<script>
+  // Fade-in animation
+  document.addEventListener('DOMContentLoaded', function() {
+    const observerOptions = {
+      threshold: 0.1,
+      rootMargin: "0px 0px -50px 0px",
+    };
+    
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const delay = entry.target.getAttribute('data-delay') || '0';
+          setTimeout(() => {
+            entry.target.classList.add('fade-in');
+          }, parseInt(delay));
+        }
+      });
+    }, observerOptions);
+    
+    document.querySelectorAll('.fade-in-element').forEach((element) => {
+      observer.observe(element);
+    });
+  });
+
+  document.addEventListener('DOMContentLoaded', function() {
+    const carousel = document.getElementById('futureProjectsCarousel');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const dots = document.querySelectorAll('.carousel-dot');
+    
+    if (!carousel) return;
+
+    const slides = carousel.querySelectorAll('.carousel-slide');
+    const totalSlides = slides.length;
+    let currentIndex = 0;
+    
+    // Determine how many slides to show at once based on screen size
+    function getSlidesToShow() {
+      if (window.innerWidth >= 1024) return 3; // lg
+      if (window.innerWidth >= 768) return 2;  // md
+      return 1; // sm
+    }
+    
+    function updateCarousel() {
+      if (!carousel) return;
+      
+      const slidesToShow = getSlidesToShow();
+      const maxIndex = Math.max(0, totalSlides - slidesToShow);
+      
+      // Clamp currentIndex to valid range
+      currentIndex = Math.min(currentIndex, maxIndex);
+      
+      const translateX = -(currentIndex * (100 / slidesToShow));
+      if (carousel) {
+        carousel.style.transform = `translateX(${translateX}%)`;
+      }
+      
+      // Update dots
+      const totalGroups = Math.ceil(totalSlides / slidesToShow);
+      dots.forEach((dot, index) => {
+        dot.classList.toggle('active', index === Math.floor(currentIndex / slidesToShow));
+      });
+    }
+    
+    function nextSlide() {
+      const slidesToShow = getSlidesToShow();
+      const maxIndex = Math.max(0, totalSlides - slidesToShow);
+      
+      if (currentIndex < maxIndex) {
+        currentIndex++;
+        updateCarousel();
+      }
+    }
+    
+    function prevSlide() {
+      if (currentIndex > 0) {
+        currentIndex--;
+        updateCarousel();
+      }
+    }
+    
+    function goToSlideGroup(groupIndex: number) {
+      const slidesToShow = getSlidesToShow();
+      currentIndex = groupIndex * slidesToShow;
+      updateCarousel();
+    }
+    
+    // Event listeners
+    if (nextBtn) {
+      nextBtn.addEventListener('click', nextSlide);
+    }
+    
+    if (prevBtn) {
+      prevBtn.addEventListener('click', prevSlide);
+    }
+    
+    dots.forEach((dot, index) => {
+      dot.addEventListener('click', () => goToSlideGroup(index as number));
+    });
+    
+    // Auto-advance carousel
+    let autoAdvanceInterval = setInterval(nextSlide, 5000);
+    
+    // Pause auto-advance on hover
+    if (carousel) {
+      carousel.addEventListener('mouseenter', () => {
+        clearInterval(autoAdvanceInterval);
+      });
+      
+      carousel.addEventListener('mouseleave', () => {
+        autoAdvanceInterval = setInterval(nextSlide, 5000);
+      });
+    }
+    
+    // Handle window resize
+    window.addEventListener('resize', () => {
+      updateCarousel();
+    });
+    
+    // Initialize carousel
+    updateCarousel();
+  });
+</script>
